@@ -16,7 +16,7 @@ function onCancel() {
 }
 
 useEffect(() => {
-    const waitTime = !communities || communities.length === 0 ? 200 : 5000
+    const waitTime = !communities || communities.length === 0 ? 500 : 5000
     if(intervalId !== 0) {
         clearInterval(intervalId)
     }
@@ -66,17 +66,15 @@ function newCommunity() {
     }
 }
 
-function modifyCommunity() {
+function modifyCommunity(communityIndex) {
     const community = {
-        id: "kenrou-it.testnet-1708116044393",
-        name: "Hello edited again",
-        description: "Description edited again",
-        type: 1,
-        backgroundImage: "https://www.google.com.ar",
-        profileImage: "https://www.google.com.ar",
+        ...communityIndex.value.communityData,
+        name: communityIndex.value.communityData.name + " Edited"
     }
 
-    const res = editCommunity(community, onCommit, onCancel)
+    communityIndex.value.communityData = community
+
+    const res = editCommunity(communityIndex, onCommit, onCancel)
     if (res.error) {
         console.log("Data", res.data)
         setErrors(res.data)
@@ -110,7 +108,7 @@ return <>
     <div>Communities: {communities.length}</div>
     <button onClick={failNewCommunity}>Test fail new community</button>
     <button onClick={newCommunity}>Test new community</button>
-    <button onClick={modifyCommunity}>Test edit community</button>
+    <button onClick={() => modifyCommunity(communities[0])}>Test edit community</button>
     <button onClick={removeCommunity}>Test remove community</button>
     { communities && communities.length && <div>
         {communities.map((community, index) => 

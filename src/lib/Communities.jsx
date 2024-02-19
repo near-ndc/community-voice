@@ -1,12 +1,32 @@
-
 const { camelCaseToUserReadable, isValidUrl } = VM.require("cv.near/widget/lib.strings");
+const { generateMetadata, updateMetadata } = VM.require("cv.near/widget/lib.metadata");
 
-const baseAction = "community_voice";
+const baseAction = "cv_communities";
 const testAction = `test_${baseAction}`
 const prodAction = `dev_${baseAction}`
 const version = "0.0.1"
 
 let isTest = false
+
+function getCommunitiesTypes() {
+    return [
+        {
+            id: 0,
+            title: "Public",
+            description: "Anyone can view, post and comment."
+        },
+        {
+            id: 1,
+            title: "Restricted",
+            description: "Anyone can view this community, but only approved members can post."
+        },
+        {
+            id: 2,
+            title: "Private access",
+            description: "Only approved users can view and post in this community."
+        }
+]
+}
 
 function getAction() {
     const envAction = isTest ? testAction : prodAction
@@ -28,9 +48,8 @@ function validateCommunityData(communityData) {
         "backgroundImage",
         "profileImage"
     ]
-    const isTypeOk = 0 <= communityData.type && communityData.type <= 2
+    const isTypeOk = 0 <= communityData.type && communityData.type < getCommunitiesTypes().length
     const errArrMessage = []
-    console.log("Validating")
     // String properties
     errArrMessage.push(...expectedStringProperties.map((currentProperty) => {
         const isValidProperty = communityData[currentProperty]
@@ -50,13 +69,14 @@ function validateCommunityData(communityData) {
     return errArrMessage
 }
 
-function composeData(communityData) {
+function composeData(communityData, metadata) {
     let data = {
         index: {
             [getAction()]: JSON.stringify({
                 key: "main",
                 value: {
                     communityData,
+                    metadata,
                 },
             }),
         },
@@ -83,9 +103,9 @@ function composeDeleteData(communityData) {
     return data;
 }
 
-function executeSaveCommunity(communityData, onCommit, onCancel) {
-    const newData = composeData(communityData);
-
+function executeSaveCommunity(communityData, metadata, onCommit, onCancel) {
+    const newData = composeData(communityData, metadata);
+    console.log(1)
     Social.set(newData, {
         force: true,
         onCommit,
@@ -119,13 +139,14 @@ function createCommunity(communityData, ownerId, onCommit, onCancel) {
     if (errors && errors.length) {
         return { error: true, data: errors }
     }
-    if(communityData.id) {
-        return { error: true, data: ["There is already a community with this id"]}
+    if (communityData.id) {
+        return { error: true, data: ["There is already a community with this id"] }
     }
 
-    
+
     communityData.id = `${ownerId}-${Date.now()}`
-    executeSaveCommunity(communityData, onCommit, onCancel)
+    const metadata = generateMetadata()
+    executeSaveCommunity(communityData, metadata, onCommit, onCancel)
 
     const result = "Community created successfully"
     return { error: false, data: result };
@@ -180,23 +201,25 @@ function removeDeleted(communitiesIndexes) {
     })
 }
 
-function editCommunity(communityData, onCommit, onCancel) {
+function editCommunity(communityIndex, onCommit, onCancel) {
+    const communityData = communityIndex.value.communityData;
     const errors = validateCommunityData(communityData);
     if (errors && errors.length) {
         return { error: true, data: errors }
     }
-    if(!communityData.id) {
-        return { error: true, data: ["Community id not provided"]}
+    if (!communityData.id) {
+        return { error: true, data: ["Community id not provided"] }
     }
 
-    executeSaveCommunity(communityData, onCommit, onCancel)
+    const metadata = updateMetadata(communityIndex.value.metadata)
+    executeSaveCommunity(communityData, metadata, onCommit, onCancel)
     const result = "Community edited successfully"
     return { error: false, data: result };
 }
 
 function deleteCommunity(communityData, onCommit, onCancel) {
-    if(!communityData.id) {
-        return { error: true, data: ["Community id not provided"]}
+    if (!communityData.id) {
+        return { error: true, data: ["Community id not provided"] }
     }
 
     executeDeleteCommunity(communityData, onCommit, onCancel)
