@@ -1,0 +1,12 @@
+{
+  "name": "say_a_lot_old",
+  "version": "1.0.0",
+  "description": "This project uses [bos-loader](https://github.com/near/bos-loader)v0.10.0 to keep track of the widgets required to implement Community Voice on BOS.",
+  "main": "index.js",
+  "scripts": {
+    "start": "bos-loader sayalot.near --path ./src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
