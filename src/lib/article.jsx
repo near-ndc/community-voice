@@ -12,9 +12,10 @@ const version = "0.0.2"
 
 let isTest = false
 
-function getAction() {
-    const envAction = isTest ? testAction : prodAction
-    return `${envAction}_v${version}`
+function getAction(baseAction, version) {
+    console.log(2, version)
+    const action = baseAction + versions[version].actionSuffix
+    return isTest ? `test_${action}`: action
 }
 
 function setIsTest(value) {
@@ -25,8 +26,8 @@ function setIsTest(value) {
  * 
  * @returns It might return first null and then an empty array and finally an array containing the index structure of communities
  */
-function getArticles() {
-    return getArticlesNormalized()
+function getArticles(baseAction) {
+    return getArticlesNormalized(baseAction)
 }
 
 function filterFakeAuthors(articleData, articleIndexData) {
@@ -35,7 +36,7 @@ function filterFakeAuthors(articleData, articleIndexData) {
     }
 }
 
-function getArticleNormalized(articleIndex) {
+function getArticleNormalized(articleIndex, action) {
     const articleVersionIndex = Object.keys(versions).findIndex((versionName) => {
         const versionData = versions[versionName]
         return (
@@ -46,7 +47,7 @@ function getArticleNormalized(articleIndex) {
     })
 
     const articleVersionKey = Object.keys(versions)[articleVersionIndex]
-    const action = versions[articleVersionKey].action
+    // const action = versions[articleVersionKey].action
     const key = "main"
 
     return asyncFetch(" https://api.near.social/get", {
@@ -58,6 +59,7 @@ function getArticleNormalized(articleIndex) {
         })
         
     }).then((response) => {
+        console.log(11111, response)
         let article = JSON.parse(response.body[articleIndex.accountId][action][key])
         article.blockHeight = articleIndex.blockHeight
         Object.keys(versions).forEach((versionName, index) => {
@@ -113,8 +115,8 @@ function processArticles(articles) {
     })
 }
 
-function processArticlesIndexes(articlesIndexes) {
-
+function processArticlesIndexes(articlesIndexes, action) {
+    console.log(1111, articlesIndexes)
     const validArticlesIndexes = filterInvalidArticlesIndexes(articlesIndexes)
 
     const validLatestEdits = getLatestEdits(validArticlesIndexes);
@@ -201,12 +203,14 @@ function getLatestEdits(newFormatArticlesIndexes) {
     });
 }
 
-function getArticlesNormalized() {
+function getArticlesNormalized(baseAction) {
     
     const articlesByVersionPromises = Object.keys(versions).map((version) => {
-        const action = versions[version].action;
-        const articles = getArticlesIndexes(action, "main").then(processArticlesIndexes)
-
+        // const action = versions[version].action;
+        const action = getAction(baseAction, version)
+        console.log(11, action)
+        const articles = getArticlesIndexes(action, "main").then((articlesIndexes) => processArticlesIndexes(articlesIndexes, action))
+        
         return articles
         // return finalArticlesByVersion.flat()
     })
@@ -324,17 +328,17 @@ function normalizeOldToV_0_0_1(article) {
 const versions = {
     old: {
         normalizationFunction: normalizeOldToV_0_0_1,
-        action: versionsBaseActions,
+        actionSuffix: "",
         validBlockHeightRange: [0, 102530777],
     },
     "v0.0.1": {
         normalizationFunction: normalizeFromV0_0_1ToV0_0_2,
-        action: `${versionsBaseActions}_v0.0.1`,
+        actionSuffix: `_v0.0.1`,
         validBlockHeightRange: [102530777, 103053147],
     },
     "v0.0.2": {
         normalizationFunction: normalizeFromV0_0_2ToV0_0_3,
-        action: `${versionsBaseActions}_v0.0.2`,
+        actionSuffix: `_v0.0.2`,
         validBlockHeightRange: [103053147, Infinity],
     },
 };

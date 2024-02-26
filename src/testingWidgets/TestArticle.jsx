@@ -3,7 +3,7 @@ const { getArticles } = VM.require("sayalot.near/widget/lib.article")
 const [articlesBySbt, setArticlesBySbt] = useState({})
 
 function loadArticles() {
-    getArticles().then((newArticles) => {
+    getArticles("sayALotArticle").then((newArticles) => {
         console.log(111, newArticles)
         setArticlesBySbt(newArticles)
     })
