@@ -2,9 +2,16 @@ const { getArticles } = VM.require("sayalot.near/widget/lib.article")
 
 const [articlesBySbt, setArticlesBySbt] = useState({})
 
+const config = {
+    baseActions: {
+        article: "communityVoiceArticle",
+        upVote: "communityVoiceUpVote"
+    }
+}
+
 function loadArticles() {
-    getArticles("sayALotArticle").then((newArticles) => {
-        console.log(111, newArticles)
+    getArticles(config).then((newArticles) => {
+        console.log(1, newArticles)
         setArticlesBySbt(newArticles)
     })
 }

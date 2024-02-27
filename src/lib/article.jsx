@@ -1,4 +1,5 @@
 const { getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
+const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes");
 
 // const baseAction = "cv_communities";
 // const testAction = `test_${baseAction}`
@@ -12,8 +13,18 @@ const version = "0.0.2"
 
 let isTest = false
 
-function getAction(baseAction, version) {
-    console.log(2, version)
+let config = {}
+
+function setConfig(value) {
+    config = value
+}
+
+function getConfig() {
+    return config
+}
+
+function getAction(version) {
+    const baseAction = getConfig().baseActions.article
     const action = baseAction + versions[version].actionSuffix
     return isTest ? `test_${action}`: action
 }
@@ -26,8 +37,9 @@ function setIsTest(value) {
  * 
  * @returns It might return first null and then an empty array and finally an array containing the index structure of communities
  */
-function getArticles(baseAction) {
-    return getArticlesNormalized(baseAction)
+function getArticles(config) {
+    setConfig(config)
+    return getArticlesNormalized()
 }
 
 function filterFakeAuthors(articleData, articleIndexData) {
@@ -59,9 +71,9 @@ function getArticleNormalized(articleIndex, action) {
         })
         
     }).then((response) => {
-        console.log(11111, response)
         let article = JSON.parse(response.body[articleIndex.accountId][action][key])
         article.blockHeight = articleIndex.blockHeight
+        article.articleIndex = articleIndex
         Object.keys(versions).forEach((versionName, index) => {
             if(articleVersionIndex >= index) {
                 const versionData = versions[versionName]
@@ -110,13 +122,22 @@ function processArticles(articles) {
             }
             articlesBySBT[articleSbt].push(article)
         })
-        console.log(12, articlesBySBT)
         return articlesBySBT
     })
 }
 
+function appendExtraDataToArticle(article) {
+    console.log(11, article.articleIndex.value)
+    article.upVotesPromise = getUpVotes(article.articleIndex.value.id, getConfig())
+    article.upVotesPromise.then((upVotes) => {
+        console.log(article.articleIndex.value.id, upVotes.length)
+    })
+
+
+    return article
+}
+
 function processArticlesIndexes(articlesIndexes, action) {
-    console.log(1111, articlesIndexes)
     const validArticlesIndexes = filterInvalidArticlesIndexes(articlesIndexes)
 
     const validLatestEdits = getLatestEdits(validArticlesIndexes);
@@ -133,7 +154,9 @@ function processArticlesIndexes(articlesIndexes, action) {
             const articleIndex = validLatestEdits[index]
             return article.author === articleIndex.accountId
         })
-        return processArticles(nonFakeAuthorsArticles, validLatestEdits)
+
+        const articlesWithExtraData = nonFakeAuthorsArticles.map(appendExtraDataToArticle)
+        return processArticles(articlesWithExtraData, validLatestEdits)
     })
 
     return articlesPromises
@@ -203,19 +226,17 @@ function getLatestEdits(newFormatArticlesIndexes) {
     });
 }
 
-function getArticlesNormalized(baseAction) {
-    
-    const articlesByVersionPromises = Object.keys(versions).map((version) => {
+function getArticlesNormalized() {
+    const articlesBySbtByVersionPromises = Object.keys(versions).map((version) => {
         // const action = versions[version].action;
-        const action = getAction(baseAction, version)
-        console.log(11, action)
+        const action = getAction(version)
         const articles = getArticlesIndexes(action, "main").then((articlesIndexes) => processArticlesIndexes(articlesIndexes, action))
         
         return articles
         // return finalArticlesByVersion.flat()
     })
 
-    return Promise.all(articlesByVersionPromises).then((articlesBySbtArray) => {
+    return Promise.all(articlesBySbtByVersionPromises).then((articlesBySbtArray) => {
         let output = {}
         articlesBySbtArray.forEach((articlesBySbt) => {
             const sbts = Object.keys(articlesBySbt)
@@ -343,4 +364,4 @@ const versions = {
     },
 };
 
-return { setIsTest, createCommunity, getArticles, editCommunity, deleteCommunity }
+return { setIsTest, createCommunity, getArticles, editCommunity, deleteCommunity, getLatestEdits }

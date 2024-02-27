@@ -33,15 +33,17 @@ function setEnv(value) {
     env = value
 }
 
-
+function getEnv() {
+  return env
+}
 
 const registryContract =
   env === "mainnet"
     ? "registry.i-am-human.near"
     : "registry-v2.i-am-human.testnet";
 
-function getSBTWhiteList(env) {
-    return env === "mainnet" ? mainnetSBTWhitelist : testnetSBTWhitelist;    
+function getSBTWhiteList() {
+    return getEnv() === "mainnet" ? mainnetSBTWhitelist : testnetSBTWhitelist;    
 }
 
 function isValidUser(accountId, sbtsNames) {
