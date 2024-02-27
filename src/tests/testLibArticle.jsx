@@ -1,34 +1,35 @@
 const { getLatestEdits } = VM.require("sayalot.near/widget/lib.article")
-const { displayTestsResults } = VM.require("sayalot.near/widget/tests.lib.tests")
+const { displayTestsResults } = VM.require("sayalot.near/widget/tests.lib.tester")
 
 function testLatestEditsRepeatedArticle() {
     const fnName = "testLatestEdits"
-    const articleIndexes = [
-        {
-            accountId: "test.near",
-            blockHeight: 191891118,
-            value: {
-                type: "md",
-                articleId: "test.near-1651981918"
-            }
-        },
-        {
-            accountId: "test.near",
-            blockHeight: 191891117,
-            value: {
-                type: "md",
-                articleId: "test.near-1651981918"
-            }
-        },
-        {
-            accountId: "test.near",
-            blockHeight: 191891117,
-            value: {
-                type: "md",
-                articleId: "test.near-1651981919"
-            }
-        }
-    ]
+    // const articleIndexes = [
+    //     {
+    //         accountId: "test.near",
+    //         blockHeight: 191891118,
+    //         value: {
+    //             type: "md",
+    //             articleId: "test.near-1651981918"
+    //         }
+    //     },
+    //     {
+    //         accountId: "test.near",
+    //         blockHeight: 191891117,
+    //         value: {
+    //             type: "md",
+    //             articleId: "test.near-1651981918"
+    //         }
+    //     },
+    //     {
+    //         accountId: "test.near",
+    //         blockHeight: 191891117,
+    //         value: {
+    //             type: "md",
+    //             articleId: "test.near-1651981919"
+    //         }
+    //     }
+    // ]
+    const articleIndexes = undefined;
     let functionLatestEdit
     try {
         functionLatestEdit = getLatestEdit(articleIndexes)
