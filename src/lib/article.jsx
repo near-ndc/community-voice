@@ -85,6 +85,7 @@ function getArticleNormalized(articleIndex, action) {
 }
 
 function processArticles(articles) {
+    console.log(4, articles)
     return Promise.all(articles.map((article) => {
         return article.author
     }).filter((author, index, authorArray) => {
@@ -99,6 +100,7 @@ function processArticles(articles) {
     })).then((uniqueAuthorsSBTs) => {
         console.log("User sbts", uniqueAuthorsSBTs)
         let articlesBySBT = {}
+        console.log(3, articles)
         articles.filter((article) => {
             const articleSbt = article.sbts[0]
             if(articleSbt === "public") return true
@@ -126,16 +128,15 @@ function processArticles(articles) {
     })
 }
 
-function appendExtraDataToArticle(article) {
-    console.log(11, article.articleIndex.value)
-    article.upVotesPromise = getUpVotes(article.articleIndex.value.id, getConfig())
-    article.upVotesPromise.then((upVotes) => {
-        console.log(article.articleIndex.value.id, upVotes.length)
-    })
+// function appendExtraDataToArticle(article) {
+//     article.upVotesPromise = getUpVotes(article.articleIndex.value.id, getConfig())
+//     // article.upVotesPromise.then((upVotes) => {
+//     //     console.log(article.articleIndex.value.id, upVotes.length)
+//     // })
 
 
-    return article
-}
+//     return article
+// }
 
 function processArticlesIndexes(articlesIndexes, action) {
     const validArticlesIndexes = filterInvalidArticlesIndexes(articlesIndexes)
@@ -155,8 +156,9 @@ function processArticlesIndexes(articlesIndexes, action) {
             return article.author === articleIndex.accountId
         })
 
-        const articlesWithExtraData = nonFakeAuthorsArticles.map(appendExtraDataToArticle)
-        return processArticles(articlesWithExtraData, validLatestEdits)
+        // const articlesWithExtraData = nonFakeAuthorsArticles.map(appendExtraDataToArticle)
+        // console.log(2, articlesWithExtraData)
+        return processArticles(nonFakeAuthorsArticles, validLatestEdits)
     })
 
     return articlesPromises

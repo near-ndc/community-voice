@@ -39,7 +39,6 @@ const versions = {
 };
 
 function getUpVotesData(action, id) {
-  console.log(111, "Getting from index", action, id)
   return getFromIndex(action, id)
 }
 

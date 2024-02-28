@@ -6,7 +6,6 @@ function loadUpVotes() {
     const articleId = "blaze.near-1708108768232"
     const baseAction = "communityVoiceUpVote"
     getUpVotes(articleId, baseAction).then((newVotes) => {
-        console.log(111, newVotes)
         setUpVotes(newVotes)
     })
 }

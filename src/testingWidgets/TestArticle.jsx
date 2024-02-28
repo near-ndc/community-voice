@@ -39,7 +39,13 @@ return <>
     { articlesBySbt && Object.keys(articlesBySbt).length && <div>
         {Object.keys(articlesBySbt).map((sbtName, index) => 
         {
-            return (<div key={index}>{sbtName} {articlesBySbt[sbtName].length}</div>)
+            const articles = articlesBySbt[sbtName]
+            return (<div key={index}>
+                <span>{sbtName} {articles.length}</span>
+                <span>{articles.map((article, index2) => {
+                    <div key={index2}>{article.articleId}'s upvotes: {article.upVote}</div>
+                })}</span>
+            </div>) 
         })}
     </div>}
 </>
