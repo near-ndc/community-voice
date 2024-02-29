@@ -11,7 +11,6 @@ const config = {
 
 function loadArticles() {
     getArticles(config).then((newArticles) => {
-        console.log(1, newArticles)
         setArticlesBySbt(newArticles)
     })
 }
