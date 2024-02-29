@@ -2,10 +2,14 @@ function displayTestsResults(functionArray) {
   if (!Array.isArray(functionArray)) {
     return { error: true, msg: "Parameter is not an array" };
   }
-  
+
   const errorResults = [];
   for (let i = 0; i < functionArray.length; i++) {
     const fn = functionArray[i].fn;
+    if (typeof fn !== "function") {
+      errorResults.push(`${functionArray[i].fnName} is not a function`);
+      continue;
+    }
     const fnResult = fn();
     if (fnResult.isError) {
       errorResults.push(`Error running function`, fn.name, fnResult.msg);
