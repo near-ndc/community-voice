@@ -3,40 +3,112 @@ function displayTestsResults(functionArray) {
     return { error: true, msg: "Parameter is not an array" };
   }
 
-  const errorResults = [];
+  const errorResults = {};
+  const functionsPassingTest = [];
   for (let i = 0; i < functionArray.length; i++) {
     const fn = functionArray[i].fn;
+
+    //Sets a key for this function in errorResults
+    errorResults[functionArray[i].fnName + i] = [];
+
     if (typeof fn !== "function") {
-      errorResults.push(`${functionArray[i].fnName} is not a function`);
+      errorResults[functionArray[i].fnName + i].push(
+        `${functionArray[i].fnName} is not a function`
+      );
       continue;
     }
+
     const fnResult = fn();
-    console.log(1111, fnResult)
     if (fnResult.isError) {
-      errorResults.push(`Error running function`, fn.name, fnResult.msg);
+      //Error msg can be an string to use 1 line or an Array to use 1 line per element in the Array
+      errorResults[functionArray[i].fnName + i].push(fnResult.msg);
+    } else {
+      functionsPassingTest.push(functionArray[i].fnName + i);
     }
   }
 
+  //Filter functions without errors of list
+  let filteredErrorResults = Object.keys(errorResults)
+    .filter((keyName) => errorResults[keyName].length > 0)
+    .reduce((newObj, key) => {
+      newObj[key] = errorResults[key];
+      return newObj;
+    }, {});
+
+  const Note = styled.strong`
+    font-size: small;
+  `;
+
   return (
     <>
-      <div>
+      <strong>Running: </strong>
+      <ul>
         {functionArray.map((fn, index) => (
-          <div key={index}>Running {fn.fnName}</div>
+          <li className="mb-2" key={index}>
+            {fn.fnName}
+          </li>
         ))}
-      </div>
+      </ul>
       <div>
-        {errorResults.length ? (
+        {Object.keys(filteredErrorResults).length ? (
           <>
-            <strong className="text-danger">
-              {errorResults.length} errors:
-            </strong>
-            {errorResults.map((error, index) => {
-              return (
-                <div className="alert alert-danger" role="alert" key={index}>
-                  {error}
+            <Note>
+              *The number after the function name represents the index asociated
+              to the function. You can call multiple times the same function.
+            </Note>
+            {functionsPassingTest.length > 0 && (
+              <div>
+                <strong className="text-success">
+                  {`${functionsPassingTest.length} function${functionsPassingTest.length > 1 ? "s" : ""} have passed the test:`} 
+                </strong>
+                <div className="alert alert-success">
+                  <ul>
+                    {functionsPassingTest.map((fn) => (
+                      <li className="text-success" role="alert">
+                        {fn}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              );
-            })}
+              </div>
+            )}
+            {
+              <div>
+                {Object.keys(filteredErrorResults).map((fn) => {
+                  return (
+                    <div>
+                      <strong className="text-danger">
+                        {filteredErrorResults[fn].length}{" "}
+                        {`error${
+                          filteredErrorResults[fn].length > 1 ? "s" : ""
+                        } running function ${fn}`}
+                        :
+                      </strong>
+                      <div className="alert alert-danger" role="alert" key={i}>
+                        {filteredErrorResults[fn].map((error) => {
+                          return (
+                            <>
+                              {typeof error === "string" ? (
+                                <p className="text-danger">{error}</p>
+                              ) : Array.isArray(error) ? (
+                                error.map((e) => (
+                                  <p className="text-danger">{e}</p>
+                                ))
+                              ) : (
+                                <p className="text-danger">
+                                  Error passed wrongly
+                                </p>
+                              )}
+                              {filteredErrorResults[fn].length > 1 && <hr />}
+                            </>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            }
           </>
         ) : (
           <div className="alert alert-success text-success" role="alert">
