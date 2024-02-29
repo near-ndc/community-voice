@@ -11,6 +11,7 @@ function displayTestsResults(functionArray) {
       continue;
     }
     const fnResult = fn();
+    console.log(1111, fnResult)
     if (fnResult.isError) {
       errorResults.push(`Error running function`, fn.name, fnResult.msg);
     }

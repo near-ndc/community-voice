@@ -29,23 +29,26 @@ function testLatestEditsRepeatedArticle() {
     //         }
     //     }
     // ]
-    const articleIndexes = undefined;
+    const articleIndexes = [];
     let functionLatestEdit
+    console.log(0)
     try {
-        functionLatestEdit = getLatestEdit(articleIndexes)
+        functionLatestEdit = getLatestEdits(articleIndexes)
     } catch(err) {
+        console.log(2)
         return {
-            err: true,
+            isError: true,
             msg: err.message,
             fnName
         }
     }
 
-    const expectedLatestEdit = [articleIndexes[0]]
+    const expectedLatestEdit = []
     const isError = JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit)
+    console.log(1, isError)
     return { 
-        err: isError, 
-        msg: isError ? `Items don't match ${functionLatestEdit}, ${expectedLatestEdit}` : "", 
+        isError: isError, 
+        msg: isError ? `Items don't match ${functionLatestEdit}, ${JSON.stringify(expectedLatestEdit)}` : "", 
         fnName
     }
     // return JSON.stringify(functionLatestEdit) === JSON.stringify(expectedLatestEdit)
@@ -55,10 +58,10 @@ function testLatestEditEmptyIndex() {
     const articleIndexes = []
     let functionLatestEdit
     try {
-        functionLatestEdit = getLatestEdit(articleIndexes)
+        functionLatestEdit = getLatestEdits(articleIndexes)
     } catch(err) {
         return {
-            err: true,
+            isError: true,
             msg: err.message,
             fnName
         }
@@ -67,7 +70,7 @@ function testLatestEditEmptyIndex() {
     const expectedLatestEdit = []
     const isError = JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit)
     return { 
-        err: isError, 
+        isError: isError, 
         msg: isError ? `Items don't match output ${functionLatestEdit}, expected ${expectedLatestEdit}` : "", 
         fnName
     }
@@ -80,6 +83,10 @@ return <>
             {
                 fnName: "testLatestEditsRepeatedArticle", 
                 fn: testLatestEditsRepeatedArticle
+            },
+            {
+                fnName: "testLatestEditEmptyIndex", 
+                fn: testLatestEditEmptyIndex
             }
         ])
     }

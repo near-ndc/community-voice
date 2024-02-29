@@ -218,6 +218,7 @@ function filterInvalidArticlesIndexes(articlesIndexes) {
 }
 
 function getLatestEdits(newFormatArticlesIndexes) {
+    console.log(11, newFormatArticlesIndexes)
     return newFormatArticlesIndexes.filter((articleIndex) => {
         const latestEditForThisArticle = newFormatArticlesIndexes.find(
             (newArticleData) => newArticleData.value.id === articleIndex.value.id
