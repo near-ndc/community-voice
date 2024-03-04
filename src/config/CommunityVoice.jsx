@@ -1,5 +1,6 @@
-function getConfig() {
+function getConfig(isTest) {
     return {
+        isTest,
         baseActions: {
             article: "communityVoiceArticle",
             upVote: "communityVoiceUpVote",

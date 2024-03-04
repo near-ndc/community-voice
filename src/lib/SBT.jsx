@@ -42,8 +42,8 @@ const registryContract =
     ? "registry.i-am-human.near"
     : "registry-v2.i-am-human.testnet";
 
-function getSBTWhiteList() {
-    return getEnv() === "mainnet" ? mainnetSBTWhitelist : testnetSBTWhitelist;    
+function getSBTWhiteList(config) {
+    return config.isTest ?  testnetSBTWhitelist : mainnetSBTWhitelist;    
 }
 
 function isValidUser(accountId, sbtsNames) {

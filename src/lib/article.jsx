@@ -1,17 +1,14 @@
-const { getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
+const { getUserSBTs, getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT");
 const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes");
+const { generateMetadata } = VM.require("sayalot.near/widget/lib.metadata");
+const { camelCaseToUserReadable } = VM.require("sayalot.near/widget/lib.strings");
 
-// const baseAction = "cv_communities";
-// const testAction = `test_${baseAction}`
-// const prodAction = `dev_${baseAction}`
 const baseAction = "sayALotArticle";
 const testAction = `test_${baseAction}`
 const prodAction = `${baseAction}`
 const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
 
-const version = "0.0.2"
-
-let isTest = false
+const currentVersion = "v0.0.3"
 
 let config = {}
 
@@ -25,8 +22,10 @@ function getConfig() {
 
 function getAction(version) {
     const baseAction = getConfig().baseActions.article
-    const action = baseAction + versions[version].actionSuffix
-    return isTest ? `test_${action}`: action
+    const versionData = version ? versions[version] : versions[currentVersion]
+    console.log(1, versions, currentVersion)
+    const action = baseAction + versionData.actionSuffix
+    return getConfig().isTest ? `test_${action}` : action
 }
 
 function setIsTest(value) {
@@ -52,7 +51,7 @@ function getArticleNormalized(articleIndex, action) {
     const articleVersionIndex = Object.keys(versions).findIndex((versionName) => {
         const versionData = versions[versionName]
         return (
-            versionData.validBlockHeightRange[0] <= articleIndex.blockHeight 
+            versionData.validBlockHeightRange[0] <= articleIndex.blockHeight
             && articleIndex.blockHeight < versionData.validBlockHeightRange[1]
             || versionData.validBlockHeightRange[1] === undefined
         )
@@ -64,18 +63,18 @@ function getArticleNormalized(articleIndex, action) {
 
     return asyncFetch(" https://api.near.social/get", {
         method: "POST",
-        headers: { "Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             keys: [`${articleIndex.accountId}/${action}/${key}`],
             blockHeight: articleIndex.blockHeight
         })
-        
+
     }).then((response) => {
         let article = JSON.parse(response.body[articleIndex.accountId][action][key])
         article.blockHeight = articleIndex.blockHeight
         article.articleIndex = articleIndex
         Object.keys(versions).forEach((versionName, index) => {
-            if(articleVersionIndex >= index) {
+            if (articleVersionIndex >= index) {
                 const versionData = versions[versionName]
                 article = versionData.normalizationFunction(article)
             }
@@ -91,7 +90,7 @@ function processArticles(articles) {
     }).filter((author, index, authorArray) => {
         const firstIndex = authorArray.findIndex((author2) => {
             return author === author2
-        }) 
+        })
         return firstIndex === index
     }).map((author) => {
         return getUserSBTs(author).then((userSbts) => {
@@ -103,23 +102,23 @@ function processArticles(articles) {
         console.log(3, articles)
         articles.filter((article) => {
             const articleSbt = article.sbts[0]
-            if(articleSbt === "public") return true
+            if (articleSbt === "public") return true
 
             const author = article.author
             const [sbtName, sbtClass] = articleSbt.split(" - class ")
 
             const authorSbtPair = uniqueAuthorsSBTs.find(([author2, _]) => author === author2)
-            if(!authorSbtPair) return false
-            
+            if (!authorSbtPair) return false
+
             const authorSbts = authorSbtPair[1]
             const sbtPair = authorSbts.find(([sbtName2, _]) => sbtName === sbtName2)
-            if(!sbtPair) return false
-            
+            if (!sbtPair) return false
+
             const sbtPairClasses = sbtPair[1].map((sbt) => sbt.metadata.class)
             return sbtPairClasses.includes(parseInt(sbtClass))
         }).forEach((article, index, arr) => {
             const articleSbt = article.sbts[0]
-            if(!articlesBySBT[articleSbt]) {
+            if (!articlesBySBT[articleSbt]) {
                 articlesBySBT[articleSbt] = []
             }
             articlesBySBT[articleSbt].push(article)
@@ -145,7 +144,7 @@ function processArticlesIndexes(articlesIndexes, action) {
 
     const articlesIndexesPromises = validLatestEdits.map((articleIndex) => {
         return getArticleNormalized(articleIndex, action)
-            // .then((article) => normalizeArticle(article, articleIndex))
+        // .then((article) => normalizeArticle(article, articleIndex))
 
         // return filterFakeAuthors(getArticle(articleIndex, action), articleIndex);
     })
@@ -234,7 +233,7 @@ function getArticlesNormalized() {
         // const action = versions[version].action;
         const action = getAction(version)
         const articles = getArticlesIndexes(action, "main").then((articlesIndexes) => processArticlesIndexes(articlesIndexes, action))
-        
+
         return articles
         // return finalArticlesByVersion.flat()
     })
@@ -244,7 +243,7 @@ function getArticlesNormalized() {
         articlesBySbtArray.forEach((articlesBySbt) => {
             const sbts = Object.keys(articlesBySbt)
             sbts.forEach((sbtName) => {
-                if(!output[sbtName]) {
+                if (!output[sbtName]) {
                     output[sbtName] = []
                 }
                 output[sbtName].push(...articlesBySbt[sbtName])
@@ -302,51 +301,50 @@ function getLatestEdit(communitiesIndexes) {
 function normalizeOldToV_0_0_1(article) {
     article.realArticleId = `${article.author}-${article.timeCreate}`;
     article.sbts = ["public"];
-  
+
     return article;
-  }
-  
-  function normalizeFromV0_0_1ToV0_0_2(article) {
+}
+
+function normalizeFromV0_0_1ToV0_0_2(article) {
     article.title = article.articleId;
     article.id = article.realArticleId;
     if (article.sbts[0] !== "public") {
-      article.sbts[0] = article.sbts[0] + " - class 1";
+        article.sbts[0] = article.sbts[0] + " - class 1";
     } // There is only one article that is not public and only has class 1
-  
+
     delete article.articleId;
     delete article.realArticleId;
-  
+
     return article;
-  }
-  
-  function normalizeFromV0_0_2ToV0_0_3(article) {
+}
+
+function normalizeFromV0_0_2ToV0_0_3(article) {
     if (!Array.isArray(article.tags) && typeof article.tags === "object") {
-      article.tags = Object.keys(article.tags);
+        article.tags = Object.keys(article.tags);
     }
-  
+
     if (article.tags) {
-      article.tags = article.tags.filter(
-        (tag) => tag !== undefined && tag !== null
-      );
+        article.tags = article.tags.filter(
+            (tag) => tag !== undefined && tag !== null
+        );
     } else {
-      article.tags = [];
+        article.tags = [];
     }
-  
+
     //Add day-month-year tag if it doesn't exists yet by request
     const creationDate = new Date(article.timeCreate);
-  
-    const dateTag = `${creationDate.getDate()}-${
-      creationDate.getMonth() + 1
-    }-${creationDate.getFullYear()}`;
-  
+
+    const dateTag = `${creationDate.getDate()}-${creationDate.getMonth() + 1
+        }-${creationDate.getFullYear()}`;
+
     if (!article.tags.includes(dateTag)) article.tags.push(dateTag);
-  
+
     if (article.blockHeight < 105654020 && article.sbts.includes("public")) {
-      article.sbts = ["fractal.i-am-human.near - class 1"];
+        article.sbts = ["fractal.i-am-human.near - class 1"];
     }
-  
+
     return article;
-  }
+}
 
 // EDIT: set versions you want to handle, considering their action to Social.index and the way to transform to one version to another (normalization)
 const versions = {
@@ -365,6 +363,140 @@ const versions = {
         actionSuffix: `_v0.0.2`,
         validBlockHeightRange: [103053147, Infinity],
     },
+    "v0.0.3": {
+        normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
+        actionSuffix: `_v0.0.3`,
+        validBlockHeightRange: [Infinity, Infinity],
+    },
 };
 
-return { setIsTest, createCommunity, getArticles, editCommunity, deleteCommunity, getLatestEdits }
+function validateArticle(article, ownerId) {
+    // ADD SBT VALIDATION
+    const expectedStringProperties = [
+        "title",
+        "author",
+        "body",
+        "sbt"
+    ]
+    const expectedArrayProperties = [
+        "tags"
+    ]
+    const errArrMessage = []
+    // String properties
+    errArrMessage.push(...expectedStringProperties.filter((currentProperty) => {
+        const isValidProperty = !article[currentProperty] || typeof article[currentProperty] !== "string"
+        return isValidProperty
+    }).map((currentProperty) => `Missing ${camelCaseToUserReadable(currentProperty)} or not a string`))
+    // Array properties
+    errArrMessage.push(...expectedArrayProperties.filter((currentProperty) => {
+        return !Array.isArray(article[currentProperty])
+    }).map((currentProperty) => `Article ${camelCaseToUserReadable(currentProperty)}'s is not an array`))
+    
+    const sbtWhiteList = getSBTWhiteList(getConfig())
+
+    if (!ownerId) {
+        errArrMessage.push("Owner id not shared")
+    }
+    if (article.id) {
+        errArrMessage.push(`There is already an article with id ${article.id}`)
+    }
+    if(!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
+        errArrMessage.push(`Invalid SBT: ${article.sbt}`)
+    }
+    
+    return errArrMessage
+}
+
+function extractMentions(text) {
+    const mentionRegex =
+      /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
+    mentionRegex.lastIndex = 0;
+    const accountIds = new Set();
+    for (const match of text.matchAll(mentionRegex)) {
+      if (
+        !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
+        !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
+        match[1].length >= 2 &&
+        match[1].length <= 64
+      ) {
+        accountIds.add(match[1].toLowerCase());
+      }
+    }
+    return [...accountIds];
+  }
+
+// function handleNotifications(article) {
+//     const mentions = extractMentions(article.body);
+  
+//     if (mentions.length > 0) {
+//       const dataToAdd = getNotificationData(
+//         "mention",
+//         mentions,
+//         `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
+//           isTest ? "&isTest=t" : ""
+//         }`
+//       );
+  
+//       data.post = dataToAdd.post;
+//       data.index.notify = dataToAdd.index.notify;
+//     }
+// }
+
+function composeData(article, metadata) {
+    let data = {
+      index: {
+        [getAction()]: JSON.stringify({
+          key: "main",
+          value: {
+            article,
+            metadata
+          },
+        }),
+      },
+    };
+  
+    // TODO handle notifications properly
+    // const mentions = extractMentions(article.body);
+  
+    // if (mentions.length > 0) {
+    //   const dataToAdd = getNotificationData(
+    //     "mention",
+    //     mentions,
+    //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
+    //       isTest ? "&isTest=t" : ""
+    //     }`
+    //   );
+  
+    //   data.post = dataToAdd.post;
+    //   data.index.notify = dataToAdd.index.notify;
+    // }
+  
+    return data;
+  }
+
+function executeSaveCommunity(article, metadata, onCommit, onCancel) {
+    const newData = composeData(article, metadata);
+    Social.set(newData, {
+        force: true,
+        onCommit,
+        onCancel,
+    });
+
+    return article.id
+};
+
+function createArticle(config, article, ownerId, onCommit, onCancel) {
+    setConfig(config)
+    const errors = validateArticle(article, ownerId);
+    if (errors && errors.length) {
+        return { error: true, data: errors }
+    }
+
+    article.id = `article/${ownerId}/${Date.now()}`
+    const metadata = generateMetadata()
+    const result = executeSaveCommunity(article, metadata, onCommit, onCancel)
+    return { error: false, data: result };
+
+};
+
+return { setIsTest, createArticle, getArticles, editCommunity, deleteCommunity, getLatestEdits }
