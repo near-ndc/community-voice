@@ -70,6 +70,9 @@ function getArticleNormalized(articleIndex, action) {
         })
 
     }).then((response) => {
+        // console.log("response 2: ", response)
+        //ERROR: Check the structure of the response to define "article"
+        console.log("response 3: ", response)
         let article = JSON.parse(response.body[articleIndex.accountId][action][key])
         article.blockHeight = articleIndex.blockHeight
         article.articleIndex = articleIndex
@@ -139,9 +142,10 @@ function processArticles(articles) {
 
 function processArticlesIndexes(articlesIndexes, action) {
     const validArticlesIndexes = filterInvalidArticlesIndexes(articlesIndexes)
-
+    
     const validLatestEdits = getLatestEdits(validArticlesIndexes);
-
+    
+    console.log("articlesIndexes: ", articlesIndexes)
     const articlesIndexesPromises = validLatestEdits.map((articleIndex) => {
         return getArticleNormalized(articleIndex, action)
         // .then((article) => normalizeArticle(article, articleIndex))
@@ -217,7 +221,7 @@ function filterInvalidArticlesIndexes(articlesIndexes) {
 }
 
 function getLatestEdits(newFormatArticlesIndexes) {
-    console.log(11, newFormatArticlesIndexes)
+    // console.log(11, newFormatArticlesIndexes)
     return newFormatArticlesIndexes.filter((articleIndex) => {
         const latestEditForThisArticle = newFormatArticlesIndexes.find(
             (newArticleData) => newArticleData.value.id === articleIndex.value.id
@@ -499,4 +503,4 @@ function createArticle(config, article, ownerId, onCommit, onCancel) {
 
 };
 
-return { setIsTest, createArticle, getArticles, editCommunity, deleteCommunity, getLatestEdits }
+return { setIsTest, createArticle, getArticles, editCommunity, deleteCommunity, getLatestEdits, getArticleNormalized, getArticlesIndexes }

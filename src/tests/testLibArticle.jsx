@@ -1,6 +1,9 @@
-const { getLatestEdits, processArticles } = VM.require(
-  "sayalot.near/widget/lib.article"
-);
+const {
+  getLatestEdits,
+  processArticles,
+  getArticleNormalized,
+  getArticlesIndexes,
+} = VM.require("sayalot.near/widget/lib.article");
 const { displayTestsResults } = VM.require(
   "sayalot.near/widget/tests.lib.tester"
 );
@@ -13,6 +16,19 @@ const prodAction = `${baseAction}_v${currentVersion}`;
 const testAction = `test_${prodAction}`;
 const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
 const action = isTest ? testAction : prodAction;
+
+// const articles = getArticlesIndexes(action, "main").then((response) =>
+//   console.log("articlesIndexes: ", response)
+// );
+
+const realArticleIndexInMainnet = {
+  "accountId": "blaze.near",
+  "blockHeight": 113428547,
+  "value": {
+      "type": "md",
+      "id": "blaze.near-1708703244668"
+  }
+};
 
 function testLatestEditsRepeatedArticle() {
   const fnName = "testLatestEdits";
@@ -114,6 +130,33 @@ function testLatestEditEmptyIndex() {
   };
 }
 
+function testGetArticleNormalized() {
+  const fnName = "testGetArticleNormalized";
+  const articleIndex = realArticleIndexInMainnet;
+  let articleNormalized;
+  try {
+    getArticleNormalized(articleIndex, action).then((response) => {
+      console.log("response: ", response);
+      const expectedNormalizedArticle = [];
+      const isError =
+        JSON.stringify(response) !== JSON.stringify(expectedLatestEdit);
+      return {
+        isError: isError,
+        msg: isError
+          ? `Items don't match output ${articleNormalized}, expected ${expectedLatestEdit}`
+          : "",
+        fnName,
+      };
+    });
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
 return (
   <>
     {displayTestsResults([
@@ -124,6 +167,10 @@ return (
       {
         fnName: "testLatestEditEmptyIndex",
         fn: testLatestEditEmptyIndex,
+      },
+      {
+        fnName: "testGetArticleNormalized",
+        fn: testGetArticleNormalized,
       },
     ])}
   </>
