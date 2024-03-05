@@ -1,7 +1,18 @@
-const { getLatestEdits } = VM.require("sayalot.near/widget/lib.article");
+const { getLatestEdits, processArticles } = VM.require(
+  "sayalot.near/widget/lib.article"
+);
 const { displayTestsResults } = VM.require(
   "sayalot.near/widget/tests.lib.tester"
 );
+
+const isTest = false;
+const baseAction = "communityVoiceArticle";
+const currentVersion = "0.0.2"; // EDIT: Set version
+
+const prodAction = `${baseAction}_v${currentVersion}`;
+const testAction = `test_${prodAction}`;
+const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
+const action = isTest ? testAction : prodAction;
 
 function testLatestEditsRepeatedArticle() {
   const fnName = "testLatestEdits";
@@ -11,7 +22,7 @@ function testLatestEditsRepeatedArticle() {
       blockHeight: 191891118,
       value: {
         type: "md",
-        articleId: "test.near-1651981918",
+        id: "test.near-1651981918",
       },
     },
     {
@@ -19,19 +30,19 @@ function testLatestEditsRepeatedArticle() {
       blockHeight: 191891117,
       value: {
         type: "md",
-        articleId: "test.near-1651981918",
+        id: "test.near-1651981918",
       },
     },
     {
       accountId: "test.near",
-      blockHeight: 191891117,
+      blockHeight: 191891116,
       value: {
         type: "md",
-        articleId: "test.near-1651981919",
+        id: "test.near-1651981919",
       },
     },
   ];
-  // const articleIndexes = [];
+
   let functionLatestEdit;
   try {
     functionLatestEdit = getLatestEdits(articleIndexes);
@@ -43,7 +54,24 @@ function testLatestEditsRepeatedArticle() {
     };
   }
 
-  const expectedLatestEdit = [];
+  const expectedLatestEdit = [
+    {
+      accountId: "test.near",
+      blockHeight: 191891118,
+      value: {
+        type: "md",
+        id: "test.near-1651981918",
+      },
+    },
+    {
+      accountId: "test.near",
+      blockHeight: 191891116,
+      value: {
+        type: "md",
+        id: "test.near-1651981919",
+      },
+    },
+  ];
   const isError =
     JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
   return {
@@ -61,6 +89,7 @@ function testLatestEditsRepeatedArticle() {
 }
 
 function testLatestEditEmptyIndex() {
+  const fnName = "testLatestEditEmptyIndex";
   const articleIndexes = [];
   let functionLatestEdit;
   try {
