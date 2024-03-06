@@ -1,6 +1,7 @@
 const { getUserSBTs, getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT");
 const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes");
-const { generateMetadata } = VM.require("sayalot.near/widget/lib.metadata");
+const { generateMetadata, updateMetadata } = VM.require("sayalot.near/widget/lib.metadata");
+const { normalizeObjectWithMetadata } = VM.require("sayalot.near/widget/lib.normalization");
 const { camelCaseToUserReadable } = VM.require("sayalot.near/widget/lib.strings");
 
 const baseAction = "sayALotArticle";
@@ -8,7 +9,7 @@ const testAction = `test_${baseAction}`
 const prodAction = `${baseAction}`
 const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
 
-const currentVersion = "v0.0.3"
+const currentVersion = "v0.0.4"
 
 let config = {}
 
@@ -23,7 +24,6 @@ function getConfig() {
 function getAction(version) {
     const baseAction = getConfig().baseActions.article
     const versionData = version ? versions[version] : versions[currentVersion]
-    console.log(1, versions, currentVersion)
     const action = baseAction + versionData.actionSuffix
     return getConfig().isTest ? `test_${action}` : action
 }
@@ -32,13 +32,9 @@ function setIsTest(value) {
     isTest = value
 }
 
-/**
- * 
- * @returns It might return first null and then an empty array and finally an array containing the index structure of communities
- */
-function getArticles(config) {
+function getArticles(config, filters) {
     setConfig(config)
-    return getArticlesNormalized()
+    return getArticlesNormalized(filters)
 }
 
 function filterFakeAuthors(articleData, articleIndexData) {
@@ -84,7 +80,6 @@ function getArticleNormalized(articleIndex, action) {
 }
 
 function processArticles(articles) {
-    console.log(4, articles)
     return Promise.all(articles.map((article) => {
         return article.author
     }).filter((author, index, authorArray) => {
@@ -127,27 +122,22 @@ function processArticles(articles) {
     })
 }
 
-// function appendExtraDataToArticle(article) {
-//     article.upVotesPromise = getUpVotes(article.articleIndex.value.id, getConfig())
-//     // article.upVotesPromise.then((upVotes) => {
-//     //     console.log(article.articleIndex.value.id, upVotes.length)
-//     // })
+function normalizeArticleData(articleData) {
+    return normalizeObjectWithMetadata(articleData, versions)
+}
 
+function processArticlesData(articlesData) {
+    const validArticlesData = filterInvalidArticlesIndexes(articlesData)
 
-//     return article
-// }
+    const validLatestEdits = getLatestEdits(validArticlesData);
 
-function processArticlesIndexes(articlesIndexes, action) {
-    const validArticlesIndexes = filterInvalidArticlesIndexes(articlesIndexes)
+    const normalizedArticleData = validLatestEdits.map(normalizeArticleData)
+    // const articlesIndexesPromises = validLatestEdits.map((articleIndex) => {
+    //     return getArticleNormalized(articleIndex, action)
+    //     // .then((article) => normalizeArticle(article, articleIndex))
 
-    const validLatestEdits = getLatestEdits(validArticlesIndexes);
-
-    const articlesIndexesPromises = validLatestEdits.map((articleIndex) => {
-        return getArticleNormalized(articleIndex, action)
-        // .then((article) => normalizeArticle(article, articleIndex))
-
-        // return filterFakeAuthors(getArticle(articleIndex, action), articleIndex);
-    })
+    //     // return filterFakeAuthors(getArticle(articleIndex, action), articleIndex);
+    // })
 
     const articlesPromises = Promise.all(articlesIndexesPromises).then((articles) => {
         const nonFakeAuthorsArticles = articles.filter((article, index) => {
@@ -170,7 +160,7 @@ function getArticleBlackListByBlockHeight() {
     ];
 }
 
-function getArticleBlackListByRealArticleId() {
+function getArticleBlackListByArticleId() {
     return [
         "blaze.near-1690410074090",
         "blaze.near-1690409577184",
@@ -197,60 +187,67 @@ function getArticleBlackListByRealArticleId() {
     ];
 }
 
-function filterInvalidArticlesIndexes(articlesIndexes) {
-    return articlesIndexes
-        .filter((articleIndex) => articleIndex.value.id) // Has id
-        .filter((articleIndex) => {
-            const splittedId = articleIndex.value.id.split("-");
+function filterInvalidArticlesIndexes(articlesData) {
+    return articlesData
+        .filter((articleData) => articleData.value.metadata.id) // Has id
+        .filter((articleData) => {
+            const splittedId = articleData.value.metadata.id.split("-");
             splittedId.pop();
 
-            return splittedId.join("-") === articleIndex.accountId;
+            return splittedId.join("-") === articleData.accountId;
         }) // id begins with same accountId as index object
         .filter(
-            (articleIndex) =>
-                !getArticleBlackListByBlockHeight().includes(articleIndex.blockHeight) // Blockheight is not in blacklist
+            (articleData) =>
+                !getArticleBlackListByBlockHeight().includes(articleData.blockHeight) // Blockheight is not in blacklist
         )
         .filter(
-            (articleIndex) =>
-                !getArticleBlackListByRealArticleId().includes(articleIndex.value.id) // Article id is not in blacklist
+            (articleData) =>
+                !getArticleBlackListByArticleId().includes(articleData.value.id) // Article id is not in blacklist
         );
 }
 
-function getLatestEdits(newFormatArticlesIndexes) {
-    console.log(11, newFormatArticlesIndexes)
-    return newFormatArticlesIndexes.filter((articleIndex) => {
-        const latestEditForThisArticle = newFormatArticlesIndexes.find(
-            (newArticleData) => newArticleData.value.id === articleIndex.value.id
+function getLatestEdits(articles) {
+    return articles.filter((articleData, index) => {
+        const latestEditForThisArticleIndex = articles.findIndex(
+            (newArticle) => newArticle.value.metadata.id === articleData.value.metadata.id
         );
-        return (
-            JSON.stringify(articleIndex) === JSON.stringify(latestEditForThisArticle)
-        );
+        return index === latestEditForThisArticleIndex;
     });
 }
 
-function getArticlesNormalized() {
-    const articlesBySbtByVersionPromises = Object.keys(versions).map((version) => {
+function applyUserFilters(articles, filters) {
+    const { id, sbt } = filters
+    if(id) {
+        articles = articles.filter((article) => {
+            return article.value.metadata.id === id
+        })
+    }
+    if(sbt) {
+        articles = articles.filter((article) => {
+            return article.value.metadata.sbt === sbt
+        })
+    }
+    return articles
+}
+
+function getArticlesNormalized(userFilters) {
+    
+    const articlesDataPromises = Object.keys(versions).map((version) => {
         // const action = versions[version].action;
         const action = getAction(version)
-        const articles = getArticlesIndexes(action, "main").then((articlesIndexes) => processArticlesIndexes(articlesIndexes, action))
+        const articles = getArticlesIndexes(action, "main")
 
         return articles
-        // return finalArticlesByVersion.flat()
     })
 
-    return Promise.all(articlesBySbtByVersionPromises).then((articlesBySbtArray) => {
-        let output = {}
-        articlesBySbtArray.forEach((articlesBySbt) => {
-            const sbts = Object.keys(articlesBySbt)
-            sbts.forEach((sbtName) => {
-                if (!output[sbtName]) {
-                    output[sbtName] = []
-                }
-                output[sbtName].push(...articlesBySbt[sbtName])
-            })
-        })
-        return output
+    return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
+        const articles = articlesVersionArray.flat()
+        const filteredArticles = applyUserFilters(articles, userFilters)
+        const latestEdits = getLatestEdits(filteredArticles)
+        
+        return latestEdits
     })
+
 }
 
 function getArticlesIndexes(action, key) {
@@ -268,34 +265,6 @@ function getArticlesIndexes(action, key) {
     }).then((response) => response.body)
 
     return articlesPromise
-}
-
-function processCommunities(communitiesIndexes) {
-    const validCommunities = filterValidCommunities(communitiesIndexes)
-    const latestEdit = getLatestEdit(validCommunities)
-    const nonDeletedLatest = removeDeleted(latestEdit)
-
-    return nonDeletedLatest
-}
-
-function filterValidCommunities(communitiesIndexes) {
-    const accountIdMatch = filterAccountIdWithCommunityId(communitiesIndexes)
-
-    return accountIdMatch
-}
-
-function filterAccountIdWithCommunityId(communitiesIndexes) {
-    return communitiesIndexes.filter((communityIndex) => {
-        return communityIndex.value.communityData.id.startsWith(communityIndex.accountId)
-    })
-}
-
-function getLatestEdit(communitiesIndexes) {
-    return communitiesIndexes.filter((communityIndex, index) => {
-        return communitiesIndexes.findIndex((communityIndex2) => {
-            return communityIndex.value.communityData.id === communityIndex2.value.communityData.id
-        }) === index
-    })
 }
 
 function normalizeOldToV_0_0_1(article) {
@@ -346,37 +315,44 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
     return article;
 }
 
+function normalizeFromV0_0_4ToV0_0_5(article) {
+    return article
+}
+
 // EDIT: set versions you want to handle, considering their action to Social.index and the way to transform to one version to another (normalization)
 const versions = {
-    old: {
-        normalizationFunction: normalizeOldToV_0_0_1,
-        actionSuffix: "",
-        validBlockHeightRange: [0, 102530777],
-    },
-    "v0.0.1": {
-        normalizationFunction: normalizeFromV0_0_1ToV0_0_2,
-        actionSuffix: `_v0.0.1`,
-        validBlockHeightRange: [102530777, 103053147],
-    },
-    "v0.0.2": {
-        normalizationFunction: normalizeFromV0_0_2ToV0_0_3,
-        actionSuffix: `_v0.0.2`,
-        validBlockHeightRange: [103053147, Infinity],
-    },
-    "v0.0.3": {
-        normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
-        actionSuffix: `_v0.0.3`,
-        validBlockHeightRange: [Infinity, Infinity],
+    // old: {
+    //     normalizationFunction: normalizeOldToV_0_0_1,
+    //     actionSuffix: "",
+    //     validBlockHeightRange: [0, 102530777],
+    // },
+    // "v0.0.1": {
+    //     normalizationFunction: normalizeFromV0_0_1ToV0_0_2,
+    //     actionSuffix: `_v0.0.1`,
+    //     validBlockHeightRange: [102530777, 103053147],
+    // },
+    // "v0.0.2": {
+    //     normalizationFunction: normalizeFromV0_0_2ToV0_0_3,
+    //     actionSuffix: `_v0.0.2`,
+    //     validBlockHeightRange: [103053147, Infinity],
+    // },
+    // "v0.0.3": {
+    //     normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
+    //     actionSuffix: `_v0.0.3`,
+    //     validBlockHeightRange: [Infinity, Infinity],
+    // },
+    "v0.0.4": {
+        normalizationFunction: normalizeFromV0_0_4ToV0_0_5,
+        actionSuffix: `_v0.0.4`,
+        validBlockHeightRange: [0, Infinity],
     },
 };
 
-function validateArticle(article, ownerId) {
+function validateArticleData(article) {
     // ADD SBT VALIDATION
     const expectedStringProperties = [
         "title",
-        "author",
         "body",
-        "sbt"
     ]
     const expectedArrayProperties = [
         "tags"
@@ -392,19 +368,53 @@ function validateArticle(article, ownerId) {
         return !Array.isArray(article[currentProperty])
     }).map((currentProperty) => `Article ${camelCaseToUserReadable(currentProperty)}'s is not an array`))
     
+    return errArrMessage
+}
+
+/**
+ * Only properties that are not set automatically should be validated
+ * @param {*} metadata 
+ */
+function validateMetadata(metadata) {
+    const expectedStringProperties = [
+        "id",
+        "author",
+    ]
+    const expectedNumberProperties = [
+        "createdTimestamp",
+    ]
+
+    const errArrMessage = []
+    // String properties
+    errArrMessage.push(...expectedStringProperties.filter((currentProperty) => {
+        const isValidProperty = !metadata[currentProperty] || typeof metadata[currentProperty] !== "string"
+        return isValidProperty
+    }).map((currentProperty) => `Missing ${camelCaseToUserReadable(currentProperty)} or not a string`))
+    // Array properties
+    errArrMessage.push(...expectedNumberProperties.filter((currentProperty) => {
+        return !metadata[currentProperty] || typeof metadata[currentProperty] !== "number"
+    }).map((currentProperty) => `Property ${camelCaseToUserReadable(currentProperty)}'s is not an array`))
+    
+
     const sbtWhiteList = getSBTWhiteList(getConfig())
 
-    if (!ownerId) {
-        errArrMessage.push("Owner id not shared")
-    }
-    if (article.id) {
-        errArrMessage.push(`There is already an article with id ${article.id}`)
-    }
     if(!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
         errArrMessage.push(`Invalid SBT: ${article.sbt}`)
     }
-    
     return errArrMessage
+}
+
+function validateNewArticle(articleData) {
+    const errorArray = validateArticleData(articleData)
+    return errorArray
+}
+
+function validateEditArticle(articleData, previousMetadata) {
+    const errorArray = validateArticleData(articleData)
+    if(!previousMetadata.id) {
+        errorArray.push(`Trying to edit article with no article id`)
+    }
+    return errorArray
 }
 
 function extractMentions(text) {
@@ -442,14 +452,13 @@ function extractMentions(text) {
 //     }
 // }
 
-function composeData(article, metadata) {
+function composeData(article) {
     let data = {
       index: {
         [getAction()]: JSON.stringify({
           key: "main",
           value: {
-            article,
-            metadata
+            ...article
           },
         }),
       },
@@ -474,29 +483,53 @@ function composeData(article, metadata) {
     return data;
   }
 
-function executeSaveCommunity(article, metadata, onCommit, onCancel) {
-    const newData = composeData(article, metadata);
+function executeSaveArticle(article, onCommit, onCancel) {
+    const newData = composeData(article);
     Social.set(newData, {
         force: true,
         onCommit,
         onCancel,
     });
 
-    return article.id
+    return articleData.id
 };
 
-function createArticle(config, article, ownerId, onCommit, onCancel) {
+function createArticle(config, articleData, userMetadataHelper, onCommit, onCancel) {
     setConfig(config)
-    const errors = validateArticle(article, ownerId);
+    const errors = validateNewArticle(articleData, author);
     if (errors && errors.length) {
         return { error: true, data: errors }
     }
 
-    article.id = `article/${ownerId}/${Date.now()}`
-    const metadata = generateMetadata()
-    const result = executeSaveCommunity(article, metadata, onCommit, onCancel)
+    const metadataHelper = {
+        ...userMetadataHelper,
+        idPrefix: "article",
+        versionKey: currentVersion
+    }
+    const metadata = generateMetadata(metadataHelper)
+    const article = {
+        articleData,
+        metadata
+    }
+    const result = executeSaveArticle(article, onCommit, onCancel)
     return { error: false, data: result };
 
 };
 
-return { setIsTest, createArticle, getArticles, editCommunity, deleteCommunity, getLatestEdits }
+function editArticle(config, newArticleData, previousMetadata, onCommit, onCancel) {
+    setConfig(config)
+    const errors = validateEditArticle(newArticleData, previousMetadata);
+    if (errors && errors.length) {
+        return { error: true, data: errors }
+    }
+    
+    const newMetadata = updateMetadata(previousMetadata, currentVersion)
+    const article = {
+        articleData: newArticleData,
+        metadata: newMetadata
+    }
+    const result = executeSaveArticle(article, onCommit, onCancel)
+    return { error: false, data: result };
+}
+
+return { createArticle, getArticles, editArticle, deleteCommunity, getLatestEdits }

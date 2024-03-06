@@ -1,18 +1,27 @@
-const { getArticles, createArticle } = VM.require("sayalot.near/widget/lib.article")
+const { getArticles, createArticle, editArticle } = VM.require("sayalot.near/widget/lib.article")
 const { getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 
-const [articlesBySbt, setArticlesBySbt] = useState({})
+const [articles, setArticles] = useState([])
 const [errors, setErrors] = useState([])
 
 const isTest = !!props.isTest
 
 const config = getConfig(isTest)
 
+function onCommit() {
+    console.log("Executing on commit")
+}
+
+function onCancel() {
+    console.log("Executing on cancel")
+}
+
 function loadArticles() {
-    getArticles(config).then((newArticles) => {
-        setArticlesBySbt(newArticles)
+    const userFilters = {id: undefined, sbt: undefined}
+    getArticles(config, userFilters).then((newArticles) => {
+        setArticles(newArticles)
     })
 }
 
@@ -25,15 +34,20 @@ useEffect(() => {
 }, [])
 
 function failNewArticle() {
-    const failedArticle = {
+    const sbtWhiteList = getSBTWhiteList(config)
+
+    const failedArticleData = {
         title: undefined,
-        author: context.accountId,
-        body: "",
-        sbt: "",
-        tags: "",   
+        body: "Test",
+        tags: [],   
     }
 
-    const result = createArticle(config, failedArticle, context.accountId)
+    const metadataHelper = {
+        author: context.accountId,
+        sbt: sbtWhiteList[0].value,
+    }
+
+    const result = createArticle(config, failedArticleData, metadataHelper, onCommit, onCancel)
     if(result.error) {
         setErrors(result.data)
     }
@@ -41,16 +55,29 @@ function failNewArticle() {
 
 function newArticle() {
     const sbtWhiteList = getSBTWhiteList(config)
-    console.log(1, sbtWhiteList)
-    const article = {
-        title: "Test",
-        author: context.accountId,
-        body: "This is a test",
-        sbt: sbtWhiteList[0].value,
-        tags: [],   
+
+    const articleData = {
+        title: "Test title",
+        body: "Test body",
+        tags: ["hello"],   
     }
 
-    const result = createArticle(config, article, context.accountId)
+    const metadataHelper = {
+        author: context.accountId,
+        sbt: sbtWhiteList[0].value,
+    }
+
+    const result = createArticle(config, articleData, metadataHelper, onCommit, onCancel)
+    if(result.error) {
+        setErrors(result.data)
+    }
+}
+
+function modifyArticle(article) {
+    const articleData = article.value.articleData
+    const metadata = article.value.metadata
+    articleData.body = "This is a test editing an article"
+    const result = editArticle(config, articleData, metadata, onCommit, onCancel)
     if(result.error) {
         setErrors(result.data)
     }
@@ -62,21 +89,16 @@ return <>
         return <div key={index}>{err}</div>
     }) : "No error"}
     </div>
-    <div>SBTs: {Object.keys(articlesBySbt).length}</div>
-    <div>Articles: {Object.keys(articlesBySbt).reduce((sum, sbtName) => articlesBySbt[sbtName].length + sum, 0)}</div>
+    <div>Articles: {articles.length}</div>
     <button onClick={failNewArticle}>Test fail new article</button>
     <button onClick={newArticle}>Test new article</button>
-    {/* <button onClick={() => modifyCommunity(communities[0])}>Test edit community</button>
-    <button onClick={removeCommunity}>Test remove community</button> */}
-    { articlesBySbt && Object.keys(articlesBySbt).length && <div>
-        {Object.keys(articlesBySbt).map((sbtName, index) => 
+    <button onClick={() => modifyArticle(articles[0])}>Test edit article</button>
+    {/*<button onClick={removeCommunity}>Test remove community</button> */}
+    { articles.length && <div>
+        {articles.map((article, index) => 
         {
-            const articles = articlesBySbt[sbtName]
             return (<div key={index}>
-                <span>{sbtName} {articles.length}</span>
-                <span>{articles.map((article, index2) => {
-                    <div key={index2}>{article.articleId}'s upvotes: {article.upVote}</div>
-                })}</span>
+                    {JSON.stringify(article)}
             </div>) 
         })}
     </div>}
