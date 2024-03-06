@@ -514,7 +514,6 @@ function createArticle(config, articleData, userMetadataHelper, onCommit, onCanc
 
 };
 
-<<<<<<< HEAD
 function editArticle(config, newArticleData, previousMetadata, onCommit, onCancel) {
     setConfig(config)
     const errors = validateEditArticle(newArticleData, previousMetadata);
