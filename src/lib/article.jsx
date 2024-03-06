@@ -66,6 +66,9 @@ function getArticleNormalized(articleIndex, action) {
         })
 
     }).then((response) => {
+        // console.log("response 2: ", response)
+        //ERROR: Check the structure of the response to define "article"
+        console.log("response 3: ", response)
         let article = JSON.parse(response.body[articleIndex.accountId][action][key])
         article.blockHeight = articleIndex.blockHeight
         article.articleIndex = articleIndex
@@ -132,12 +135,6 @@ function processArticlesData(articlesData) {
     const validLatestEdits = getLatestEdits(validArticlesData);
 
     const normalizedArticleData = validLatestEdits.map(normalizeArticleData)
-    // const articlesIndexesPromises = validLatestEdits.map((articleIndex) => {
-    //     return getArticleNormalized(articleIndex, action)
-    //     // .then((article) => normalizeArticle(article, articleIndex))
-
-    //     // return filterFakeAuthors(getArticle(articleIndex, action), articleIndex);
-    // })
 
     const articlesPromises = Promise.all(articlesIndexesPromises).then((articles) => {
         const nonFakeAuthorsArticles = articles.filter((article, index) => {
@@ -205,6 +202,7 @@ function filterInvalidArticlesIndexes(articlesData) {
                 !getArticleBlackListByArticleId().includes(articleData.value.id) // Article id is not in blacklist
         );
 }
+
 
 function getLatestEdits(articles) {
     return articles.filter((articleData, index) => {
@@ -516,6 +514,7 @@ function createArticle(config, articleData, userMetadataHelper, onCommit, onCanc
 
 };
 
+<<<<<<< HEAD
 function editArticle(config, newArticleData, previousMetadata, onCommit, onCancel) {
     setConfig(config)
     const errors = validateEditArticle(newArticleData, previousMetadata);
