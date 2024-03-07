@@ -88,6 +88,7 @@ function testLatestEditsRepeatedArticle() {
       },
     },
   ];
+  
   const isError =
     JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
   return {
@@ -95,8 +96,8 @@ function testLatestEditsRepeatedArticle() {
     msg: isError
       ? [
           `Items don't match.`,
-          `Item 1: ${JSON.stringify(functionLatestEdit)}`,
-          `Item 2: ${JSON.stringify(expectedLatestEdit)}`,
+          `Get: ${JSON.stringify(functionLatestEdit)}`,
+          `Expected: ${JSON.stringify(expectedLatestEdit)}`,
         ]
       : "",
     fnName,
@@ -131,6 +132,8 @@ function testLatestEditEmptyIndex() {
 }
 
 function testGetArticleNormalized() {
+  //NEED CHECK AFTER FIX OF getArticleNormalized
+
   const fnName = "testGetArticleNormalized";
   const articleIndex = realArticleIndexInMainnet;
   let articleNormalized;
@@ -163,6 +166,7 @@ return (
       {
         fnName: "testLatestEditsRepeatedArticle",
         fn: testLatestEditsRepeatedArticle,
+        description: "Should remove repeated articles keeping newest",
       },
       {
         fnName: "testLatestEditEmptyIndex",

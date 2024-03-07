@@ -7,12 +7,15 @@ function displayTestsResults(functionArray) {
   const functionsPassingTest = [];
   for (let i = 0; i < functionArray.length; i++) {
     const fn = functionArray[i].fn;
+    console.log("functionArray[i]:", functionArray[i])
 
     //Sets a key for this function in errorResults
-    errorResults[functionArray[i].fnName + i] = [];
-
+    errorResults[functionArray[i].fnName] = {}
+    errorResults[functionArray[i].fnName].description =
+      functionArray[i].description;
+    errorResults[functionArray[i].fnName].errorList = [];
     if (typeof fn !== "function") {
-      errorResults[functionArray[i].fnName + i].push(
+      errorResults[functionArray[i].fnName].errorList.push(
         `${functionArray[i].fnName} is not a function`
       );
       continue;
@@ -21,19 +24,23 @@ function displayTestsResults(functionArray) {
     const fnResult = fn();
     if (fnResult.isError) {
       //Error msg can be an string to use 1 line or an Array to use 1 line per element in the Array
-      errorResults[functionArray[i].fnName + i].push(fnResult.msg);
+      errorResults[functionArray[i].fnName].errorList.push(fnResult.msg);
     } else {
-      functionsPassingTest.push(functionArray[i].fnName + i);
+      functionsPassingTest.push(functionArray[i].fnName);
     }
   }
 
   //Filter functions without errors of list
   let filteredErrorResults = Object.keys(errorResults)
-    .filter((keyName) => errorResults[keyName].length > 0)
+    .filter((keyName) => errorResults[keyName].errorList.length > 0)
     .reduce((newObj, key) => {
-      newObj[key] = errorResults[key];
+      newObj[key] = {
+        description: errorResults[key].description,
+        errorList: errorResults[key].errorList,
+      };
       return newObj;
     }, {});
+  console.log("filteredErrorResults: ", filteredErrorResults);
 
   const Note = styled.strong`
     font-size: small;
@@ -52,14 +59,16 @@ function displayTestsResults(functionArray) {
       <div>
         {Object.keys(filteredErrorResults).length ? (
           <>
-            <Note>
+            {/*<Note>
               *The number after the function name represents the index asociated
               to the function. You can call multiple times the same function.
-            </Note>
+            </Note>*/}
             {functionsPassingTest.length > 0 && (
               <div>
                 <strong className="text-success">
-                  {`${functionsPassingTest.length} function${functionsPassingTest.length > 1 ? "s" : ""} have passed the test:`} 
+                  {`${functionsPassingTest.length} function${
+                    functionsPassingTest.length > 1 ? "s" : ""
+                  } have passed the test:`}
                 </strong>
                 <div className="alert alert-success">
                   <ul>
@@ -78,14 +87,15 @@ function displayTestsResults(functionArray) {
                   return (
                     <div>
                       <strong className="text-danger">
-                        {filteredErrorResults[fn].length}{" "}
-                        {`error${
-                          filteredErrorResults[fn].length > 1 ? "s" : ""
-                        } running function ${fn}`}
-                        :
+                        {`${fn}`}:
                       </strong>
+                      {filteredErrorResults[fn].description && (
+                        <span className="text-danger">
+                          {filteredErrorResults[fn].description}
+                        </span>
+                      )}
                       <div className="alert alert-danger" role="alert" key={i}>
-                        {filteredErrorResults[fn].map((error) => {
+                        {filteredErrorResults[fn].errorList.map((error) => {
                           return (
                             <>
                               {typeof error === "string" ? (
@@ -99,7 +109,8 @@ function displayTestsResults(functionArray) {
                                   Error passed wrongly
                                 </p>
                               )}
-                              {filteredErrorResults[fn].length > 1 && <hr />}
+                              {filteredErrorResults[fn].errorList.length >
+                                1 && <hr />}
                             </>
                           );
                         })}
