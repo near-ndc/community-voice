@@ -1,6 +1,6 @@
 const { getUserSBTs, getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT");
 const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes");
-const { generateMetadata, updateMetadata } = VM.require("sayalot.near/widget/lib.metadata");
+const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require("sayalot.near/widget/lib.metadata");
 const { normalizeObjectWithMetadata } = VM.require("sayalot.near/widget/lib.normalization");
 const { camelCaseToUserReadable } = VM.require("sayalot.near/widget/lib.strings");
 
@@ -25,6 +25,7 @@ function getAction(version) {
     const baseAction = getConfig().baseActions.article
     const versionData = version ? versions[version] : versions[currentVersion]
     const action = baseAction + versionData.actionSuffix
+    console.log(1, version, baseAction, versionData, action)
     return getConfig().isTest ? `test_${action}` : action
 }
 
@@ -215,12 +216,12 @@ function getLatestEdits(articles) {
 
 function applyUserFilters(articles, filters) {
     const { id, sbt } = filters
-    if(id) {
+    if (id) {
         articles = articles.filter((article) => {
             return article.value.metadata.id === id
         })
     }
-    if(sbt) {
+    if (sbt) {
         articles = articles.filter((article) => {
             return article.value.metadata.sbt === sbt
         })
@@ -228,8 +229,12 @@ function applyUserFilters(articles, filters) {
     return articles
 }
 
+function isActive(article) {
+    return article.value.metadata && !article.value.metadata.isDelete
+}
+
 function getArticlesNormalized(userFilters) {
-    
+
     const articlesDataPromises = Object.keys(versions).map((version) => {
         // const action = versions[version].action;
         const action = getAction(version)
@@ -242,8 +247,9 @@ function getArticlesNormalized(userFilters) {
         const articles = articlesVersionArray.flat()
         const filteredArticles = applyUserFilters(articles, userFilters)
         const latestEdits = getLatestEdits(filteredArticles)
-        
-        return latestEdits
+        const activeArticles = latestEdits.filter(isActive)
+
+        return activeArticles
     })
 
 }
@@ -365,7 +371,7 @@ function validateArticleData(article) {
     errArrMessage.push(...expectedArrayProperties.filter((currentProperty) => {
         return !Array.isArray(article[currentProperty])
     }).map((currentProperty) => `Article ${camelCaseToUserReadable(currentProperty)}'s is not an array`))
-    
+
     return errArrMessage
 }
 
@@ -392,11 +398,11 @@ function validateMetadata(metadata) {
     errArrMessage.push(...expectedNumberProperties.filter((currentProperty) => {
         return !metadata[currentProperty] || typeof metadata[currentProperty] !== "number"
     }).map((currentProperty) => `Property ${camelCaseToUserReadable(currentProperty)}'s is not an array`))
-    
+
 
     const sbtWhiteList = getSBTWhiteList(getConfig())
 
-    if(!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
+    if (!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
         errArrMessage.push(`Invalid SBT: ${article.sbt}`)
     }
     return errArrMessage
@@ -409,7 +415,7 @@ function validateNewArticle(articleData) {
 
 function validateEditArticle(articleData, previousMetadata) {
     const errorArray = validateArticleData(articleData)
-    if(!previousMetadata.id) {
+    if (!previousMetadata.id) {
         errorArray.push(`Trying to edit article with no article id`)
     }
     return errorArray
@@ -417,25 +423,25 @@ function validateEditArticle(articleData, previousMetadata) {
 
 function extractMentions(text) {
     const mentionRegex =
-      /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
+        /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
     mentionRegex.lastIndex = 0;
     const accountIds = new Set();
     for (const match of text.matchAll(mentionRegex)) {
-      if (
-        !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
-        !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
-        match[1].length >= 2 &&
-        match[1].length <= 64
-      ) {
-        accountIds.add(match[1].toLowerCase());
-      }
+        if (
+            !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
+            !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
+            match[1].length >= 2 &&
+            match[1].length <= 64
+        ) {
+            accountIds.add(match[1].toLowerCase());
+        }
     }
     return [...accountIds];
-  }
+}
 
 // function handleNotifications(article) {
 //     const mentions = extractMentions(article.body);
-  
+
 //     if (mentions.length > 0) {
 //       const dataToAdd = getNotificationData(
 //         "mention",
@@ -444,7 +450,7 @@ function extractMentions(text) {
 //           isTest ? "&isTest=t" : ""
 //         }`
 //       );
-  
+
 //       data.post = dataToAdd.post;
 //       data.index.notify = dataToAdd.index.notify;
 //     }
@@ -452,19 +458,19 @@ function extractMentions(text) {
 
 function composeData(article) {
     let data = {
-      index: {
-        [getAction()]: JSON.stringify({
-          key: "main",
-          value: {
-            ...article
-          },
-        }),
-      },
+        index: {
+            [getAction()]: JSON.stringify({
+                key: "main",
+                value: {
+                    ...article
+                },
+            }),
+        },
     };
-  
+
     // TODO handle notifications properly
     // const mentions = extractMentions(article.body);
-  
+
     // if (mentions.length > 0) {
     //   const dataToAdd = getNotificationData(
     //     "mention",
@@ -473,13 +479,30 @@ function composeData(article) {
     //       isTest ? "&isTest=t" : ""
     //     }`
     //   );
-  
+
     //   data.post = dataToAdd.post;
     //   data.index.notify = dataToAdd.index.notify;
     // }
-  
+
     return data;
-  }
+}
+
+function composeDeleteData(articleId) {
+    const deleteMetadata = buildDeleteMetadata(articleId)
+    let data = {
+        index: {
+            [getAction()]: JSON.stringify({
+                key: "main",
+                value: {
+                    metadata: {
+                        ...deleteMetadata
+                    }
+                },
+            }),
+        },
+    };
+    return data
+}
 
 function executeSaveArticle(article, onCommit, onCancel) {
     const newData = composeData(article);
@@ -491,6 +514,15 @@ function executeSaveArticle(article, onCommit, onCancel) {
 
     return articleData.id
 };
+
+function executeDeleteArticle(articleId, onCommit, onCancel) {
+    const newData = composeDeleteData(articleId);
+    Social.set(newData, {
+        force: true,
+        onCommit,
+        onCancel,
+    });
+}
 
 function createArticle(config, articleData, userMetadataHelper, onCommit, onCancel) {
     setConfig(config)
@@ -520,7 +552,7 @@ function editArticle(config, newArticleData, previousMetadata, onCommit, onCance
     if (errors && errors.length) {
         return { error: true, data: errors }
     }
-    
+
     const newMetadata = updateMetadata(previousMetadata, currentVersion)
     const article = {
         articleData: newArticleData,
@@ -530,4 +562,9 @@ function editArticle(config, newArticleData, previousMetadata, onCommit, onCance
     return { error: false, data: result };
 }
 
-return { createArticle, getArticles, editArticle, deleteCommunity, getLatestEdits }
+function deleteArticle(config, articleId, onCommit, onCancel) {
+    setConfig(config)
+    executeDeleteArticle(articleId, onCommit, onCancel)
+}
+
+return { createArticle, getArticles, editArticle, deleteArticle, getLatestEdits }

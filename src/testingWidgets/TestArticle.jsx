@@ -1,4 +1,4 @@
-const { getArticles, createArticle, editArticle } = VM.require("sayalot.near/widget/lib.article")
+const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("sayalot.near/widget/lib.article")
 const { getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
@@ -83,6 +83,11 @@ function modifyArticle(article) {
     }
 }
 
+function removeArticle(article) {
+    console.log("Removing article", article.value.metadata.id)
+    deleteArticle(config, article.value.metadata.id, onCommit, onCancel)
+}
+
 return <>
     <div>
     {errors && errors.length ? errors.map((err, index) => {
@@ -93,7 +98,7 @@ return <>
     <button onClick={failNewArticle}>Test fail new article</button>
     <button onClick={newArticle}>Test new article</button>
     <button onClick={() => modifyArticle(articles[0])}>Test edit article</button>
-    {/*<button onClick={removeCommunity}>Test remove community</button> */}
+    <button onClick={() => removeArticle(articles[0])}>Test remove article</button>
     { articles.length && <div>
         {articles.map((article, index) => 
         {

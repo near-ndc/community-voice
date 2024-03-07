@@ -18,4 +18,12 @@ function updateMetadata(previousMetadata, versionKey) {
     }
 }
 
-return { generateMetadata, updateMetadata }
+function buildDeleteMetadata(id) {
+    return {
+        id,
+        isDelete: true,
+        deleteTimestamp: Date.now()
+    }
+}
+
+return { generateMetadata, updateMetadata, buildDeleteMetadata }
