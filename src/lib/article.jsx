@@ -30,10 +30,11 @@ function getConfig() {
 }
 
 function getAction(version, config) {
-  const baseAction = config.baseActions.article ?? getConfig().baseActions.article;
+  const baseAction =
+    config.baseActions.article ?? getConfig().baseActions.article;
   const versionData = version ? versions[version] : versions[currentVersion];
   const action = baseAction + versionData.actionSuffix;
-//   console.log(1, version, baseAction, versionData, action);
+  //   console.log(1, version, baseAction, versionData, action);
   return getConfig().isTest ? `test_${action}` : action;
 }
 
@@ -635,4 +636,6 @@ return {
   getArticlesIndexes,
   getLatestEdits,
   getAction,
+  filterFakeAuthors,
+  getArticleBlackListByArticleId,
 };

@@ -4,6 +4,8 @@ const {
   getArticleNormalized,
   getArticlesIndexes,
   getAction,
+  filterFakeAuthors,
+  getArticleBlackListByArticleId,
 } = VM.require("sayalot.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
   "sayalot.near/widget/tests.lib.tester"
@@ -270,6 +272,112 @@ function testGetActionNotPassingParameters() {
   }
 }
 
+function testFilterFakeAuthorsAuthorDoesntMatch() {
+  const fnName = "testFilterFakeAuthors";
+  const articleData = {
+    author: "a",
+  };
+  const articleIndexData = {
+    accountId: "b",
+  };
+  let result;
+  try {
+    result = filterFakeAuthors(articleData, articleIndexData);
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const expectedLatestEdit = undefined;
+
+  const isError = !(result === expectedLatestEdit);
+  return {
+    isError: isError,
+    msg: isError
+      ? `This item should be filtered and it's not been filtered`
+      : "",
+    fnName,
+  };
+}
+
+function testFilterFakeAuthorsMatchAuthor() {
+  const fnName = "testFilterFakeAuthors";
+  const articleData = {
+    author: "a",
+  };
+  const articleIndexData = {
+    accountId: "a",
+  };
+  let result;
+  try {
+    result = filterFakeAuthors(articleData, articleIndexData);
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const expectedLatestEdit = articleData;
+
+  const isError = JSON.stringify(result) !== JSON.stringify(expectedLatestEdit);
+  return {
+    isError: isError,
+    msg: isError
+      ? `This item should not be filtered and it's been filtered`
+      : "",
+    fnName,
+  };
+}
+
+function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
+  let result;
+  try {
+    result = getArticleBlackListByArticleId();
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const arrayArticleIdIsValid = result.map((articleId) => {
+    //articleId example: "silkking.near-1696797896796"
+    const splitedArticleId = articleId.split("-");
+    
+    const timeStampPartOfArticleId = splitedArticleId.pop();
+    
+    let userNamePartOfArticleId;
+    if (splitedArticleId.length === 1) {
+      userNamePartOfArticleId = splitedArticleId;
+    } else {
+      userNamePartOfArticleId = splitedArticleId.join("-");
+    }
+
+    const userNameRegEx = /^[a-zA-Z0-9._-]/;
+
+    const isTimeStampANumber = !isNaN(Number(timeStampPartOfArticleId));
+    const isValidUserName = userNameRegEx.test(userNamePartOfArticleId);
+
+    return isTimeStampANumber && isValidUserName;
+  });
+
+  const isError = arrayArticleIdIsValid.includes(false);
+
+  return {
+    isError: isError,
+    msg: isError
+      ? `One or more articleId passed does not have the correct format`
+      : "",
+    fnName,
+  };
+}
+
 async function testGetArticlesIndexes() {
   function doResponseHavePropperIndexStructure(res) {
     return res
@@ -373,6 +481,22 @@ return (
         fnName: "testGetActionNotPassingParameters",
         fn: testGetActionNotPassingParameters,
         description: "Should get the propper action",
+      },
+      {
+        fnName: "testFilterFakeAuthorsMatchAuthor",
+        fn: testFilterFakeAuthorsMatchAuthor,
+        description: "Test if filtering is working propperly",
+      },
+      {
+        fnName: "testFilterFakeAuthorsAuthorDoesntMatch",
+        fn: testFilterFakeAuthorsAuthorDoesntMatch,
+        description: "Test if filtering is working propperly",
+      },
+      {
+        fnName: "testGetArticleBlackListByArticleIdReturnValidAccountIds",
+        fn: testGetArticleBlackListByArticleIdReturnValidAccountIds,
+        description:
+          "Test if getArticleBlackListByArticle returns valid articleId's",
       },
     ])}
     {asyncComponent}
