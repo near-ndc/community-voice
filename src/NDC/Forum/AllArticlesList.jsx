@@ -37,10 +37,10 @@ let initLibsCalls = { upVotes: [] };
 initLibsCalls.upVotes = articlesToRender.map((article) => {
   return {
     functionName: "getUpVotes",
-    key: `upVotes-${article.id}`,
+    key: `upVotes-${article.metadata.id}`,
     props: {
-      id: article.id ?? `${article.author}-${article.timeCreate}`,
-      sbtsNames: article.sbts ?? [],
+      id: article.metadata.id ?? `${article.metadata.author}-${article.metadata.timeCreate}`,
+      sbtsNames: article.metadata.sbts ?? [],
     },
   };
 });
@@ -64,8 +64,8 @@ if (state.upVotesBySBT && Object.keys(state.upVotesBySBT).length > 0) {
 }
 
 let finalArticlesWithUpVotes = articlesToRender.map((article) => {
-  if (state[`upVotes-${article.id}`]) {
-    const key = Object.keys(state[`upVotes-${article.id}`])[0];
+  if (state[`upVotes-${article.metadata.id}`]) {
+    const key = Object.keys(state[`upVotes-${article.metadata.id}`])[0];
     const articleUpVotes = state[`upVotes-${article.id}`][key];
     article.upVotes = articleUpVotes;
 
@@ -105,8 +105,9 @@ const olderArticlesWithUpVotes = articlesFilteredBySerch
   .sort((a, b) => b.upVotes.length - a.upVotes.length);
 
 const sortedFinalArticlesWithUpVotes = [
-  ...newestArticlesWithUpVotes,
-  ...olderArticlesWithUpVotes,
+  // ...newestArticlesWithUpVotes,
+  // ...olderArticlesWithUpVotes,
+  ...articlesToRender
 ];
 
 //=============================================END INITIALIZATION===================================================
@@ -282,16 +283,16 @@ return (
       <ArticlesListContainer className="row card-group py-3">
         {sortedFinalArticlesWithUpVotes.length > 0 ? (
           sortedFinalArticlesWithUpVotes.map((article, i) => {
-            const authorProfileCall = Social.getr(`${article.author}/profile`);
+            const authorProfileCall = Social.getr(`${article.value.metadata.author}/profile`);
 
             if (authorProfileCall) {
               article.authorProfile = authorProfileCall;
             }
 
             // If some widget posts data different than an array it will be ignored
-            if (!Array.isArray(article.tags)) article.tags = [];
+            if (!Array.isArray(article.value.articleData.tags)) article.value.articleData.tags = [];
             return (
-              <div key={article.id}>
+              <div key={article.value.metadata.id}>
                 <Widget
                   src={widgets.views.editableWidgets.generalCard}
                   props={{

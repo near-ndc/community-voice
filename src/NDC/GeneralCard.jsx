@@ -1,4 +1,7 @@
 // NDC.GeneralCard
+const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+
 //===============================================INITIALIZATION=====================================================
 
 const {
@@ -16,19 +19,32 @@ const {
   switchShowPreview,
 } = props;
 
-if (!Array.isArray(data.tags) && typeof data.tags === "object") {
-  data.tags = Object.keys(data.tags);
+if (!Array.isArray(data.value.articleData.tags) && typeof data.value.articleData.tags === "object") {
+  data.value.articleData.tags = Object.keys(data.value.articleData.tags);
 }
 
-data.tags = data.tags.filter((tag) => tag !== undefined && tag !== null);
+data.value.articleData.tags = data.value.articleData.tags.filter((tag) => tag !== undefined && tag !== null);
 
-const tags = data.tags;
-const accountId = data.author;
-const title = data.title;
-const content = data.body;
-const timeLastEdit = data.timeLastEdit;
-const id = data.id ?? `${data.author}-${data.timeCreate}`;
-const upVotes = data.upVotes;
+const tags = data.value.articleData.tags;
+const accountId = data.value.metadata.author;
+const title = data.value.articleData.title;
+const content = data.value.articleData.body;
+const timeLastEdit = data.value.metadata.lastEditTimestamp;
+const id = data.value.metadata.id ?? `${data.author}-${data.metadata.createdTiemestamp}`;
+const [upVotes, setUpVotes] = useState([])
+
+function loadUpVotes() {
+    getUpVotes(id, getConfig(isTest)).then((newVotes) => {
+        setUpVotes(newVotes)
+    })
+}
+
+useEffect(() => {
+    loadUpVotes()
+    setInterval(() => {
+        loadUpVotes()
+    }, 30000)
+}, [])
 
 //For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
 const articleSbts = articleToRenderData.sbts ?? data.sbts ?? [];
@@ -38,7 +54,7 @@ const libSrcArray = [widgets.libs.libComment];
 function stateUpdate(obj) {
   State.update(obj);
 }
-
+console.log("data - GeneralCard.jsx - line 41", data)
 const initLibsCalls = {
   comment: [
     {

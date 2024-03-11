@@ -1,5 +1,6 @@
 // NDC.Forum
-
+const { getArticles } = VM.require("sayalot.near/widget/lib.article");
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 //===============================================INITIALIZATION=====================================================
 let {
   sharedBlockHeight,
@@ -41,14 +42,6 @@ const sbtsNames = state.sbt;
 const initLibsCalls = {
   article: [
     {
-      functionName: "getArticles",
-      key: "articles",
-      props: {
-        env: isTest ? "test" : "prod",
-        sbtsNames: sbtWhiteList,
-      },
-    },
-    {
       functionName: "canUserCreateArticle",
       key: "canLoggedUserCreateArticle",
       props: {
@@ -58,6 +51,25 @@ const initLibsCalls = {
     },
   ],
 };
+
+const [articlesToRender, setArticlesToRender] = useState([])
+console.log("sbts - Forum.jsx - line 56",state.sbts)
+function loadArticles(sbts) {
+  const userFilters = {id: undefined, sbt: sbts}
+  console.log(userFilters)
+  getArticles(getConfig(isTest), userFilters).then((newArticles) => {
+      setArticlesToRender(newArticles)
+      console.log("articlesToRender - Forum.jsx - line 62",newArticles)
+  })
+}
+
+useEffect(() => {
+  loadArticles(state.sbts[0])
+  const intervalId = setInterval(() => {
+      loadArticles(state.sbts[0])
+  }, 10000)
+  return clearInterval(intervalId)
+}, [state.sbts[0]])
 
 accountId = context.accountId;
 
@@ -166,26 +178,26 @@ const canLoggedUserCreateArticle = state.canLoggedUserCreateArticle[sbts[0]];
 //=================================================GET DATA=========================================================
 const finalArticles = state.articles;
 
-function getArticlesToRender() {
-  if (
-    (sharedBlockHeight || sharedArticleId) &&
-    finalArticles &&
-    state.firstRender
-  ) {
-    let finalArticlesSbts = Object.keys(finalArticles);
-    let allArticles = [];
+// function getArticlesToRender() {
+//   if (
+//     (sharedBlockHeight || sharedArticleId) &&
+//     finalArticles &&
+//     state.firstRender
+//   ) {
+//     let finalArticlesSbts = Object.keys(finalArticles);
+//     let allArticles = [];
 
-    finalArticlesSbts.forEach((sbt) => {
-      allArticles = [...allArticles, ...finalArticles[sbt]];
-    });
+//     finalArticlesSbts.forEach((sbt) => {
+//       allArticles = [...allArticles, ...finalArticles[sbt]];
+//     });
 
-    return allArticles;
-  } else {
-    return finalArticles[sbts[0]];
-  }
-}
+//     return allArticles;
+//   } else {
+//     return finalArticles[sbts[0]];
+//   }
+// }
 
-const articlesToRender = getArticlesToRender() ?? [];
+//const articlesToRender = getArticlesToRender() ?? [];
 
 function filterArticlesByTag(tag, articles) {
   return articles.filter((article) => {

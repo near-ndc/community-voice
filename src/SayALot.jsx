@@ -1,4 +1,6 @@
 // SayALot
+const { getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT");
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 
 let {
   sharedBlockHeight,
@@ -11,33 +13,16 @@ let {
   topicShared,
 } = props;
 
-const initLibsCalls = {
-  SBT: [
-    {
-      functionName: "getSBTWhiteList",
-      key: "sbtWhiteList",
-      props: {},
-    },
-  ],
-};
-
 State.init({
   functionsToCallByLibrary: initLibsCalls,
   usersSBTs: [],
 });
 
 const usersSBTs = state.usersSBTs;
-
-let newLibsCalls = state.functionsToCallByLibrary;
-
-State.update({ libsCalls: newLibsCalls });
-
-const sbtWhiteList = state.sbtWhiteList
-  ? state.sbtWhiteList.map((sbt) => sbt.value)
-  : undefined;
-
+const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
+console.log("sbtWhiteList - SayALot.jsx - line 23", sbtWhiteList)
 function createSbtOptions() {
-  return state.sbtWhiteList;
+  return getSBTWhiteList(getConfig(isTest));
 }
 
 // const componentsOwner =
