@@ -35,7 +35,8 @@ const [upVotes, setUpVotes] = useState([])
 
 function loadUpVotes() {
     getUpVotes(id, getConfig(isTest)).then((newVotes) => {
-        setUpVotes(newVotes)
+      console.log("newVotes - GeneralCards.jsx - line 38", newVotes)
+      setUpVotes(newVotes)
     })
 }
 
@@ -54,7 +55,7 @@ const libSrcArray = [widgets.libs.libComment];
 function stateUpdate(obj) {
   State.update(obj);
 }
-console.log("data - GeneralCard.jsx - line 41", data)
+console.log("data - GeneralCard.jsx - line 58", data)
 const initLibsCalls = {
   comment: [
     {

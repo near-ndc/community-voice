@@ -1,4 +1,6 @@
 // NDC.Reactions
+const { getEmojis } = VM.require("sayalot.near/widget/lib.emojis")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const {
   isTest,
@@ -30,46 +32,47 @@ const accountThatIsLoggedIn = context.accountId;
 
 const libSrcArray = [widgets.libs.libEmojis];
 
-const initLibsCalls = {
-  emojis: [
-    {
-      functionName: "getEmojis",
-      key: "reactionsData",
-      props: {
-        elementReactedId,
-        sbtsNames,
-      },
-    },
-  ],
-};
-
 State.init({
-  emoji: undefined,
-  reactionsData: { reactionsStatistics: [], userReaction: undefined },
-  // reactionsData: {},
-  show: false,
-  loading: false,
   functionsToCallByLibrary: initLibsCalls,
 });
+
+const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userReaction: undefined})
+const [show, setShow] = useState(false)
+const [loading, setLoading] = useState(false)
+
+function loadEmojis() {
+  getEmojis(elementReactedId, getConfig(), context.accountId).then((newEmojis) => {
+    setReactionsData(newEmojis)
+    console.log("newEmojis - Reactions.jsx - line 63", newEmojis)
+  })
+}
+
+useEffect(() => {
+    loadEmojis()
+    setInterval(() => {
+      loadEmojis()
+    }, 30000)
+}, [])
 
 // ================= Mouse Handlers ===============
 
 function handleOnMouseEnter() {
   if (!disabled) {
-    State.update({ show: true });
+    setShow(true)
   }
 }
 
 function handleOnMouseLeave() {
-  State.update({ show: false });
+  setShow(false)
 }
 
 function onPushEnd() {
-  State.update({ loading: false, show: false });
+  setLoading(false)
+  setShow(false)
 }
 
 function reactListener(emojiToWrite) {
-  if (state.loading || disabled) {
+  if (loading || disabled) {
     return;
   }
 
@@ -90,7 +93,8 @@ function reactListener(emojiToWrite) {
       onCancel: onPushEnd,
     },
   });
-  State.update({ functionsToCallByLibrary: newLibsCalls, loading: true });
+  setLoading(true)
+  State.update({ functionsToCallByLibrary: newLibsCalls });
 }
 
 function reactionsStateUpdate(obj) {
@@ -220,7 +224,7 @@ const Overlay = () => {
     <EmojiListWrapper
       onMouseEnter={handleOnMouseEnter}
       onMouseLeave={handleOnMouseLeave}
-      show={state.show}
+      show={show}
     >
       {emojiArray &&
         emojiArray.map((item) => {
@@ -276,14 +280,14 @@ return (
     <EmojiWrapper>
       {!disabled && (
         <>
-          {state.reactionsData.userReaction ? (
+          {reactionsData.userReaction ? (
             <SmallReactButton
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             >
-              {state.loading && <Spinner />}
-              {state.reactionsData.reactionsStatistics &&
-                state.reactionsData.reactionsStatistics.map((item) =>
+              {loading && <Spinner />}
+              {reactionsData.reactionsStatistics &&
+                reactionsData.reactionsStatistics.map((item) =>
                   renderReaction(item, true)
                 )}
             </SmallReactButton>
@@ -292,15 +296,15 @@ return (
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             >
-              {state.loading && <Spinner />}
+              {loading && <Spinner />}
               {initialEmoji}
             </Button>
           )}
         </>
       )}
       <Overlay />
-      {state.reactionsData.reactionsStatistics &&
-        state.reactionsData.reactionsStatistics.map((item) =>
+      {reactionsData.reactionsStatistics &&
+        reactionsData.reactionsStatistics.map((item) =>
           renderReaction(item, false)
         )}
     </EmojiWrapper>
