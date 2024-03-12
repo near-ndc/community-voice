@@ -164,6 +164,7 @@ function testGetArticleNormalized() {
 }
 
 function testGetActionInIsTestPassingParameters() {
+  const fnName = "testGetActionInIsTestPassingParameters";
   const config = { baseActions: { article: versionsBaseActions }, isTest };
   try {
     const resultAction = getAction(currentVersion, config);
@@ -192,6 +193,7 @@ function testGetActionInIsTestPassingParameters() {
 }
 
 function testGetActionInIsTestNotPassingParameters() {
+  const fnName = "testGetActionInIsTestNotPassingParameters";
   try {
     const resultAction = getAction();
     const expectedAction = baseAction;
@@ -219,6 +221,7 @@ function testGetActionInIsTestNotPassingParameters() {
 }
 
 function testGetActionPassingParameters() {
+  const fnName = "testGetActionPassingParameters";
   const config = { baseActions: { article: baseAction }, isTest: false };
   try {
     const resultAction = getAction(currentVersion, config);
@@ -247,6 +250,7 @@ function testGetActionPassingParameters() {
 }
 
 function testGetActionNotPassingParameters() {
+  const fnName = "testGetActionNotPassingParameters";
   try {
     const resultAction = getAction();
     const expectedAction = baseAction;
@@ -336,6 +340,8 @@ function testFilterFakeAuthorsMatchAuthor() {
 }
 
 function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
+  const fnName = "testGetArticleBlackListByArticleIdReturnValidAccountIds";
+
   let result;
   try {
     result = getArticleBlackListByArticleId();
@@ -350,9 +356,9 @@ function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
   const arrayArticleIdIsValid = result.map((articleId) => {
     //articleId example: "silkking.near-1696797896796"
     const splitedArticleId = articleId.split("-");
-    
+
     const timeStampPartOfArticleId = splitedArticleId.pop();
-    
+
     let userNamePartOfArticleId;
     if (splitedArticleId.length === 1) {
       userNamePartOfArticleId = splitedArticleId;
@@ -380,6 +386,7 @@ function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
 }
 
 function testGetArticleBlackListByBlockHeightReturnsNumbers() {
+  const fnName = "testGetArticleBlackListByBlockHeightReturnsNumbers";
   let result;
   try {
     result = getArticleBlackListByBlockHeight();
@@ -391,7 +398,7 @@ function testGetArticleBlackListByBlockHeightReturnsNumbers() {
     };
   }
 
-  const arrayIsResultANumber = result.map((blockHeihgt) => {    
+  const arrayIsResultANumber = result.map((blockHeihgt) => {
     const isResultANumber = !isNaN(Number(blockHeihgt));
 
     return isResultANumber;
@@ -401,14 +408,13 @@ function testGetArticleBlackListByBlockHeightReturnsNumbers() {
 
   return {
     isError: isError,
-    msg: isError
-      ? `One or more blockHeights passed are not numbers`
-      : "",
+    msg: isError ? `One or more blockHeights passed are not numbers` : "",
     fnName,
   };
 }
 
 async function testGetArticlesIndexes() {
+  const fnName = "testGetArticlesIndexes";
   function doResponseHavePropperIndexStructure(res) {
     return res
       .map((articleIndex) => {
@@ -531,8 +537,7 @@ return (
       {
         fnName: "testGetArticleBlackListByBlockHeightReturnsNumbers",
         fn: testGetArticleBlackListByBlockHeightReturnsNumbers,
-        description:
-          "Test if getArticleBlackListByBlockHeight returns numbers",
+        description: "Test if getArticleBlackListByBlockHeight returns numbers",
       },
     ])}
     {asyncComponent}

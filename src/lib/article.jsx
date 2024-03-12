@@ -374,7 +374,7 @@ const versions = {
   },
 };
 
-function validateArticleData(article) {
+function validateUpVoteData(article) {
   // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
@@ -458,13 +458,13 @@ function validateMetadata(metadata) {
   return errArrMessage;
 }
 
-function validateNewArticle(articleData) {
-  const errorArray = validateArticleData(articleData);
+function validateNewUpVote(articleData) {
+  const errorArray = validateUpVoteData(articleData);
   return errorArray;
 }
 
 function validateEditArticle(articleData, previousMetadata) {
-  const errorArray = validateArticleData(articleData);
+  const errorArray = validateUpVoteData(articleData);
   if (!previousMetadata.id) {
     errorArray.push(`Trying to edit article with no article id`);
   }
@@ -582,7 +582,7 @@ function createArticle(
   onCancel
 ) {
   setConfig(config);
-  const errors = validateNewArticle(articleData, author);
+  const errors = validateNewUpVote(articleData, author);
   if (errors && errors.length) {
     return { error: true, data: errors };
   }

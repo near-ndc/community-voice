@@ -102,6 +102,74 @@ function getUpVotes(articleId, config) {
   })
 }
 
+function validateUpVoteData(article) {
+  // ADD SBT VALIDATION
+  // const expectedStringProperties = ["title", "body"];
+  // const expectedArrayProperties = ["tags"];
+  const errArrMessage = [];
+  // String properties
+  // errArrMessage.push(
+  //   ...expectedStringProperties
+  //     .filter((currentProperty) => {
+  //       const isValidProperty =
+  //         !article[currentProperty] ||
+  //         typeof article[currentProperty] !== "string";
+  //       return isValidProperty;
+  //     })
+  //     .map(
+  //       (currentProperty) =>
+  //         `Missing ${camelCaseToUserReadable(currentProperty)} or not a string`
+  //     )
+  // );
+  // Array properties
+  // errArrMessage.push(
+  //   ...expectedArrayProperties
+  //     .filter((currentProperty) => {
+  //       return !Array.isArray(article[currentProperty]);
+  //     })
+  //     .map(
+  //       (currentProperty) =>
+  //         `Article ${camelCaseToUserReadable(
+  //           currentProperty
+  //         )}'s is not an array`
+  //     )
+  // );
+
+  return errArrMessage;
+}
+
+function validateNewUpVote(upVoteData) {
+  const errorArray = validateUpVoteData(upVoteData);
+  return errorArray;
+}
+
+function createUpVote(
+  config,
+  upVoteData,
+  userMetadataHelper,
+  onCommit,
+  onCancel
+) {
+  setConfig(config);
+  const errors = validateNewUpVote(upVoteData, author);
+  if (errors && errors.length) {
+    return { error: true, data: errors };
+  }
+
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "article",
+    versionKey: currentVersion,
+  };
+  const metadata = generateMetadata(metadataHelper);
+  const article = {
+    articleData: upVoteData,
+    metadata,
+  };
+  const result = executeSaveArticle(article, onCommit, onCancel);
+  return { error: false, data: result };
+}
 
 
-return { getUpVotes }
+
+return { getUpVotes, normalizeOldToV_0_0_1, normalizeFromV0_0_1ToV0_0_2, normalizeFromV0_0_2ToV0_0_3, getUpVotesData, fillAction, getUpVoteBlackListByBlockHeight, getLatestEdits, filterInvalidUpVotes, normalizeUpVote }
