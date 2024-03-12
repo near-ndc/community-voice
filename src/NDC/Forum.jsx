@@ -221,7 +221,7 @@ function filterOnePostByBlockHeight(blockHeight, articles) {
 
 function filterOnePostByArticleId(articleId, articles) {
   if (articles) {
-    return articles.filter((article) => article.id === articleId);
+    return articles.filter((article) => article.value.metadata.id === articleId);
   } else {
     return [];
   }
@@ -251,7 +251,7 @@ if (state.filterBy.parameterName === "tag") {
     state.filterBy.parameterValue,
     articlesToRender
   );
-
+  console.log("articlesToRenderData - Forum.jsx - line 254", articlesToRender[0])
   if (articlesToRender.length > 0) {
     State.update({ articleToRenderData: articlesToRender[0] });
   }
@@ -739,7 +739,7 @@ return (
         }}
       />
     )}
-    {state.articleToRenderData.title &&
+    {state.articleToRenderData.value.articleData.title &&
       state.displayedTabId == tabs.SHOW_ARTICLE.id && (
         <Widget
           src={widgets.views.editableWidgets.articleView}

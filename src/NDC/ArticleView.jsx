@@ -21,19 +21,19 @@ if (!callLibs) {
   callLibs = () => {};
 }
 
-const accountId = articleToRenderData.author;
+const accountId = articleToRenderData.value.metadata.author;
 const id =
-  articleToRenderData.id ??
-  `${articleToRenderData.author}-${articleToRenderData.timeCreate}`;
+  articleToRenderData.value.metadata.id ??
+  `article/${articleToRenderData.value.metadata.author}/${articleToRenderData.value.metadata.createdTimestamp}`;
 
 if (
-  !Array.isArray(articleToRenderData.tags) &&
-  typeof articleToRenderData.tags === "object"
+  !Array.isArray(articleToRenderData.value.articleData.tags) &&
+  typeof articleToRenderData.value.articleData.tags === "object"
 ) {
-  articleToRenderData.tags = Object.keys(articleToRenderData.tags);
+  articleToRenderData.value.articleData.tags = Object.keys(articleToRenderData.value.articleData.tags);
 }
 
-articleToRenderData.tags = articleToRenderData.tags.filter(
+articleToRenderData.value.articleData.tags = articleToRenderData.value.articleData.tags.filter(
   (tag) => tag !== undefined && tag !== null
 );
 
@@ -78,7 +78,7 @@ State.init({
 
 const canLoggedUserCreateComment = state.canLoggedUserCreateComment;
 
-const timeLastEdit = new Date(articleToRenderData.timeLastEdit);
+const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
 
 const CursorPointer = styled.div`
     margin-bottom: 0.5rem;
@@ -574,7 +574,7 @@ return (
               <Widget
                 src={widgets.views.editableWidgets.articleHistory}
                 props={{
-                  articleId: articleToRenderData.id,
+                  articleId: articleToRenderData.value.metadata.id,
                   sbtWhiteList,
                   isTest,
                   sbts: articleSbts,
@@ -619,8 +619,8 @@ return (
                   }}
                 />
                 <TagContainer>
-                  {articleToRenderData.tags.length > 0 &&
-                    articleToRenderData.tags.map((tag) => {
+                  {articleToRenderData.value.metadata.tags.length > 0 &&
+                    articleToRenderData.value.metadata.tags.map((tag) => {
                       const filter = { filterBy: "tag", value: tag };
                       return (
                         <CursorPointer
@@ -674,7 +674,7 @@ return (
                         onClick: () =>
                           handleShareButton(true, {
                             type: "sharedArticleId",
-                            value: articleToRenderData.id,
+                            value: articleToRenderData.value.metadata.id,
                           }),
                       }}
                     />
@@ -739,7 +739,7 @@ return (
               <PlatformContent>
                 <ContentHeader>
                   <ContentHeaderText>
-                    {articleToRenderData.title}
+                    {articleToRenderData.value.articleData.title}
                   </ContentHeaderText>
                 </ContentHeader>
 
@@ -764,7 +764,7 @@ return (
                   }}
                 />
                 {state.sliceContent &&
-                  articleToRenderData.body.length > 1000 && (
+                  articleToRenderData.value.articleData.body.length > 1000 && (
                     <Widget
                       src={
                         widgets.views.standardWidgets.newStyledComponents.Input
