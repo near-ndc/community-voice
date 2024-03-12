@@ -638,4 +638,5 @@ return {
   getAction,
   filterFakeAuthors,
   getArticleBlackListByArticleId,
+  getArticleBlackListByBlockHeight,
 };

@@ -6,6 +6,7 @@ const {
   getAction,
   filterFakeAuthors,
   getArticleBlackListByArticleId,
+  getArticleBlackListByBlockHeight,
 } = VM.require("sayalot.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
   "sayalot.near/widget/tests.lib.tester"
@@ -378,6 +379,35 @@ function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
   };
 }
 
+function testGetArticleBlackListByBlockHeightReturnsNumbers() {
+  let result;
+  try {
+    result = getArticleBlackListByBlockHeight();
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const arrayIsResultANumber = result.map((blockHeihgt) => {    
+    const isResultANumber = !isNaN(Number(blockHeihgt));
+
+    return isResultANumber;
+  });
+
+  const isError = arrayIsResultANumber.includes(false);
+
+  return {
+    isError: isError,
+    msg: isError
+      ? `One or more blockHeights passed are not numbers`
+      : "",
+    fnName,
+  };
+}
+
 async function testGetArticlesIndexes() {
   function doResponseHavePropperIndexStructure(res) {
     return res
@@ -497,6 +527,12 @@ return (
         fn: testGetArticleBlackListByArticleIdReturnValidAccountIds,
         description:
           "Test if getArticleBlackListByArticle returns valid articleId's",
+      },
+      {
+        fnName: "testGetArticleBlackListByBlockHeightReturnsNumbers",
+        fn: testGetArticleBlackListByBlockHeightReturnsNumbers,
+        description:
+          "Test if getArticleBlackListByBlockHeight returns numbers",
       },
     ])}
     {asyncComponent}
