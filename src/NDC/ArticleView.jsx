@@ -1,4 +1,6 @@
 // NDC.ArticleView
+const { getComments } = VM.require("sayalot.near/widget/lib.comment")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const {
   widgets,
@@ -53,11 +55,6 @@ const tabs = [
 const initLibsCalls = {
   comment: [
     {
-      functionName: "getValidComments",
-      key: "comments",
-      props: { env: undefined, id, articleSbts },
-    },
-    {
       functionName: "canUserCreateComment",
       key: "canLoggedUserCreateComment",
       props: {
@@ -71,10 +68,27 @@ const initLibsCalls = {
 //To slice the article body and show the showMore button just uncoment the sliceContent: true, un the State.init
 State.init({
   tabSelected: tabs[0].id,
-  comments: [],
   // sliceContent: true,
   libsCalls: initLibsCalls,
 });
+
+const [comments, setComments] = useState([])
+
+function loadComments() {
+  const articleId = articleToRenderData.value.metadata.id
+  getComments(articleId, getConfig(isTest)).then((newComments) => {
+    console.log("newComments - ArticleView.jsx - line 87", newComments)
+    setComments(newComments)
+  })
+}
+
+useEffect(() => {
+  loadComments()
+  setInterval(() => {
+    loadComments()
+  }, 30000)
+}, [])
+
 
 const canLoggedUserCreateComment = state.canLoggedUserCreateComment;
 
@@ -502,13 +516,13 @@ const NoMargin = styled.div`margin: 0 0.75rem;`;
 const AccordionBody = styled.div`padding: 0;`;
 
 //Get basic original comments info
-const rootComments = state.comments.filter(
+const rootComments = comments.filter(
   (comment) => comment.value.comment.rootId === id
 );
 
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
-  let answers = state.comments.filter((comment) => {
+  let answers = comments.filter((comment) => {
     return comment.value.comment.rootId === rootComment.value.comment.commentId;
   });
 
