@@ -18,7 +18,7 @@ State.init({
   usersSBTs: [],
 });
 
-const usersSBTs = state.usersSBTs;
+const usersSBTs = state.usersSBTs; //TODO delete this const
 const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
 console.log("sbtWhiteList - SayALot.jsx - line 23", sbtWhiteList)
 function createSbtOptions() {

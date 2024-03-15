@@ -1,6 +1,7 @@
 // NDC.Forum
 const { getArticles } = VM.require("sayalot.near/widget/lib.article");
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+const { isValidUser, getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
   sharedBlockHeight,
@@ -53,18 +54,20 @@ const initLibsCalls = {
 };
 
 const [articlesToRender, setArticlesToRender] = useState([])
+const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
 console.log("sbts - Forum.jsx - line 56",state.sbts)
 function loadArticles(sbts) {
   const userFilters = {id: undefined, sbt: sbts}
-  console.log(userFilters)
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
       setArticlesToRender(newArticles)
-      console.log("articlesToRender - Forum.jsx - line 62",newArticles)
+      console.log("articlesToRender - Forum.jsx - line 61",newArticles)
   })
 }
 
 useEffect(() => {
   loadArticles(state.sbts[0])
+  console.log(context.accountId,state.sbts||[])
+  isValidUser(context.accountId,state.sbts[0]).then(isValid=>setCanLoggedUserCreateArticle(isValid))
   const intervalId = setInterval(() => {
       loadArticles(state.sbts[0])
   }, 10000)
@@ -171,7 +174,6 @@ const navigationButtons = [
 const sbts = state.sbts;
 
 const initialBodyAtCreation = state.editArticleData.body;
-const canLoggedUserCreateArticle = state.canLoggedUserCreateArticle[sbts[0]];
 
 //=================================================END CONSTS=======================================================
 
