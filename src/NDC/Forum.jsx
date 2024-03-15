@@ -59,19 +59,18 @@ console.log("sbts - Forum.jsx - line 56",state.sbts)
 function loadArticles(sbts) {
   const userFilters = {id: undefined, sbt: sbts}
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-      setArticlesToRender(newArticles)
-      console.log("articlesToRender - Forum.jsx - line 61",newArticles)
+    setArticlesToRender(newArticles)
+    console.log("articlesToRender - Forum.jsx - line 61",newArticles)
   })
 }
 
 useEffect(() => {
   loadArticles(state.sbts[0])
-  console.log(context.accountId,state.sbts||[])
   isValidUser(context.accountId,state.sbts[0]).then(isValid=>setCanLoggedUserCreateArticle(isValid))
   const intervalId = setInterval(() => {
-      loadArticles(state.sbts[0])
-  }, 10000)
-  return clearInterval(intervalId)
+    loadArticles(state.sbts[0])
+  }, 30000)
+  return () => clearInterval(intervalId)
 }, [state.sbts[0]])
 
 accountId = context.accountId;
