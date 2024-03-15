@@ -548,7 +548,7 @@ function composeDeleteData(articleId) {
   return data;
 }
 
-function executeSaveArticle(article, onCommit, onCancel) {
+function executeSaveUpVote(article, onCommit, onCancel) {
   const newData = composeData(article);
   Social.set(newData, {
     force: true,
@@ -556,7 +556,7 @@ function executeSaveArticle(article, onCommit, onCancel) {
     onCancel,
   });
 
-  return articleData.id;
+  return article.articleData.id;
 }
 
 function executeDeleteArticle(articleId, onCommit, onCancel) {
@@ -591,7 +591,7 @@ function createArticle(
     articleData,
     metadata,
   };
-  const result = executeSaveArticle(article, onCommit, onCancel);
+  const result = executeSaveUpVote(article, onCommit, onCancel);
   return { error: false, data: result };
 }
 
@@ -613,7 +613,7 @@ function editArticle(
     articleData: newArticleData,
     metadata: newMetadata,
   };
-  const result = executeSaveArticle(article, onCommit, onCancel);
+  const result = executeSaveUpVote(article, onCommit, onCancel);
   return { error: false, data: result };
 }
 
