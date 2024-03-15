@@ -1,6 +1,7 @@
 const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex")
 
 let config = {}
+const currentVersion = "v0.0.3"
 
 function setConfig(value) {
   config = value
@@ -20,6 +21,34 @@ function normalizeFromV0_0_1ToV0_0_2(upVote) {
 }
 
 function normalizeFromV0_0_2ToV0_0_3(upVote) {
+  if(upVote.value.isDelete) {
+    upVote.value.metadata = {
+      id,
+      isDelete: true,
+      deleteTimestamp: Date.now()  
+    }
+    delete upVote.value.isDelete
+    return upVote
+  }
+
+  const splitUpVoteId = upVote.value.upVoteId.split("-")
+  splitUpVoteId.shift() // Removes first element
+  splitUpVoteId.pop() // Removes last element
+  const author = splitUpVoteId.join("-")
+  upVote.value.metadata = {
+    id: upVote.value.upVoteId,
+    author,
+    sbt: upVote.value.sbts[0],
+    createdTimestamp: Date.now(),
+    lastEditTimestamp: Date.now(),
+    versionKey: "v0.0.3"
+  }
+  delete upVote.value.upVoteId
+  delete upVote.value.sbts
+  return upVote;
+}
+
+function normalizeFromV0_0_3ToV0_0_4(upVote) {
   return upVote;
 }
 
@@ -35,6 +64,10 @@ const versions = {
   "v0.0.2": {
     normalizationFunction: normalizeFromV0_0_2ToV0_0_3,
     suffixAction: `_v0.0.2`,
+  },
+  "v0.0.3": {
+    normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
+    suffixAction: `_v0.0.3`,
   },
 };
 
@@ -79,26 +112,29 @@ function normalizeUpVote(upVote, versionsIndex) {
   return upVote
 }
 
+function isActive(upVote) {
+  return upVote.value.metadata && !upVote.value.metadata.isDelete
+}
+
 function getUpVotes(articleId, config) {
   setConfig(config)
   const upVotesByVersionPromise = Object.keys(versions).map((version, versionIndex, arr) => {
     const action = fillAction(versions[version])
-
-    return getUpVotesData(action, articleId).then((upVotes) => {
-      const validUpVotes = filterInvalidUpVotes(upVotes)
-      const latestUpVotes = getLatestEdits(validUpVotes)
-
-      const nonDeletedVotes = latestUpVotes.filter((vote) => {
-        return !vote.value.isDelete;
-      });
-
-      const normalizedVotes = nonDeletedVotes.map((upVote) => normalizeUpVote(upVote, versionIndex))
-
-      return normalizedVotes
-    })
+    return getUpVotesData(action, articleId)
   });
+
   return Promise.all(upVotesByVersionPromise).then((upVotesByVersion) => {
-    return upVotesByVersion.flat()
+    const upVotes = upVotesByVersion.flat()
+    const validUpVotes = filterInvalidUpVotes(upVotes)
+    const normalizedVotes = nonDeletedVotes.map((upVote) => normalizeUpVote(upVote, versionIndex))
+    const latestUpVotes = getLatestEdits(validUpVotes)
+
+    const nonDeletedVotes = latestUpVotes.filter((vote) => {
+      return !vote.value.isDelete;
+    });
+
+
+    return normalizedVotes
   })
 }
 
@@ -168,6 +204,7 @@ function createUpVote(
   };
   const result = executeSaveArticle(article, onCommit, onCancel);
   return { error: false, data: result };
+
 }
 
 

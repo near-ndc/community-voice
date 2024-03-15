@@ -3,7 +3,7 @@ function generateMetadata(metadataHelper) {
     return {
         id: `${idPrefix}/${author}/${Date.now()}`,
         author,
-        sbt, // Check lib.SBT -> getSBTWhiteList -> prop value
+        sbt, // Check lib.SBT -> getSBTWhiteList -> prop value 
         createdTimestamp: Date.now(),
         lastEditTimestamp: Date.now(),
         versionKey, // Check `const versions` -> Object.keys(versions)

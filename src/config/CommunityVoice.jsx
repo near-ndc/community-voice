@@ -4,7 +4,7 @@ function getConfig(isTest) {
         baseActions: {
             article: "communityVoiceArticle",
             upVote: "communityVoiceUpVote",
-            emoji: "communityVoiceReaction",
+            reaction: "communityVoiceReaction",
             comment: "communityVoiceComment",
         }
     }

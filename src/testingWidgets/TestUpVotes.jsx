@@ -1,11 +1,14 @@
 const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const [upVotes, setUpVotes] = useState([])
 
+const isTest = !!props.isTest
+const config = getConfig(isTest)
+
 function loadUpVotes() {
-    const articleId = "blaze.near-1708108768232"
-    const baseAction = "communityVoiceUpVote"
-    getUpVotes(articleId, baseAction).then((newVotes) => {
+    const articleId = "article/silkking.near/1709818622924"
+    getUpVotes(articleId, config).then((newVotes) => {
         setUpVotes(newVotes)
     })
 }
