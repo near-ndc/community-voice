@@ -3,8 +3,8 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "sayalot.near/widget/lib.metadata"
 );
 
-let config = {}
-const currentVersion = "v0.0.3"
+let config = {};
+const currentVersion = "v0.0.3";
 
 function setConfig(value) {
   config = value;
@@ -24,30 +24,30 @@ function normalizeFromV0_0_1ToV0_0_2(upVote) {
 }
 
 function normalizeFromV0_0_2ToV0_0_3(upVote) {
-  if(upVote.value.isDelete) {
+  if (upVote.value.isDelete) {
     upVote.value.metadata = {
       id,
       isDelete: true,
-      deleteTimestamp: Date.now()  
-    }
-    delete upVote.value.isDelete
-    return upVote
+      deleteTimestamp: Date.now(),
+    };
+    delete upVote.value.isDelete;
+    return upVote;
   }
 
-  const splitUpVoteId = upVote.value.upVoteId.split("-")
-  splitUpVoteId.shift() // Removes first element
-  splitUpVoteId.pop() // Removes last element
-  const author = splitUpVoteId.join("-")
+  const splitUpVoteId = upVote.value.upVoteId.split("-");
+  splitUpVoteId.shift(); // Removes first element
+  splitUpVoteId.pop(); // Removes last element
+  const author = splitUpVoteId.join("-");
   upVote.value.metadata = {
     id: upVote.value.upVoteId,
     author,
     sbt: upVote.value.sbts[0],
     createdTimestamp: Date.now(),
     lastEditTimestamp: Date.now(),
-    versionKey: "v0.0.3"
-  }
-  delete upVote.value.upVoteId
-  delete upVote.value.sbts
+    versionKey: "v0.0.3",
+  };
+  delete upVote.value.upVoteId;
+  delete upVote.value.sbts;
   return upVote;
 }
 
@@ -98,7 +98,10 @@ function getLatestEdits(upVotes) {
 }
 
 function filterInvalidUpVotes(upVotes) {
-  console.log("getUpVoteBlackListByBlockHeight", getUpVoteBlackListByBlockHeight())
+  console.log(
+    "getUpVoteBlackListByBlockHeight",
+    getUpVoteBlackListByBlockHeight()
+  );
   return upVotes
     .filter((upVote) => upVote.value.upVoteId) // Has id
     .filter(
@@ -117,7 +120,7 @@ function normalizeUpVote(upVote, versionsIndex) {
 }
 
 function isActive(upVote) {
-  return upVote.value.metadata && !upVote.value.metadata.isDelete
+  return upVote.value.metadata && !upVote.value.metadata.isDelete;
 }
 
 function getUpVotes(articleId, config) {
@@ -147,7 +150,8 @@ function getUpVotes(articleId, config) {
   });
 }
 
-function getAction(version, config) {//version and config are optative for testing
+function getAction(version, config) {
+  //version and config are optative for testing
   const baseAction =
     config.baseActions.upVote ?? getConfig().baseActions.upVote;
   const versionData = version ? versions[version] : versions[currentVersion];
@@ -155,8 +159,8 @@ function getAction(version, config) {//version and config are optative for testi
   return config.isTest || getConfig().isTest ? `test_${action}` : action;
 }
 
-
-function composeData(articleId, upVote, version, config) { //version and config are optative for testing
+function composeData(articleId, upVote, version, config) {
+  //version and config are optative for testing
   let data = {
     index: {
       [getAction(version, config)]: JSON.stringify({
@@ -187,7 +191,15 @@ function composeData(articleId, upVote, version, config) { //version and config 
   return data;
 }
 
-function executeSaveUpVote(articleId, upVote, onCommit, onCancel, version, config) {//version and config are optative for testing
+function executeSaveUpVote(
+  articleId,
+  upVote,
+  onCommit,
+  onCancel,
+  version,
+  config
+) {
+  //version and config are optative for testing
   const newData = composeData(articleId, upVote, version, config);
   Social.set(newData, {
     force: true,
@@ -196,6 +208,46 @@ function executeSaveUpVote(articleId, upVote, onCommit, onCancel, version, confi
   });
 
   return upVote.upVoteData.upVoteId;
+}
+
+function addUpVote(
+  config,
+  articleId,
+  upVoteData,
+  userMetadataHelper,
+  onCommit,
+  onCancel
+) {
+  let newUpVoteData = { sbt: upVoteData.sbt };
+
+  createUpVote(
+    config,
+    articleId,
+    newUpVoteData,
+    userMetadataHelper,
+    onCommit,
+    onCancel
+  );
+}
+
+function deleteUpVote(
+  config,
+  articleId,
+  upVoteData,
+  userMetadataHelper,
+  onCommit,
+  onCancel
+) {
+  let newUpVoteData = { isDelete: true, sbt: upVoteData.sbt };
+
+  createUpVote(
+    config,
+    articleId,
+    newUpVoteData,
+    userMetadataHelper,
+    onCommit,
+    onCancel
+  );
 }
 
 function createUpVote(
@@ -224,7 +276,6 @@ function createUpVote(
   };
   const result = executeSaveUpVote(articleId, upVote, onCommit, onCancel);
   return { error: false, data: result };
-
 }
 
 return {
