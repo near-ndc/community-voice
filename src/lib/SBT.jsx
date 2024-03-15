@@ -46,49 +46,35 @@ function getSBTWhiteList(config) {
     return config.isTest ?  testnetSBTWhitelist : mainnetSBTWhitelist;    
 }
 
-function isValidUser(accountId, sbtsNames) {
-    const userSBTs = Near.view(registryContract, "sbt_tokens_by_owner", {
-      account: accountId,
-    });
-    const isSBTContractLoaded = userSBTs !== null;
-    if (!isSBTContractLoaded) {
-      return undefined;
-    }
-  
-    const sbtsData = sbtsNames.map((sbt) => {
-      const data = sbt.split(" - class ");
-      return { name: data[0], classNumber: Number(data[1]) };
-    });
-    const usersValidityBySBT = {};
-    sbtsNames.forEach((sbtName, index) => {
-      const isUserValid =
-        isSBTContractLoaded &&
-        userSBTs.find((userSbt) => {
-          return (
-            userSbt[0] === sbtsData[index].name &&
-            userSbt[1].find(
-              (sbtExtraData) =>
-                sbtExtraData.metadata["class"] === sbtsData[index].classNumber
-            )
-          );
-        }) !== undefined;
-      usersValidityBySBT[sbtName] = isUserValid || sbtName === "public";
-    });
-  
-    resultFunctionsToCall = resultFunctionsToCall.filter((call) => {
-      return call.functionName !== "isValidUser";
-    });
-  
-    // return true;
-    return { ...usersValidityBySBT };
+function isValidUser(accountId, sbt) {
+  if(accountId && sbt==="public") {
+    return new Promise((resolve)=>resolve(true))
   }
-  
-  function getUserSBTs(accountId) {
-    const userSBTsPromise = Near.asyncView(registryContract, "sbt_tokens_by_owner", {
-      account: accountId,
+
+  return getUserSBTs(accountId).then(userSBTs => {
+    const data = sbt.split(" - class ");
+    const sbtsData = { name: data[0], classNumber: Number(data[1]) };
+          
+    const isValid = userSBTs.some((userSbt) => {
+      return (
+        userSbt[0] === sbtsData.name &&
+        userSbt[1].find(
+          (sbtExtraData) =>
+            sbtExtraData.metadata.class === sbtsData.classNumber
+        )
+      );
     });
+          
+    return isValid
+  })
+}
   
-    return userSBTsPromise;
-  }
+function getUserSBTs(accountId) {
+  const userSBTsPromise = Near.asyncView(registryContract, "sbt_tokens_by_owner", {
+    account: accountId,
+  });
+
+  return userSBTsPromise;
+}
 
 return { getSBTWhiteList, isValidUser, getUserSBTs }
