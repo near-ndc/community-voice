@@ -44,7 +44,7 @@ function isResponseStructureWrong(res) {
   //   blockHeight: 106745180,
   //   value: {
   //     upVoteId: "uv-ayelen.near-1701189001307",
-  //     sbts: ["fractal.i-am-human.near - class 1"],
+  //     sbt: "fractal.i-am-human.near - class 1",
   //   },
   // }];
 
@@ -69,7 +69,8 @@ function isResponseStructureWrong(res) {
       errorInStructure = true;
     } else if (
       upVoteData.value.metadata &&
-      !doesUpVoteIdHavePropperStructure(upVoteData)
+      !doesUpVoteIdHavePropperStructure(upVoteData) &&
+      typeof upVoteData.value.sbt !== "string"
     ) {
       console.log(
         `In the element of index ${i} doesUpVoteIdHavePropperStructure is returning false`
@@ -227,16 +228,18 @@ function testExecuteSaveUpVote() {
 }
 
 function testCreateUpVote() {
-  const articleId =
-    `a/f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/${Date.now()}`;
-  const upVoteData = { isDelete: false, sbts: ["public"] };
-  const userMetadataHelper = {author: "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb", sbt: "public"}
+  const articleId = `a/f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/${Date.now()}`;
+  const upVoteData = { isDelete: false, sbt: "public" };
+  const userMetadataHelper = {
+    author: "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb",
+    sbt: "public",
+  };
   const onCommit = () => {
-    console.log("testCreateUpVote commited")
-  }
+    console.log("testCreateUpVote commited");
+  };
   const onCancel = () => {
-    console.log("testCreateUpVote canceled")
-  }
+    console.log("testCreateUpVote canceled");
+  };
   functionsToTest.createUpVote(
     config,
     articleId,

@@ -260,7 +260,7 @@ function createUpVote(
 ) {
   // interface upVoteData {
   //   isDelete: boolean,
-  //   sbts: [sbt], //For the moment should only have 1 sbt in the array
+  //   sbt: sbt,
   // }
   setConfig(config);
 
