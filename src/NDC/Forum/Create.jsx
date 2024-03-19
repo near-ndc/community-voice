@@ -1,4 +1,7 @@
 //NDC.Forum.Create
+const { createArticle, editArticle } = VM.require("sayalot.near/widget/lib.article")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
+
 
 const {
   isTest,
@@ -32,6 +35,7 @@ State.init({
   functionsToCallByLibrary: {
     article: [],
   },
+  tags:[]
 });
 
 function createStateUpdate(obj) {
@@ -39,36 +43,66 @@ function createStateUpdate(obj) {
 }
 
 const tagsArray =
-  editArticleData && !state.tagsModified ? editArticleData.tags : state.tags;
-
+  editArticleData && !state.tagsModified ? editArticleData.value.articleData.tags : state.tags;
+  
 const accountId = context.accountId;
 
 function getRealArticleId() {
   if (editArticleData) {
     return (
-      editArticleData.id ??
-      `${editArticleData.author}-${editArticleData.timeCreate}`
+      editArticleData.value.metadata.id ??
+      `article/${editArticleData.value.metadata.author}/${editArticleData.value.metadata.createdTimestamp}`
     );
   } else {
-    return `${accountId}-${Date.now()}`;
+    return `article/${accountId}/${Date.now()}`;
   }
 }
 
 function getArticleData() {
   const args = {
-    title: editArticleData.title ?? state.title,
-    author: editArticleData.author ?? accountId,
+    title: editArticleData.value.articleData.title ?? state.title,
+    author: editArticleData.value.metadata.author ?? accountId,
     lastEditor: accountId,
     timeLastEdit: Date.now(),
-    timeCreate: editArticleData.timeCreate ?? Date.now(),
+    timeCreate: editArticleData.value.metadata.createdTimestamp ?? Date.now(),
     body: state.articleBody,
-    version: editArticleData ? editArticleData.version + 1 : 0,
+    version: editArticleData ? editArticleData.value.metadata.versionKey + 1 : 0,
     navigation_id: null,
     tags: tagsArray ?? [],
     id: getRealArticleId(),
     sbts,
   };
   return args;
+}
+
+function onCommit() {
+  console.log("Executing on commit")
+}
+
+function onCancel() {
+  console.log("Executing on cancel")
+}
+
+const handleCreate = () => {
+  const {title, body, tags} = getArticleData()
+
+  const articleData = { title, body, tags }
+  
+  const metadataHelper = {
+    author: context.accountId,
+    sbt: "fractal-v2.i-am-human.testnet - class 1" //TODO change this after testing //sbts[0].value,
+  }
+  createArticle(getConfig(isTest), articleData, metadataHelper, onCommit, onCancel)
+}
+
+const handleEdit = () => {
+  const {title, body, tags} = getArticleData()
+
+  const articleData = { title, body, tags }
+
+  const articleMetadata = editArticleData.value.metadata 
+  
+  editArticle(getConfig(isTest), articleData, articleMetadata, onCommit, onCancel)
 }
 
 function onCommit(article) {
@@ -100,10 +134,10 @@ function onCancel() {
 function getInitialMarkdownBody() {
   if (
     editArticleData &&
-    (!state.articleBody || state.articleBody === editArticleData.body)
+    (!state.articleBody || state.articleBody === editArticleData.value.articleData.body)
   ) {
-    return editArticleData.body;
-  } else if (state.articleBody && state.articleBody !== editArticleData.body) {
+    return editArticleData.value.articleData.body;
+  } else if (state.articleBody && state.articleBody !== editArticleData.value.articleData.body) {
     return state.articleBody;
   } else {
     return state.initialBody == "" || !state.initialBody
@@ -327,7 +361,7 @@ return (
                   className: "info ",
                   disabled:
                     state.title.length === 0 || state.articleBody.length === 0,
-                  onClick: createArticleListener,
+                  onClick: editArticleData ? handleEdit : handleCreate,
                   children: (
                     <div className="d-flex justify-conten-center align-items-center">
                       {state.saving ? (

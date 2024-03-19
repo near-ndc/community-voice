@@ -172,7 +172,7 @@ const navigationButtons = [
 
 const sbts = state.sbts;
 
-const initialBodyAtCreation = state.editArticleData.body;
+const initialBodyAtCreation = state.editArticleData.value.articleData.body;
 
 //=================================================END CONSTS=======================================================
 
@@ -528,7 +528,7 @@ function deletePostListener() {
 }
 
 function getValidEditArticleDataTags() {
-  let tags = state.editArticleData.tags ?? [];
+  let tags = state.editArticleData.value.articleData.tags ?? [];
   let newFormatTags = {};
 
   tags &&
@@ -539,9 +539,9 @@ function getValidEditArticleDataTags() {
 }
 
 const initialCreateState = {
-  title: state.editArticleData.title ?? "",
-  articleBody: state.editArticleData.body ?? initialBodyAtCreation,
-  tags: state.editArticleData.tags ? getValidEditArticleDataTags() : {},
+  title: state.editArticleData.value.articleData.title ?? "",
+  articleBody: state.editArticleData.value.articleData.body ?? initialBodyAtCreation,
+  tags: state.editArticleData.value.articleData.tags ? getValidEditArticleDataTags() : {},
   libsCalls: { comment: {}, article: {}, emojis: {}, upVotes: {} },
   sbts: [sbtWhiteList[0]],
 };
@@ -726,7 +726,7 @@ return (
           initialCreateState,
           editArticleData: state.editArticleData,
           handleEditArticle,
-          showCreateArticle: canLoggedUserCreateArticle,
+          showCreateArticle: true,//TODO change this after testing //canLoggedUserCreateArticle,
           sbtWhiteList,
           sbts,
           handleShareButton,

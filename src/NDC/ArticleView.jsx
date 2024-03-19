@@ -723,7 +723,9 @@ return (
                             </div>
                           ),
                           className: `info outline mt-2`,
-                          onClick: () => handleEditArticle(articleToRenderData),
+                          onClick: () => {
+                            handleEditArticle(articleToRenderData)
+                          }
                         }}
                       />
                       <Widget
