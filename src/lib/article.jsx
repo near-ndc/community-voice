@@ -262,10 +262,10 @@ function getArticlesNormalized(userFilters) {
   return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
     const articles = articlesVersionArray.flat();
     const filteredArticles = applyUserFilters(articles, userFilters);
-    const latestEdits = getLatestEdits(filteredArticles);
-    const activeArticles = latestEdits.filter(isActive);
+    const activeArticles = filteredArticles.filter(isActive);
+    const latestActiveEdits = getLatestEdits(activeArticles);
 
-    return activeArticles;
+    return latestActiveEdits;
   });
 }
 
@@ -368,7 +368,7 @@ const versions = {
   },
 };
 
-function validateArticle(article) {
+function validateArticleData(article) {
   // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
