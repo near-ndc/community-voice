@@ -1,5 +1,5 @@
 // NDC.Forum
-const { getArticles } = VM.require("sayalot.near/widget/lib.article");
+const { getArticles, deleteArticle } = VM.require("sayalot.near/widget/lib.article");
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 const { isValidUser, getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
@@ -508,23 +508,9 @@ function onCommitDeletArticle() {
 }
 
 function deletePostListener() {
-  //To test without commiting use the next line and comment the rest
-  // onCommit();
   State.update({ saving: true });
   const article = state.deleteArticleData;
-
-  const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-  newLibsCalls.article.push({
-    functionName: "deleteArticle",
-    key: "deletedArticle",
-    props: {
-      article,
-      onCommit: onCommitDeletArticle,
-      onCancel: closeDeleteArticleModal,
-    },
-  });
-
-  State.update({ functionsToCallByLibrary: newLibsCalls });
+  deleteArticle(getConfig(isTest), article.value.metadata.id, onCommitDeletArticle, closeDeleteArticleModal)
 }
 
 function getValidEditArticleDataTags() {
