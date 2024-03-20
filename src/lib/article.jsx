@@ -261,11 +261,11 @@ function getArticlesNormalized(userFilters) {
 
   return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
     const articles = articlesVersionArray.flat();
-    const filteredArticles = applyUserFilters(articles, userFilters);
+    const latestActiveEdits = getLatestEdits(articles);
+    const filteredArticles = applyUserFilters(latestActiveEdits, userFilters);
     const activeArticles = filteredArticles.filter(isActive);
-    const latestActiveEdits = getLatestEdits(activeArticles);
 
-    return latestActiveEdits;
+    return activeArticles;
   });
 }
 
