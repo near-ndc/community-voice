@@ -1,7 +1,6 @@
 const { getUserSBTs, getSBTWhiteList } = VM.require(
   "sayalot.near/widget/lib.SBT"
 );
-const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes");
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "sayalot.near/widget/lib.metadata"
 );
@@ -12,12 +11,8 @@ const { camelCaseToUserReadable } = VM.require(
   "sayalot.near/widget/lib.strings"
 );
 
-const baseAction = "sayALotArticle";
-const testAction = `test_${baseAction}`;
-const prodAction = `${baseAction}`;
-const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
 
-const currentVersion = "v0.0.4";
+const currentVersion = "v0.0.4"
 
 let config = {};
 
@@ -29,9 +24,8 @@ function getConfig() {
   return config;
 }
 
-function getAction(version, config) {
-  const baseAction =
-    config.baseActions.article ?? getConfig().baseActions.article;
+function getAction(version) {
+  const baseAction = getConfig().baseActions.article;
   const versionData = version ? versions[version] : versions[currentVersion];
   const action = baseAction + versionData.actionSuffix;
   //   console.log(1, version, baseAction, versionData, action);
@@ -374,7 +368,7 @@ const versions = {
   },
 };
 
-function validateUpVoteData(article) {
+function validateArticle(article) {
   // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
@@ -458,13 +452,13 @@ function validateMetadata(metadata) {
   return errArrMessage;
 }
 
-function validateNewUpVote(articleData) {
-  const errorArray = validateUpVoteData(articleData);
+function validateNewArticle(articleData) {
+  const errorArray = validateArticleData(articleData);
   return errorArray;
 }
 
 function validateEditArticle(articleData, previousMetadata) {
-  const errorArray = validateUpVoteData(articleData);
+  const errorArray = validateArticleData(articleData);
   if (!previousMetadata.id) {
     errorArray.push(`Trying to edit article with no article id`);
   }
@@ -554,7 +548,7 @@ function composeDeleteData(articleId) {
   return data;
 }
 
-function executeSaveArticle(article, onCommit, onCancel) {
+function executeSaveUpVote(article, onCommit, onCancel) {
   const newData = composeData(article);
   Social.set(newData, {
     force: true,
@@ -562,7 +556,7 @@ function executeSaveArticle(article, onCommit, onCancel) {
     onCancel,
   });
 
-  return articleData.id;
+  return article.articleData.id;
 }
 
 function executeDeleteArticle(articleId, onCommit, onCancel) {
@@ -582,7 +576,7 @@ function createArticle(
   onCancel
 ) {
   setConfig(config);
-  const errors = validateNewUpVote(articleData, author);
+  const errors = validateNewArticle(articleData, author);
   if (errors && errors.length) {
     return { error: true, data: errors };
   }
@@ -597,7 +591,7 @@ function createArticle(
     articleData,
     metadata,
   };
-  const result = executeSaveArticle(article, onCommit, onCancel);
+  const result = executeSaveUpVote(article, onCommit, onCancel);
   return { error: false, data: result };
 }
 
@@ -619,7 +613,7 @@ function editArticle(
     articleData: newArticleData,
     metadata: newMetadata,
   };
-  const result = executeSaveArticle(article, onCommit, onCancel);
+  const result = executeSaveUpVote(article, onCommit, onCancel);
   return { error: false, data: result };
 }
 
