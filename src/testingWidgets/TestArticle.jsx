@@ -30,7 +30,7 @@ useEffect(() => {
     setInterval(() => {
         console.log("Loading articles interval", Date.now() / 1000)
         loadArticles()
-    }, 30000)
+    }, 15000)
 }, [])
 
 function failNewArticle() {
