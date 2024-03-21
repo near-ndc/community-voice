@@ -24,26 +24,31 @@ function normalizeFromV0_0_1ToV0_0_2(upVote) {
 }
 
 function normalizeFromV0_0_2ToV0_0_3(upVote) {
+  const now = Date.now()
   if (upVote.value.isDelete) {
     upVote.value.metadata = {
       id,
       isDelete: true,
-      deleteTimestamp: Date.now(),
+      deleteTimestamp: now,
     };
     delete upVote.value.isDelete;
     return upVote;
   }
 
-  const splitUpVoteId = upVote.value.upVoteId.split("-");
+  const splitUpVoteId = upVote.value.upVoteId.includes("/")
+    ? upVote.value.upVoteId.split("/")
+    : upVote.value.upVoteId.split("-");
   splitUpVoteId.shift(); // Removes first element
   splitUpVoteId.pop(); // Removes last element
-  const author = splitUpVoteId.join("-");
+  const author = upVote.value.upVoteId.includes("/")
+    ? splitUpVoteId
+    : splitUpVoteId.join("-");
   upVote.value.metadata = {
     id: upVote.value.upVoteId,
     author,
     sbt: upVote.value.sbts[0],
-    createdTimestamp: Date.now(),
-    lastEditTimestamp: Date.now(),
+    createdTimestamp: now,
+    lastEditTimestamp: now,
     versionKey: "v0.0.3",
   };
   delete upVote.value.upVoteId;
@@ -271,15 +276,18 @@ function createUpVote(
   };
   const metadata = generateMetadata(metadataHelper);
   const upVote = {
-    upVoteData: upVoteData,
+    upVoteData,
     metadata,
   };
   const result = executeSaveUpVote(articleId, upVote, onCommit, onCancel);
+  
   return { error: false, data: result };
 }
 
 return {
   getUpVotes,
+  addUpVote,
+  deleteUpVote,
   functionsToTest: {
     normalizeOldToV_0_0_1,
     normalizeFromV0_0_1ToV0_0_2,
@@ -293,5 +301,7 @@ return {
     composeData,
     executeSaveUpVote,
     createUpVote,
+    addUpVote,
+    deleteUpVote,
   },
 };

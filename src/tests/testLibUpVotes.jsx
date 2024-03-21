@@ -20,16 +20,16 @@ const userNameRegEx = /^[a-zA-Z0-9._-]/;
 function doesUpVoteIdHavePropperStructure(upVoteData) {
   const upVoteId = upVoteData.value.metadata.id;
 
-  let splittedUpVoteId = upVoteId.includes("-")
-    ? upVoteId.split("-")
-    : upVoteId.includes("/")
+  let splittedUpVoteId = upVoteId.includes("/")
     ? upVoteId.split("/")
-    : [];
+    : upVoteId.split("-");
   const timeStampPartOfUpVoteId = splittedUpVoteId.pop();
 
   const upVoteIdPrefix = splittedUpVoteId.shift();
 
-  const upVoteIdUserNamePart = splittedUpVoteId.join("");
+  const upVoteIdUserNamePart = upVoteId.includes("/")
+    ? splittedUpVoteId
+    : splittedUpVoteId.join("-");
 
   const isTimeStampANumber = !isNaN(Number(timeStampPartOfUpVoteId));
   const isPrefixCorrect = upVoteIdPrefix === "uv";
@@ -96,18 +96,15 @@ async function testGetUpVotesData() {
   // const articleId = "ayelen.near-1697152421776";
 
   const getUpVotesDataResult = functionsToTest.getUpVotesData(
-    action,
-    articleId
+    articleId,
+    config
   );
 
   let isError = false;
   let msg = "";
   return getUpVotesDataResult.then((res) => {
     try {
-      if (Array.isArray(res) && res.length === 0) {
-        isError = false;
-        msg = "The response should be an array";
-      } else if (isResponseStructureWrong(res)) {
+      if (isResponseStructureWrong(res)) {
         isError = true;
         msg = [
           "One or more elements on the array have an invalid structure",
