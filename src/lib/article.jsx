@@ -261,9 +261,9 @@ function getArticlesNormalized(userFilters) {
 
   return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
     const articles = articlesVersionArray.flat();
-    const filteredArticles = applyUserFilters(articles, userFilters);
-    const latestEdits = getLatestEdits(filteredArticles);
-    const activeArticles = latestEdits.filter(isActive);
+    const latestActiveEdits = getLatestEdits(articles);
+    const filteredArticles = applyUserFilters(latestActiveEdits, userFilters);
+    const activeArticles = filteredArticles.filter(isActive);
 
     return activeArticles;
   });
@@ -368,7 +368,7 @@ const versions = {
   },
 };
 
-function validateArticle(article) {
+function validateArticleData(article) {
   // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
