@@ -1,5 +1,5 @@
 // NDC.Reactions
-const { getEmojis } = VM.require("sayalot.near/widget/lib.emojis")
+const { getReactions, createReaction } = VM.require("sayalot.near/widget/lib.reactions")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const {
@@ -30,7 +30,7 @@ const emojiArray = [
 
 const accountThatIsLoggedIn = context.accountId;
 
-const libSrcArray = [widgets.libs.libEmojis];
+const libSrcArray = [widgets.libs.libReactions];
 
 State.init({
   functionsToCallByLibrary: initLibsCalls,
@@ -40,17 +40,17 @@ const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], use
 const [show, setShow] = useState(false)
 const [loading, setLoading] = useState(false)
 
-function loadEmojis() {
-  getEmojis(elementReactedId, getConfig(), context.accountId).then((newEmojis) => {
-    setReactionsData(newEmojis)
-    console.log("newEmojis - Reactions.jsx - line 63", newEmojis)
+function loadReactions() {
+  getReactions(elementReactedId, getConfig(isTest), context.accountId).then((reactions) => {
+    setReactionsData(reactions)
+    console.log("reactions - Reactions.jsx - line 63", reactions, elementReactedId)
   })
 }
 
 useEffect(() => {
-    loadEmojis()
+    loadReactions()
     setInterval(() => {
-      loadEmojis()
+      loadReactions()
     }, 30000)
 }, [])
 
@@ -80,21 +80,27 @@ function reactListener(emojiToWrite) {
   // const emojiToWrite =
   //   emojiMessage === initialEmoji ? emojiArray[0] : emojiMessage;
 
-  const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
+    const author = context.accountId
+    const result = createReaction(getConfig(isTest), emojiToWrite, elementReactedId, author, onPushEnd, onPushEnd)
+    if(result.error) {
+        console.error(result.data)
+    }
 
-  newLibsCalls.emojis.push({
-    functionName: "createEmoji",
-    key: "createReaction",
-    props: {
-      elementReactedId,
-      reaction: emojiToWrite,
-      articleSbts: sbtsNames,
-      onCommit: onPushEnd,
-      onCancel: onPushEnd,
-    },
-  });
+  // const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
+
+  // newLibsCalls.emojis.push({
+  //   functionName: "createEmoji",
+  //   key: "createReaction",
+  //   props: {
+  //     elementReactedId,
+  //     reaction: emojiToWrite,
+  //     articleSbts: sbtsNames,
+  //     onCommit: onPushEnd,
+  //     onCancel: onPushEnd,
+  //   },
+  // });
   setLoading(true)
-  State.update({ functionsToCallByLibrary: newLibsCalls });
+  // State.update({ functionsToCallByLibrary: newLibsCalls });
 }
 
 function reactionsStateUpdate(obj) {

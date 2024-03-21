@@ -91,7 +91,7 @@ const widgets = {
     libSBT: `sayalot.near/widget/lib.SBT`,
     libComment: `sayalot.near/widget/lib.comment`,
     libArticle: `sayalot.near/widget/lib.article`,
-    libEmojis: `sayalot.near/widget/lib.emojis`,
+    libReactions: `sayalot.near/widget/lib.reactions`,
     libUpVotes: `sayalot.near/widget/lib.upVotes`,
     libNotifications: `sayalot.near/widget/lib.notifications`,
   },
