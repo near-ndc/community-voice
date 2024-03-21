@@ -36,12 +36,12 @@ State.init({
   functionsToCallByLibrary: initLibsCalls,
 });
 
-const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userReaction: undefined})
+const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userEmoji: undefined})
 const [show, setShow] = useState(false)
 const [loading, setLoading] = useState(false)
 
 function loadReactions() {
-  getReactions(elementReactedId, getConfig(isTest), context.accountId).then((reactions) => {
+  getReactions( getConfig(), elementReactedId, context.accountId).then((reactions) => {
     setReactionsData(reactions)
     console.log("reactions - Reactions.jsx - line 63", reactions, elementReactedId)
   })
@@ -81,7 +81,7 @@ function reactListener(emojiToWrite) {
   //   emojiMessage === initialEmoji ? emojiArray[0] : emojiMessage;
 
     const author = context.accountId
-    const result = createReaction(getConfig(isTest), emojiToWrite, elementReactedId, author, onPushEnd, onPushEnd)
+    const result = createReaction(getConfig(), emojiToWrite, elementReactedId, author, onPushEnd, onPushEnd)
     if(result.error) {
         console.error(result.data)
     }
@@ -286,7 +286,7 @@ return (
     <EmojiWrapper>
       {!disabled && (
         <>
-          {reactionsData.userReaction ? (
+          {reactionsData.userEmoji ? (
             <SmallReactButton
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
