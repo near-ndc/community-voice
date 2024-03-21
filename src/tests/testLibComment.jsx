@@ -143,7 +143,7 @@ function isResponseStructureWrong(res) {
         `In the element of index ${i} the timestamps in the metadata are not a number`
       );
       errorInStructure = true;
-    } else if (typeof commentData.value.metadata.versionKey !== string) {
+    } else if (typeof commentData.value.metadata.versionKey !== "string") {
       console.log(
         `In the element of index ${i} the versionKey in the metadata is not a string`
       );
@@ -161,6 +161,10 @@ function isResponseStructureWrong(res) {
 //=======================================================================End lib functions=========================================================================
 
 //=======================================================================Start tests=======================================================================
+
+function testCreateComment() {
+
+}
 
 async function testGetComments() {
   const fnName = "testGetComments";

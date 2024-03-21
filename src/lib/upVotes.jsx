@@ -276,15 +276,18 @@ function createUpVote(
   };
   const metadata = generateMetadata(metadataHelper);
   const upVote = {
-    upVoteData: upVoteData,
+    upVoteData,
     metadata,
   };
   const result = executeSaveUpVote(articleId, upVote, onCommit, onCancel);
+  
   return { error: false, data: result };
 }
 
 return {
   getUpVotes,
+  addUpVote,
+  deleteUpVote,
   functionsToTest: {
     normalizeOldToV_0_0_1,
     normalizeFromV0_0_1ToV0_0_2,
@@ -298,5 +301,7 @@ return {
     composeData,
     executeSaveUpVote,
     createUpVote,
+    addUpVote,
+    deleteUpVote,
   },
 };

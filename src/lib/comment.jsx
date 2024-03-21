@@ -3,6 +3,8 @@ const { normalize } = VM.require("sayalot.near/widget/lib.normalization");
 
 let config = {};
 
+const currentVersion = "v0.0.3";
+
 function normalizeOldToV_0_0_1(comment) {
   return comment;
 }
@@ -177,6 +179,127 @@ function getComments(articleId, config) {
   });
 }
 
+function getAction(version, config) {
+  //version and config are optative for testing
+  const baseAction =
+    config.baseActions.comment ?? getConfig().baseActions.comment;
+  const versionData = version ? versions[version] : versions[currentVersion];
+  const action = baseAction + versionData.suffixAction;
+  return config.isTest || getConfig().isTest ? `test_${action}` : action;
+}
+
+function composeCommentData(
+  comment,
+  replyingTo,
+  articleId,
+  isDelete,
+  version,
+  config
+) {
+  // if (replyingTo) {
+  //   //We add the following so the user been replied get's a notification
+  //   comment.text = `@${replyingTo} ${comment.text}`;
+  // }
+
+  let data = {
+    index: {
+      [getAction(version, config)]: JSON.stringify({
+        key: articleId,
+        value: {
+          type: "md",
+          ...comment,
+        },
+      }),
+    },
+  };
+
+  // TODO handle notifications properly
+  // const mentions = isDelete ? [] : extractMentions(comment.text);
+
+  // if (mentions.length > 0) {
+  //   const dataToAdd = getNotificationData(
+  //     "mentionOnComment",
+  //     mentions,
+  //     `https://near.social/${
+  //       widgets.thisForum
+  //     }?sharedArticleId=${articleId}&sharedCommentId=${comment.commentId}${
+  //       isTest ? "&isTest=t" : ""
+  //     }`
+  //   );
+
+  //   data.post = dataToAdd.post;
+  //   data.index.notify = dataToAdd.index.notify;
+  // }
+
+  return data;
+}
+
+function executeSaveComment(
+  comment,
+  replyingTo,
+  articleId,
+  isDelete,
+  version,
+  config
+) {
+  if (comment.text) {
+    //version and config are optative for testing
+    const newData = composeCommentData(
+      comment,
+      replyingTo,
+      articleId,
+      isDelete,
+      version,
+      config
+    );
+    Social.set(newData, {
+      force: true,
+      onCommit,
+      onCancel,
+    });
+
+    return comment.commentData.commentId;
+  }
+}
+
+function createComment(props) {
+  const {
+    config,
+    userMetadataHelper,
+    commentData,
+    replyingTo,
+    articleId,
+    onClick,
+    onCommit,
+    onCancel,
+  } = props;
+  // interface commentData {
+  //   isDelete: boolean,
+  //   commentText: string,
+  // }
+
+  setConfig(config);
+
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "c",
+    versionKey: currentVersion,
+  };
+
+  let metadata = generateMetadata(metadataHelper);
+  metadata.articleId = articleId;
+  metadata.replyingTo = replyingTo;
+
+  const comment = {
+    commentData,
+    metadata,
+  };
+
+  const result = executeSaveComment(comment, onClick, onCommit, onCancel);
+
+  return { error: false, data: result };
+}
+
 return {
   getComments,
   functionsToTest: {
@@ -193,5 +316,6 @@ return {
     processComments,
     getComments,
     getSplittedCommentId,
+    composeCommentData,
   },
 };
