@@ -20,6 +20,9 @@ const commentIdToTestSplit1 = "c_NEAR.near-12312323123";
 const commentIdToTestSplit3 = "c_NEAR-near-12312323123";
 const commentIdToTestSplit4 = "c_NEARnear-12312323123";
 const commentIdToTestSplit5 = "c_NEAR_near-12312323123";
+const commentIdToTestSplit6 = "c/NEAR_near-12312323123";
+const commentIdToTestSplit7 = "c/NEAR-near-12312323123";
+const commentIdToTestSplit8 = "c/NEARnear-12312323123";
 //=======================================================================End consts=========================================================================
 
 //=======================================================================Start lib functions=======================================================================
@@ -32,6 +35,9 @@ function testGetSplittedCommentId() {
     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit3));
     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit4));
     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit5));
+    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit6));
+    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit7));
+    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit8));
   }
 }
 
@@ -43,13 +49,23 @@ function doesCommentIdHavePropperStructure(id) {
 
   const commentIdPrefix = splittedCommentId.shift();
 
-  const commentIdUserNamePart = id.includes("/")
-    ? splittedCommentId
-    : splittedCommentId.join("-");
+  const commentIdUserNamePart = splittedCommentId;
 
   const isTimeStampANumber = !isNaN(Number(timeStampPartOfCommentId));
-  const isPrefixCorrect = commentIdPrefix === "c_";
+  const isPrefixCorrect = commentIdPrefix === "c/";
   const isValidUserName = userNameRegEx.test(commentIdUserNamePart);
+
+  if(!isTimeStampANumber) {
+    console.log("Timestamp is not a number: ", timeStampPartOfCommentId)
+  }
+
+  if(!isPrefixCorrect) {
+    console.log("Prefix is not correct. Expected: 'c/'. Result: ", commentIdPrefix)
+  }
+
+  if(!isValidUserName) {
+    console.log("Not a valid userName: ", commentIdUserNamePart)
+  }
 
   return isTimeStampANumber && isPrefixCorrect && isValidUserName;
 }
@@ -110,16 +126,16 @@ function isResponseStructureWrong(res) {
     const isEdition = commentData.isEdition;
 
     if (typeof commentAccountId !== "string") {
-      console.log(`In the element of index ${i} the accountId is not a string`);
+      console.log(`In the commentData of index ${i} the accountId is not a string`);
       errorInStructure = true;
     } else if (!(typeof commentBlockHeight === "number")) {
       console.log(
-        `In the element of index ${i} the blockHeight is not a Number`
+        `In the commentData of index ${i} the blockHeight is not a Number`
       );
       errorInStructure = true;
     } else if (isEdition && typeof isEdition !== "boolean") {
       console.log(
-        `In the element of index ${i} the isEdition property is not a booean`
+        `In the commentData of index ${i} the isEdition property is not a booean`
       );
       errorInStructure = true;
     } else if (
@@ -127,12 +143,12 @@ function isResponseStructureWrong(res) {
       !doesCommentIdHavePropperStructure(commentData.value.metadata.id)
     ) {
       console.log(
-        `In the element of index ${i} doesCommentIdHavePropperStructure is returning false`
+        `In the commentData of index ${i} doesCommentIdHavePropperStructure is returning false`
       );
       errorInStructure = true;
     } else if (typeof commentData.value.metadata.author !== "string") {
       console.log(
-        `In the element of index ${i} the author property in the metadata is not a string`
+        `In the commentData of index ${i} the author property in the metadata is not a string`, commentData
       );
       errorInStructure = true;
     } else if (
@@ -140,17 +156,17 @@ function isResponseStructureWrong(res) {
       typeof commentData.value.metadata.lastEditTimestamp !== "number"
     ) {
       console.log(
-        `In the element of index ${i} the timestamps in the metadata are not a number`
+        `In the commentData of index ${i} the timestamps in the metadata are not a number`
       );
       errorInStructure = true;
     } else if (typeof commentData.value.metadata.versionKey !== "string") {
       console.log(
-        `In the element of index ${i} the versionKey in the metadata is not a string`
+        `In the commentData of index ${i} the versionKey in the metadata is not a string`
       );
       errorInStructure = true;
     } else if (!doesRootIdHaveAValidFormat(commentData.value.metadata.rootId)) {
       console.log(
-        `In the element of index ${i} doesRootIdHaveAValidFormat is returning false`
+        `In the commentData of index ${i} doesRootIdHaveAValidFormat is returning false`
       );
       errorInStructure = true;
     }

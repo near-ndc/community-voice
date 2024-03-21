@@ -22,28 +22,36 @@ function normalizeFromV0_0_2ToV0_0_3(comment) {
 }
 
 function getSplittedCommentId(commentId) {
-  const splittedBy_ = commentId.split("_");
-  const prefix = splittedBy_.shift() + "_";
+  const commentIdSecondCharacter = commentId.slice(1, 2);
+  if (commentIdSecondCharacter !== "/" && commentIdSecondCharacter !== "_") {
+    console.error(
+      "Comment ID might not have a propper structure. Check getSplittedCommentId function in lib.comment.jsx"
+    );
+  }
 
-  const joinedAfterRemovePrefix = splittedBy_.join("_");
+  const commentIdWithoutPrefix = commentId.slice(2);
+  const prefix = "c/";
 
-  const secondSplit = joinedAfterRemovePrefix.includes("/")
-    ? joinedAfterRemovePrefix.split("/")
-    : joinedAfterRemovePrefix.split("-");
+  let splittedCommentIdWithoutPrefix;
+  if (commentIdWithoutPrefix.includes("/")) {
+    splittedCommentIdWithoutPrefix = commentIdWithoutPrefix.split("/");
+  } else {
+    const splittedByMiddleDash = commentIdWithoutPrefix.split("-");
+    const timestamp = splittedByMiddleDash.pop();
+    const userName = splittedByMiddleDash.join("-");
 
-  secondSplit.unshift(prefix);
+    splittedCommentIdWithoutPrefix = [userName, timestamp];
+  }
 
-  return secondSplit;
+  splittedCommentIdWithoutPrefix.unshift(prefix);
+
+  return splittedCommentIdWithoutPrefix;
 }
 
 function normalizeFromV0_0_3ToV0_0_4(comment) {
   const now = Date.now();
   const splitCommentId = getSplittedCommentId(comment.value.comment.commentId);
-  splitCommentId.shift(); // Removes first element
-  splitCommentId.pop(); // Removes last element
-  const author = comment.value.comment.commentId.includes("/")
-    ? splitCommentId
-    : splitCommentId.join("-");
+  const author = splitCommentId[1];
   comment.value.metadata = {
     id: comment.value.comment.commentId,
     author,
@@ -136,7 +144,7 @@ function processComments(comments) {
   });
 
   const lastEditionCommentsWithoutDeletedOnes = lastEditionComments.filter(
-    (comment) => !comment.value.comment.isDeleted
+    (comment) => !comment.value.comment.isDelete
   );
 
   const lastEditionCommentsWithEditionMark =
@@ -179,32 +187,32 @@ function getComments(articleId, config) {
   });
 }
 
-function getAction(version, config) {
-  //version and config are optative for testing
+function getAction(parameterVersion, parameterConfig) {
+  //parameterVersion and parameterCconfig are optative for testing
   const baseAction =
-    config.baseActions.comment ?? getConfig().baseActions.comment;
-  const versionData = version ? versions[version] : versions[currentVersion];
+    parameterConfig.baseActions.comment ?? getConfig().baseActions.comment;
+
+  const versionData = parameterVersion
+    ? versions[parameterVersion]
+    : versions[currentVersion];
+
   const action = baseAction + versionData.suffixAction;
-  return config.isTest || getConfig().isTest ? `test_${action}` : action;
+
+  return parameterConfig.isTest || getConfig().isTest
+    ? `test_${action}`
+    : action;
 }
 
-function composeCommentData(
-  comment,
-  replyingTo,
-  articleId,
-  isDelete,
-  version,
-  config
-) {
-  // if (replyingTo) {
+function composeCommentData(comment, version, config) {
+  // if (comment.metadata.replyingTo) {
   //   //We add the following so the user been replied get's a notification
-  //   comment.text = `@${replyingTo} ${comment.text}`;
+  //   comment.commentData.commentText = `@${comment.metadata.replyingTo} ${comment.commentData.commentText}`;
   // }
 
   let data = {
     index: {
       [getAction(version, config)]: JSON.stringify({
-        key: articleId,
+        key: comment.metadata.articleId,
         value: {
           type: "md",
           ...comment,
@@ -214,7 +222,7 @@ function composeCommentData(
   };
 
   // TODO handle notifications properly
-  // const mentions = isDelete ? [] : extractMentions(comment.text);
+  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.commentText);
 
   // if (mentions.length > 0) {
   //   const dataToAdd = getNotificationData(
@@ -222,7 +230,7 @@ function composeCommentData(
   //     mentions,
   //     `https://near.social/${
   //       widgets.thisForum
-  //     }?sharedArticleId=${articleId}&sharedCommentId=${comment.commentId}${
+  //     }?sharedArticleId=${articleId}&sharedCommentId=${comment.metadata.id}${
   //       isTest ? "&isTest=t" : ""
   //     }`
   //   );
@@ -236,21 +244,17 @@ function composeCommentData(
 
 function executeSaveComment(
   comment,
-  replyingTo,
-  articleId,
-  isDelete,
-  version,
-  config
+  onCommit,
+  onCancel,
+  parameterVersion,
+  parameterConfig
 ) {
-  if (comment.text) {
-    //version and config are optative for testing
+  if (comment.commentData.commentText) {
+    //parameterVersion and parameterConfig are optative for testing
     const newData = composeCommentData(
       comment,
-      replyingTo,
-      articleId,
-      isDelete,
-      version,
-      config
+      parameterVersion ?? currentVersion,
+      parameterConfig ?? config
     );
     Social.set(newData, {
       force: true,
@@ -258,7 +262,10 @@ function executeSaveComment(
       onCancel,
     });
 
-    return comment.commentData.commentId;
+    return comment.metadata.id;
+  } else {
+    console.error("The comment should contain a text. Check: comment.commentData.commentText in lib.comment.jsx")
+    return
   }
 }
 
@@ -273,12 +280,10 @@ function createComment(props) {
     onCommit,
     onCancel,
   } = props;
-  // interface commentData {
-  //   isDelete: boolean,
-  //   commentText: string,
-  // }
 
   setConfig(config);
+
+  onClick();
 
   const metadataHelper = {
     ...userMetadataHelper,
@@ -290,14 +295,121 @@ function createComment(props) {
   metadata.articleId = articleId;
   metadata.replyingTo = replyingTo;
 
+  //===========================================================================================================================================================================
+  // interface commentData {
+  //   commentText: string,
+  //   isDelete: boolean,
+  // }
+  //===========================================================================================================================================================================
+
+  commentData.isDelete = false;
+
   const comment = {
     commentData,
     metadata,
   };
 
-  const result = executeSaveComment(comment, onClick, onCommit, onCancel);
+  const result = executeSaveComment(comment, onCommit, onCancel);
 
-  return { error: false, data: result };
+  return { error: !result, data: result };
+}
+
+function editComment(props) {
+  const {
+    config,
+    userMetadataHelper,
+    comment,
+    articleId,
+    onClick,
+    onCommit,
+    onCancel,
+  } = props;
+
+  if (!comment.metadata.id) {
+    console.error(
+      "comment.metadata.id should be provided when editing comment"
+    );
+    return;
+  }
+
+  setConfig(config);
+
+  onClick();
+
+  let metadata = comment.metadata;
+
+  metadata.lastEditTimestamp = Date.now();
+
+  metadata.replyingTo = undefined;
+
+  //===========================================================================================================================================================================
+  // interface comment {
+  //   commentText: string,
+  //   isDelete: boolean,
+  // }
+  //===========================================================================================================================================================================
+
+  comment.isDelete = false;
+
+  const newComment = {
+    commentData: comment,
+    metadata,
+  };
+
+  const result = executeSaveComment(newComment, onCommit, onCancel);
+
+  return { error: !result, data: result };
+}
+
+function deleteComment(props) {
+  const {
+    config,
+    userMetadataHelper,
+    commentData,
+    articleId,
+    onClick,
+    onCommit,
+    onCancel,
+  } = props;
+
+  setConfig(config);
+
+  if (!comment.metadata.id) {
+    console.error(
+      "comment.metadata.id should be provided when editing comment"
+    );
+    return;
+  }
+
+  onClick();
+
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "c",
+    versionKey: currentVersion,
+  };
+
+  let metadata = generateMetadata(metadataHelper);
+  metadata.articleId = articleId;
+  metadata.replyingTo = undefined;
+
+  //===========================================================================================================================================================================
+  // interface commentData {
+  //   commentText: string,
+  //   isDelete: boolean,
+  // }
+  //===========================================================================================================================================================================
+
+  comment.commentData.isDelete = true;
+
+  const comment = {
+    commentData,
+    metadata,
+  };
+
+  const result = executeSaveComment(comment, onCommit, onCancel);
+
+  return { error: !result, data: result };
 }
 
 return {
