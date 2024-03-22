@@ -36,18 +36,10 @@ function normalizeFromV0_0_2ToV0_0_3(upVote) {
     return upVote;
   }
 
-  const splitUpVoteId = upVote.value.upVoteId.includes("/")
-    ? upVote.value.upVoteId.split("/")
-    : upVote.value.upVoteId.split("-");
-  splitUpVoteId.shift(); // Removes first element
-  splitUpVoteId.pop(); // Removes last element
-  const author = upVote.value.upVoteId.includes("/")
-    ? splitUpVoteId
-    : splitUpVoteId.join("-");
+  const author = upVote.value.upVoteId.split("/")[1]
   upVote.value.metadata = {
     id: upVote.value.upVoteId,
     author,
-    sbt: upVote.value.sbts[0],
     createdTimestamp: now,
     lastEditTimestamp: now,
     versionKey: "v0.0.3",
@@ -84,7 +76,7 @@ function getUpVotesData(action, id) {
   return getFromIndex(action, id);
 }
 
-function fillAction(version, isTest) {
+function fillAction(version) {
   const baseAction = getConfig().baseActions.upVote;
   const filledAction = baseAction + version.actionSuffix;
   return getConfig().isTest ? `test_${filledAction}` : filledAction;
@@ -136,11 +128,9 @@ function getUpVotes(config, articleId) {
         console.log(1, action, validUpVotes)
         const latestUpVotes = getLatestEdits(validUpVotes);
 
-        const nonDeletedVotes = latestUpVotes.filter((vote) => {
-          return !vote.value.isDelete;
-        });
+        const activeUpVotes = latestUpVotes.filter(isActive);
 
-        const normalizedVotes = nonDeletedVotes.map((upVote) =>
+        const normalizedVotes = activeUpVotes.map((upVote) =>
           normalizeUpVote(upVote, versionIndex)
         );
 
@@ -166,7 +156,7 @@ function composeData(upVote) {
   let data = {
     index: {
       [getAction()]: JSON.stringify({
-        key: upVote.upVoteData.articleId,
+        key: upVote.metadata.articleId,
         value: {
           ...upVote,
         },
@@ -207,7 +197,7 @@ function executeSaveUpVote(
   });
 }
 
-function addUpVote(
+function createUpVote(
   config,
   articleId,
   author,
@@ -216,9 +206,6 @@ function addUpVote(
 ) {
   setConfig(config);
 
-  const upVoteData = {
-    articleId
-  }
   const metadataHelper = {
     author,
     idPrefix: ID_PREFIX,
@@ -228,8 +215,10 @@ function addUpVote(
   const metadata = generateMetadata(metadataHelper);
 
   const upVote = {
-    upVoteData,
-    metadata
+    metadata: {
+      ...metadata,
+      articleId
+    },
   }
   const result = executeSaveUpVote(upVote, onCommit, onCancel);
   return { error: false, data: result };
@@ -239,55 +228,25 @@ function addUpVote(
 function deleteUpVote(
   config,
   articleId,
-  upVoteData,
-  userMetadataHelper,
+  upVoteId,
   onCommit,
   onCancel
 ) {
-  let newUpVoteData = { isDelete: true, sbt: upVoteData.sbt };
-
-  createUpVote(
-    config,
-    articleId,
-    newUpVoteData,
-    userMetadataHelper,
-    onCommit,
-    onCancel
-  );
-}
-
-function createUpVote(
-  config,
-  articleId,
-  upVoteData,
-  userMetadataHelper,
-  onCommit,
-  onCancel
-) {
-  // interface upVoteData {
-  //   isDelete: boolean,
-  //   sbt: sbt,
-  // }
   setConfig(config);
 
-  const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "uv",
-    versionKey: currentVersion,
-  };
-  const metadata = generateMetadata(metadataHelper);
+  const deleteMetadata = buildDeleteMetadata(upVoteId);
   const upVote = {
-    upVoteData,
-    metadata,
+    metadata: {
+      ...deleteMetadata,
+      articleId
+    },
   };
-  const result = executeSaveUpVote(articleId, upVote, onCommit, onCancel);
-  
-  return { error: false, data: result };
+  executeSaveUpVote(upVote, onCommit, onCancel);
 }
 
 return {
   getUpVotes,
-  addUpVote,
+  createUpVote,
   deleteUpVote,
   functionsToTest: {
     normalizeOldToV_0_0_1,
@@ -302,7 +261,6 @@ return {
     composeData,
     executeSaveUpVote,
     createUpVote,
-    addUpVote,
     deleteUpVote,
   },
 };

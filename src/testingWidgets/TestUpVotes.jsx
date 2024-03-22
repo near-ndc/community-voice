@@ -1,4 +1,4 @@
-const { getUpVotes, addUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getUpVotes, createUpVote, deleteUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const [upVotes, setUpVotes] = useState([])
@@ -23,14 +23,14 @@ useEffect(() => {
 }, [])
 
 function newUpVote() {
-    const upVoteData = {
-        articleId
-    }
-
-    const result = addUpVote(config, articleId, context.accountId, onCommit, onCancel)
+    const result = createUpVote(config, articleId, context.accountId, onCommit, onCancel)
     if(result.error) {
         setErrors(result.data)
     }
+}
+
+function removeUpVote() { 
+    deleteUpVote(config, articleId, upVotes[0].value.metadata.id, onCommit, onCancel)
 }
 
 return <>

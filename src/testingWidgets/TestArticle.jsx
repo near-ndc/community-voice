@@ -44,7 +44,6 @@ function failNewArticle() {
 
     const metadataHelper = {
         author: context.accountId,
-        sbt: sbtWhiteList[0].value,
     }
 
     const result = createArticle(config, failedArticleData, metadataHelper, onCommit, onCancel)
@@ -64,7 +63,6 @@ function newArticle() {
 
     const metadataHelper = {
         author: context.accountId,
-        sbt: sbtWhiteList[0].value,
     }
 
     const result = createArticle(config, articleData, metadataHelper, onCommit, onCancel)
