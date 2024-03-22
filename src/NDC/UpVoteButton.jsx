@@ -1,4 +1,6 @@
 //NDC.UpVoteButton
+const { addUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const {
   isTest,
@@ -69,30 +71,46 @@ function stateUpdate(obj) {
   State.update(obj);
 }
 
-function upVoteButtonListener() {
-  let newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
+function onCommit() {
+  console.log("On commit")
+}
 
-  if (!hasUserVoted) {
-    newLibCalls.upVotes.push({
-      functionName: "addVote",
-      key: "newVote",
-      props: {
-        id: data.id ?? `${data.author}-${data.timeCreate}`,
-        articleSbts: data.sbts,
-        articleAuthor: data.author,
-      },
-    });
-  } else {
-    newLibCalls.upVotes.push({
-      functionName: "deleteVote",
-      key: "deletedVote",
-      props: {
-        id: data.id ?? `${data.author}-${data.timeCreate}`,
-        upVoteId: userVote.value.upVoteId,
-      },
-    });
-  }
-  State.update({ functionsToCallByLibrary: newLibCalls });
+function onCancel() {
+  console.log("On cancel")
+}
+
+function handleUpVote() {
+  //let newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
+  addUpVote(
+    getConfig(isTest),
+    data.value.metadata.id ?? `article/${data.value.metadata.author}/${data.value.metadata.createdTimestamp}`,
+    {sbt:data.value.metadata.sbt},
+    data.value.metadata,
+    onCommit,
+    onCancel
+  )
+  // const userMetadataHelper = { author: data.value.metadata.author, sbt:data.value.metadata.dbt}
+  // if (!hasUserVoted) {
+  //   newLibCalls.upVotes.push({
+  //     functionName: "addVote",
+  //     key: "newVote",
+  //     props: {
+  //       id: data.id ?? `${data.author}-${data.timeCreate}`,
+  //       articleSbts: data.sbts,
+  //       articleAuthor: data.author,
+  //     },
+  //   });
+  // } else {
+  //   newLibCalls.upVotes.push({
+  //     functionName: "deleteVote",
+  //     key: "deletedVote",
+  //     props: {
+  //       id: data.id ?? `${data.author}-${data.timeCreate}`,
+  //       upVoteId: userVote.value.upVoteId,
+  //     },
+  //   });
+  // }
+  // State.update({ functionsToCallByLibrary: newLibCalls });
 }
 
 const IconContainer = styled.div`
@@ -128,7 +146,7 @@ return (
           disabled,
           className: `${getUpVoteButtonClass()}`,
           size: "sm",
-          onClick: upVoteButtonListener,
+          onClick: handleUpVote,
         }}
       />
     </div>
