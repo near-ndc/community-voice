@@ -189,7 +189,6 @@ function getComments(articleId, config) {
       const action = fillAction(versions[version], config);
 
       return getFromIndex(action, articleId).then((comments) => {
-        console.log("unfiltered coments: ", comments)
         const validComments = filterInvalidComments(comments);
 
         const normalizedComments = validComments.map((comment) => {
@@ -274,7 +273,7 @@ function executeSaveComment(
     parameterVersion ?? currentVersion,
     parameterConfig ?? config
   );
-  
+
   Social.set(newData, {
     force: true,
     onCommit,

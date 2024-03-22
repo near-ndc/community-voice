@@ -20,7 +20,6 @@ function onCancel() {
 
 function loadComments() {
   getComments(articleId, config).then((newComments) => {
-    console.log("newComments: ", newComments)
     setComments(newComments);
   });
 }
