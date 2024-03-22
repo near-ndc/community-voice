@@ -20,6 +20,7 @@ function onCancel() {
 
 function loadComments() {
   getComments(articleId, config).then((newComments) => {
+    console.log("newComments: ", newComments)
     setComments(newComments);
   });
 }
@@ -39,17 +40,41 @@ function newComment() {
     commentText: "@ayelen.near Text of the comment",
     replyingTo: "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use undefined.
     articleId,
-    onClick: () => {
-      console.log("Create comment clicked");
-    },
     onCommit,
     onCancel
+  });
+}
+
+function doEdition() {
+  editComment({
+    config,
+    comment: commentExampleToEdit,
+    onCommit: () => {
+      console.log("Comment edited");
+    },
+    onCancel: () => {
+      console.log("Comment edition canceled");
+    }
   });
 }
 
 let commentExampleToEdit = comments[0];
 if (commentExampleToEdit) {
   commentExampleToEdit.value.comment.text = "Text edited";
+}
+
+function supressComment() {
+  deleteComment({
+    config,
+    commentId: commentExampleToEdit.metadata.id,
+    articleId: commentExampleToEdit.metadata.articleId,
+    onCommit: () => {
+      console.log("Comment deleted");
+    },
+    onCancel: () => {
+      console.log("Comment delet canceled");
+    }
+  });
 }
 
 return (
@@ -75,41 +100,12 @@ return (
       createComment
     </button>
     <button
-      onClick={() => {
-        editComment({
-          config,
-          comment: commentExampleToEdit,
-          onClick: () => {
-            console.log("Edit comment clicked");
-          },
-          onCommit: () => {
-            console.log("Comment edited");
-          },
-          onCancel: () => {
-            console.log("Comment edition canceled");
-          }
-        });
-      }}
+      onClick={doEdition}
     >
       editComment
     </button>
     <button
-      onClick={() => {
-        deleteComment({
-          config,
-          commentId: commentExampleToEdit.metadata.id,
-          articleId: commentExampleToEdit.metadata.articleId,
-          onClick: () => {
-            console.log("Delete comment clicked");
-          },
-          onCommit: () => {
-            console.log("Comment deleted");
-          },
-          onCancel: () => {
-            console.log("Comment delet canceled");
-          }
-        });
-      }}
+      onClick={supressComment}
     >
       deleteComment
     </button>

@@ -8,29 +8,19 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
 
 let config = {};
 
-const currentVersion = "v0.0.3";
+const currentVersion = "v0.0.4";
 
 function getSplittedCommentIdV0_0_3(commentId) {
-  console.log("split in", commentId);
-  // if (commentId.startsWith("comment/")) {
-  //   console.log("split out", commentId);
-  //   return commentId.split("/");
-  // } else {
-    // const commentIdWithoutPrefix = commentId.startsWith("comment/")
-    //   ? commentId.slice(8)
-    //   : 
-    const commentIdWithoutPrefix = commentId.slice(2);
-    const prefix = "c-";
+  const commentIdWithoutPrefix = commentId.slice(2);
+  const prefix = "c-";
 
-    const oldFormatID = prefix + commentIdWithoutPrefix;
-    console.log("oldFormatID: ", oldFormatID);
+  const oldFormatID = prefix + commentIdWithoutPrefix;
 
-    const newCommentID = normalizeId(oldFormatID, "comment");
+  const newCommentID = normalizeId(oldFormatID, "comment");
 
-    const splitCommentId = newCommentID.split("/");
-    console.log("split out", commentId);
+  const splitCommentId = newCommentID.split("/");
 
-    return splitCommentId;
+  return splitCommentId;
   // }
 }
 
@@ -39,28 +29,24 @@ function normalizeOldToV_0_0_1(comment) {
 }
 
 function normalizeFromV0_0_1ToV0_0_2(comment) {
-  console.log("in 01 to 02", comment);
   return comment;
 }
 
 function normalizeFromV0_0_2ToV0_0_3(comment) {
-  console.log("in 02 to 03 in", comment);
   comment.value.comment.rootId = comment.value.comment.originalCommentId;
   delete comment.value.comment.originalCommentId;
   delete comment.value.comment.id;
-  console.log("in 02 to 03 out", comment);
 
   return comment;
 }
 
 function normalizeFromV0_0_3ToV0_0_4(comment) {
-  console.log("in 03 to 04 in", comment);
   const now = Date.now();
 
   // const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
-  const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.comment.commentId);
-
-  console.log("splitCommentId: ", splitCommentId);
+  const splitCommentId = getSplittedCommentIdV0_0_3(
+    comment.value.comment.commentId
+  );
 
   const author = splitCommentId[1];
   comment.value.metadata = {
@@ -76,8 +62,11 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   delete comment.value.comment.rootId;
   delete comment.value.comment.timestamp;
   delete comment.isEdition;
-  console.log("in 03 to 04 out", comment);
 
+  return comment;
+}
+
+function normalizeFromV0_0_4ToV0_0_5(comment) {
   return comment;
 }
 
@@ -97,6 +86,10 @@ const versions = {
   "v0.0.3": {
     normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
     suffixAction: `_v0.0.3`,
+  },
+  "v0.0.4": {
+    normalizationFunction: normalizeFromV0_0_4ToV0_0_5,
+    suffixAction: `_v0.0.4`,
   },
 };
 
@@ -128,23 +121,27 @@ function filterInvalidComments(comments) {
     .filter((comment) => {
       return (
         comment.accountId ===
-        getUserNameFromCommentId(comment.value.metadata.id)
+        getUserNameFromCommentId(
+          comment.value.metadata.id ?? comment.value.comment.commentId
+        )
       );
     });
 }
 
 function getUserNameFromCommentId(commentId) {
-  const splittedCommentId = commentId.split("/");
+  let userName;
+  if (commentId.startsWith("c/") || commentId.startsWith("comment/")) {
+    const splittedCommentId = commentId.split("/");
+    userName = splittedCommentId[1];
+  } else if (commentId.startsWith("c_")) {
+    const userNamePlusTimestamp = commentId.split("c_")[1];
 
-  // const userNamePlusTimestamp = commentId.split("c_")[1];
+    const splittedUserNamePlusTimestamp = userNamePlusTimestamp.split("-");
 
-  // const splittedUserNamePlusTimestamp = userNamePlusTimestamp.split("-");
+    splittedUserNamePlusTimestamp.pop();
 
-  // splittedUserNamePlusTimestamp.pop();
-
-  // const userName = splittedUserNamePlusTimestamp.join("-");
-
-  const userName = splittedCommentId[1];
+    userName = splittedUserNamePlusTimestamp.join("-");
+  }
 
   return userName;
 }
@@ -189,14 +186,11 @@ function getComments(articleId, config) {
       const action = fillAction(versions[version], config);
 
       return getFromIndex(action, articleId).then((comments) => {
-        // const validComments = filterInvalidComments(comments);
-        console.log("comments: ", action, articleId, comments);
+        const validComments = filterInvalidComments(comments);
 
-        const normalizedComments = comments.map((comment) => {
+        const normalizedComments = validComments.map((comment) => {
           return normalize(comment, versions, index);
         });
-
-        console.log("normalizedComments: ", normalizedComments);
 
         return filterInvalidComments(normalizedComments);
       });
@@ -204,7 +198,6 @@ function getComments(articleId, config) {
   );
 
   return Promise.all(commentsByVersionPromise).then((commentsByVersion) => {
-    console.log("commentsByVersion: ", commentsByVersion);
     return processComments(commentsByVersion.flat());
   });
 }
@@ -300,14 +293,11 @@ function createComment(props) {
     commentText,
     replyingTo,
     articleId,
-    onClick,
     onCommit,
     onCancel,
   } = props;
 
   setConfig(config);
-
-  onClick();
 
   const metadataHelper = {
     author,
@@ -324,17 +314,17 @@ function createComment(props) {
     metadata,
   };
 
-  console.log("comment: ", comment);
-
   const result = executeSaveComment(comment, onCommit, onCancel);
 
   return { error: !result, data: result };
 }
 
 function editComment(props) {
-  const { config, comment, onClick, onCommit, onCancel } = props;
+  const { config, comment, onCommit, onCancel } = props;
 
-  if (!comment.metadata.id) {
+  console.log("In editComment", comment)
+
+  if (!comment.value.metadata.id) {
     console.error(
       "comment.metadata.id should be provided when editing comment"
     );
@@ -343,12 +333,10 @@ function editComment(props) {
 
   setConfig(config);
 
-  onClick();
-
   //TODO ask Dani abaut the second parameter in this case
   let metadata = updateMetadata(comment.metadata, currentVersion);
   metadata.isEdition = true;
-
+  
   //===========================================================================================================================================================================
   // interface comment {
   //   commentData: {text: string},
@@ -357,9 +345,11 @@ function editComment(props) {
   //===========================================================================================================================================================================
 
   const newComment = {
-    commentData: { text: comment.text },
+    commentData: { text: comment.value.comment.text },
     metadata,
   };
+
+  console.log("newComment: ", newComment)
 
   const result = executeSaveComment(newComment, onCommit, onCancel);
 
@@ -367,7 +357,7 @@ function editComment(props) {
 }
 
 function deleteComment(props) {
-  const { config, commentId, articleId, onClick, onCommit, onCancel } = props;
+  const { config, commentId, articleId, onCommit, onCancel } = props;
 
   setConfig(config);
 
@@ -377,8 +367,6 @@ function deleteComment(props) {
     );
     return;
   }
-
-  onClick();
 
   let metadata = buildDeleteMetadata(commentId);
   metadata.articleId = articleId;
