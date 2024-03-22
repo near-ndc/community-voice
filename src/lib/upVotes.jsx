@@ -4,6 +4,7 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
 );
 
 let config = {};
+const ID_PREFIX = "upVote"
 const currentVersion = "v0.0.3";
 
 function setConfig(value) {
@@ -63,19 +64,19 @@ function normalizeFromV0_0_3ToV0_0_4(upVote) {
 const versions = {
   old: {
     normalizationFunction: normalizeOldToV_0_0_1,
-    suffixAction: "",
+    actionSuffix: "",
   },
   "v0.0.1": {
     normalizationFunction: normalizeFromV0_0_1ToV0_0_2,
-    suffixAction: `-v0.0.1`,
+    actionSuffix: `-v0.0.1`,
   },
   "v0.0.2": {
     normalizationFunction: normalizeFromV0_0_2ToV0_0_3,
-    suffixAction: `_v0.0.2`,
+    actionSuffix: `_v0.0.2`,
   },
   "v0.0.3": {
     normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
-    suffixAction: `_v0.0.3`,
+    actionSuffix: `_v0.0.3`,
   },
 };
 
@@ -85,8 +86,8 @@ function getUpVotesData(action, id) {
 
 function fillAction(version, isTest) {
   const baseAction = getConfig().baseActions.upVote;
-  const filledAction = baseAction + version.suffixAction;
-  return isTest ? `test_${filledAction}` : filledAction;
+  const filledAction = baseAction + version.actionSuffix;
+  return getConfig().isTest ? `test_${filledAction}` : filledAction;
 }
 
 function getUpVoteBlackListByBlockHeight() {
@@ -103,12 +104,8 @@ function getLatestEdits(upVotes) {
 }
 
 function filterInvalidUpVotes(upVotes) {
-  console.log(
-    "getUpVoteBlackListByBlockHeight",
-    getUpVoteBlackListByBlockHeight()
-  );
   return upVotes
-    .filter((upVote) => upVote.value.upVoteId) // Has id
+    .filter((upVote) => upVote.value.metadata.id) // Has id
     .filter(
       (upVote) =>
         !getUpVoteBlackListByBlockHeight().includes(upVote.blockHeight) // Blockheight is not in blacklist
@@ -128,7 +125,7 @@ function isActive(upVote) {
   return upVote.value.metadata && !upVote.value.metadata.isDelete;
 }
 
-function getUpVotes(articleId, config) {
+function getUpVotes(config, articleId) {
   setConfig(config);
   const upVotesByVersionPromise = Object.keys(versions).map(
     (version, versionIndex, arr) => {
@@ -136,6 +133,7 @@ function getUpVotes(articleId, config) {
 
       return getUpVotesData(action, articleId).then((upVotes) => {
         const validUpVotes = filterInvalidUpVotes(upVotes);
+        console.log(1, action, validUpVotes)
         const latestUpVotes = getLatestEdits(validUpVotes);
 
         const nonDeletedVotes = latestUpVotes.filter((vote) => {
@@ -151,25 +149,24 @@ function getUpVotes(articleId, config) {
     }
   );
   return Promise.all(upVotesByVersionPromise).then((upVotesByVersion) => {
+    console.log(2, upVotesByVersion)
     return upVotesByVersion.flat();
   });
 }
 
-function getAction(version, config) {
-  //version and config are optative for testing
-  const baseAction =
-    config.baseActions.upVote ?? getConfig().baseActions.upVote;
+function getAction(version) {
+  const baseAction = getConfig().baseActions.upVote;
   const versionData = version ? versions[version] : versions[currentVersion];
-  const action = baseAction + versionData.suffixAction;
-  return config.isTest || getConfig().isTest ? `test_${action}` : action;
+  const action = baseAction + versionData.actionSuffix;
+  return getConfig().isTest ? `test_${action}` : action;
 }
 
-function composeData(articleId, upVote, version, config) {
+function composeData(upVote) {
   //version and config are optative for testing
   let data = {
     index: {
-      [getAction(version, config)]: JSON.stringify({
-        key: articleId,
+      [getAction()]: JSON.stringify({
+        key: upVote.upVoteData.articleId,
         value: {
           ...upVote,
         },
@@ -197,42 +194,46 @@ function composeData(articleId, upVote, version, config) {
 }
 
 function executeSaveUpVote(
-  articleId,
   upVote,
   onCommit,
-  onCancel,
-  version,
-  config
+  onCancel
 ) {
   //version and config are optative for testing
-  const newData = composeData(articleId, upVote, version, config);
+  const newData = composeData(upVote);
   Social.set(newData, {
     force: true,
     onCommit,
     onCancel,
   });
-
-  return upVote.upVoteData.upVoteId;
 }
 
 function addUpVote(
   config,
   articleId,
-  upVoteData,
-  userMetadataHelper,
+  author,
   onCommit,
   onCancel
 ) {
-  let newUpVoteData = { sbt: upVoteData.sbt };
+  setConfig(config);
 
-  createUpVote(
-    config,
-    articleId,
-    newUpVoteData,
-    userMetadataHelper,
-    onCommit,
-    onCancel
-  );
+  const upVoteData = {
+    articleId
+  }
+  const metadataHelper = {
+    author,
+    idPrefix: ID_PREFIX,
+    versionKey: currentVersion,
+  };
+
+  const metadata = generateMetadata(metadataHelper);
+
+  const upVote = {
+    upVoteData,
+    metadata
+  }
+  const result = executeSaveUpVote(upVote, onCommit, onCancel);
+  return { error: false, data: result };
+
 }
 
 function deleteUpVote(
