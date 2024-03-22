@@ -2,7 +2,10 @@ const { getReactions, createReaction } = VM.require("sayalot.near/widget/lib.rea
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const [reactions, setReactions] = useState({reactionsStatistics: [], userReaction: undefined})
-const config = getConfig()
+
+const articleId = "ayelen.near-1699406465524"
+const isTest = !!props.isTest
+const config = getConfig(isTest)
 
 function onCommit() {
     console.log("On commit")
@@ -13,7 +16,7 @@ function onCancel() {
 }
 
 function loadReactions() {
-    const articleId = "blaze.near-1708108768232"
+    
     getReactions(config, articleId, context.accountId).then((newReactions) => {
         console.log(1, newReactions)
         setReactions(newReactions)
@@ -22,7 +25,7 @@ function loadReactions() {
 
 function addReaction() {
     const emoji = "❤️ Positive"
-    const elementReactedId = "blaze.near-1708108768232"
+    const elementReactedId = articleId
     const author = context.accountId
     
     const result = createReaction(config, emoji, elementReactedId, author, onCommit, onCancel)

@@ -2,6 +2,7 @@ const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex")
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
     "sayalot.near/widget/lib.metadata"
 );
+const { normalizeId } = VM.require("sayalot.near/widget/lib.normalization")
 
 let config = {}
 const ID_PREFIX = "reaction"
@@ -28,15 +29,6 @@ function normalizeOldToV_0_0_1(reaction) {
     return reaction;
 }
 
-function normalizeId(oldFormatId) {
-    const split = oldFormatId.split("-")
-    const createdAt = split[split.length - 1]
-    split.pop()
-    split.shift() // Removes first
-    const accountId = split.join("-")
-    return `reaction/${accountId}/${createdAt}`
-}
-
 function normalizeFromV0_0_1ToV0_0_2(reaction, extraParams) {
     const { elementReactedId } = extraParams
     const reactionData = {
@@ -48,7 +40,7 @@ function normalizeFromV0_0_1ToV0_0_2(reaction, extraParams) {
     const createdTimestamp = parseInt(split[split.length - 1])
 
     const metadata = {
-        id: normalizeId(reaction.value.reactionId),
+        id: normalizeId(reaction.value.reactionId, ID_PREFIX),
         author: reaction.accountId,
         createdTimestamp: createdTimestamp,
         lastEditTimestamp: createdTimestamp,
@@ -85,7 +77,7 @@ const versions = {
 function fillAction(version) {
     const baseAction = getConfig().baseActions.reaction
     const filledAction = baseAction + version.actionSuffix
-    return isTest ? `test_${filledAction}` : filledAction
+    return getConfig().isTest ? `test_${filledAction}` : filledAction
 }
 
 function getReactionBlackListByBlockHeight() {
