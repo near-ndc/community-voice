@@ -8,9 +8,17 @@ const [comments, setComments] = useState([]);
 const isTest = !!props.isTest;
 
 const config = getConfig(isTest);
+const articleId = "ayelen.near-1699314338205";
+
+function onCommit() {
+  console.log("Executing on commit")
+}
+
+function onCancel() {
+  console.log("Executing on cancel")
+}
 
 function loadComments() {
-  const articleId = "ayelen.near-1699314338205";
   getComments(articleId, config).then((newComments) => {
     setComments(newComments);
   });
@@ -23,6 +31,21 @@ useEffect(() => {
     loadComments();
   }, 30000);
 }, []);
+
+function newComment() {
+  createComment({
+    config,
+    author: context.accountId,
+    commentText: "@ayelen.near Text of the comment",
+    replyingTo: "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use undefined.
+    articleId,
+    onClick: () => {
+      console.log("Create comment clicked");
+    },
+    onCommit,
+    onCancel
+  });
+}
 
 let commentExampleToEdit = comments[0];
 if (commentExampleToEdit) {
@@ -47,24 +70,7 @@ return (
       </div>
     )}
     <button
-      onClick={() => {
-        createComment({
-          config,
-          author: context.accountId,
-          commentText: "Text of the comment",
-          replyingTo: "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use undefined.
-          articleId: "ayelen.near-1699314338205",
-          onClick: () => {
-            console.log("Create comment clicked");
-          },
-          onCommit: () => {
-            console.log("Comment created");
-          },
-          onCancel: () => {
-            console.log("Comment creation canceled");
-          }}
-        );
-      }}
+      onClick={newComment}
     >
       createComment
     </button>

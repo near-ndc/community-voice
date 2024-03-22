@@ -12,13 +12,14 @@ const currentVersion = "v0.0.3";
 
 function getSplittedCommentIdV0_0_3(commentId) {
   console.log("split in", commentId);
-  if (commentId.startsWith("comment/")) {
-    console.log("split out", commentId);
-    return commentId.split("/");
-  } else {
-    const commentIdWithoutPrefix = commentId.startsWith("comment/")
-      ? commentId.slice(8)
-      : commentId.slice(2);
+  // if (commentId.startsWith("comment/")) {
+  //   console.log("split out", commentId);
+  //   return commentId.split("/");
+  // } else {
+    // const commentIdWithoutPrefix = commentId.startsWith("comment/")
+    //   ? commentId.slice(8)
+    //   : 
+    const commentIdWithoutPrefix = commentId.slice(2);
     const prefix = "c-";
 
     const oldFormatID = prefix + commentIdWithoutPrefix;
@@ -30,7 +31,7 @@ function getSplittedCommentIdV0_0_3(commentId) {
     console.log("split out", commentId);
 
     return splitCommentId;
-  }
+  // }
 }
 
 function normalizeOldToV_0_0_1(comment) {
@@ -56,7 +57,8 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   console.log("in 03 to 04 in", comment);
   const now = Date.now();
 
-  const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
+  // const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
+  const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.comment.commentId);
 
   console.log("splitCommentId: ", splitCommentId);
 
@@ -113,7 +115,7 @@ function fillAction(version, config) {
 }
 
 function getCommentBlackListByBlockHeight() {
-  return [98588599];
+  return [98588599, 115199907];
 }
 
 function filterInvalidComments(comments) {
