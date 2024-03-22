@@ -1,10 +1,9 @@
 function generateMetadata(metadataHelper) {
-  const { idPrefix, author, sbt, versionKey } = metadataHelper;
+  const { idPrefix, author, versionKey } = metadataHelper;
   const now = Date.now();
   return {
     id: `${idPrefix}/${author}/${now}`,
     author,
-    sbt, // Check lib.SBT -> getSBTWhiteList -> prop value
     createdTimestamp: now,
     lastEditTimestamp: now,
     versionKey, // Check `const versions` -> Object.keys(versions)

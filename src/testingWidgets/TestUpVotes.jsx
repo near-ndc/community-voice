@@ -1,14 +1,14 @@
-const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getUpVotes, createUpVote, deleteUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const [upVotes, setUpVotes] = useState([])
 
 const isTest = !!props.isTest
 const config = getConfig(isTest)
+const articleId = "article/rodrigos.near/1710843635815"
 
 function loadUpVotes() {
-    const articleId = "article/silkking.near/1709818622924"
-    getUpVotes(articleId, config).then((newVotes) => {
+    getUpVotes(config, articleId).then((newVotes) => {
         setUpVotes(newVotes)
     })
 }
@@ -19,8 +19,19 @@ useEffect(() => {
     setInterval(() => {
         console.log("Loading upvotes interval", Date.now() / 1000)
         loadUpVotes()
-    }, 30000)
+    }, 15000)
 }, [])
+
+function newUpVote() {
+    const result = createUpVote(config, articleId, context.accountId, onCommit, onCancel)
+    if(result.error) {
+        setErrors(result.data)
+    }
+}
+
+function removeUpVote() { 
+    deleteUpVote(config, articleId, upVotes[0].value.metadata.id, onCommit, onCancel)
+}
 
 return <>
     <div>
@@ -29,10 +40,8 @@ return <>
     }) : "No error"}
     </div>
     <div>Upvotes: {upVotes.length}</div>
-    {/* <button onClick={failNewCommunity}>Test fail new community</button>
-    <button onClick={newCommunity}>Test new community</button>
-    <button onClick={() => modifyCommunity(communities[0])}>Test edit community</button>
-    <button onClick={removeCommunity}>Test remove community</button> */}
+    <button onClick={newUpVote}>Test new upVote</button>
+    <button onClick={removeUpVote}>Test remove upVote</button>
     { upVotes && upVotes.length && <div>
         {upVotes.map((upVote, index) => 
         {
