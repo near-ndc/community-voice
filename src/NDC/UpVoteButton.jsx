@@ -18,49 +18,47 @@ const data = reactedElementData;
 
 const libSrcArray = [widgets.libs.libUpVotes];
 
-const initLibCalls = {
-  upVotes: [
-    {
-      functionName: "getUpVotes",
-      key: "upVotesBySBT",
-      props: {
-        id: data.id ?? `${data.author}-${data.timeCreate}`,
-        sbtsNames: articleSbts,
-      },
-    },
-  ],
-};
-const initUpVotesBySBT = {};
+// const initLibCalls = {
+//   upVotes: [
+//     {
+//       functionName: "getUpVotes",
+//       key: "upVotesBySBT",
+//       props: {
+//         id: data.id ?? `${data.author}-${data.timeCreate}`,
+//         sbtsNames: articleSbts,
+//       },
+//     },
+//   ],
+// };
+// const initUpVotesBySBT = {};
 
-if (!articleUpVotes) {
-  State.init({
-    functionsToCallByLibrary: initLibCalls,
-    articleUpVotes: [],
-    upVotesBySBT: initUpVotesBySBT,
-  });
-} else {
-  State.init({
-    articleUpVotes,
-    functionsToCallByLibrary: { upVotes: [] },
-  });
-}
+// if (!articleUpVotes) {
+//   State.init({
+//     functionsToCallByLibrary: initLibCalls,
+//     articleUpVotes: [],
+//     upVotesBySBT: initUpVotesBySBT,
+//   });
+// } else {
+//   State.init({
+//     articleUpVotes,
+//     functionsToCallByLibrary: { upVotes: [] },
+//   });
+// }
 
-if (state.upVotesBySBT && Object.keys(state.upVotesBySBT).length > 0) {
-  const key = Object.keys(state.upVotesBySBT)[0]; // There should always be one for now
-  const newUpvotes = state.upVotesBySBT[key];
-  if (JSON.stringify(state.articleUpVotes) !== JSON.stringify(newUpvotes)) {
-    State.update({ articleUpVotes: newUpvotes });
-  }
-}
+// if (state.upVotesBySBT && Object.keys(state.upVotesBySBT).length > 0) {
+//   const key = Object.keys(state.upVotesBySBT)[0]; // There should always be one for now
+//   const newUpvotes = state.upVotesBySBT[key];
+//   if (JSON.stringify(state.articleUpVotes) !== JSON.stringify(newUpvotes)) {
+//     State.update({ articleUpVotes: newUpvotes });
+//   }
+// }
 
-let upVotesData = state.articleUpVotes;
+let userVote = articleUpVotes.find((vote) => vote.accountId === context.accountId);
 
-let userVote = upVotesData.find((vote) => vote.accountId === context.accountId);
-
-let hasUserVoted = userVote !== undefined;
+// let hasUserVoted = userVote !== undefined;
 
 function getUpVoteButtonClass() {
-  if (hasUserVoted) {
+  if (userVote) {
     return "info";
   } else {
     return "info outline";
@@ -80,37 +78,22 @@ function onCancel() {
 }
 
 function handleUpVote() {
-  //let newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
-  addUpVote(
-    getConfig(isTest),
-    data.value.metadata.id ?? `article/${data.value.metadata.author}/${data.value.metadata.createdTimestamp}`,
-    {sbt:data.value.metadata.sbt},
-    data.value.metadata,
-    onCommit,
-    onCancel
-  )
-  // const userMetadataHelper = { author: data.value.metadata.author, sbt:data.value.metadata.dbt}
-  // if (!hasUserVoted) {
-  //   newLibCalls.upVotes.push({
-  //     functionName: "addVote",
-  //     key: "newVote",
-  //     props: {
-  //       id: data.id ?? `${data.author}-${data.timeCreate}`,
-  //       articleSbts: data.sbts,
-  //       articleAuthor: data.author,
-  //     },
-  //   });
-  // } else {
-  //   newLibCalls.upVotes.push({
-  //     functionName: "deleteVote",
-  //     key: "deletedVote",
-  //     props: {
-  //       id: data.id ?? `${data.author}-${data.timeCreate}`,
-  //       upVoteId: userVote.value.upVoteId,
-  //     },
-  //   });
-  // }
-  // State.update({ functionsToCallByLibrary: newLibCalls });
+  userVote?
+    deleteUpVote(
+      getConfig(isTest),
+      data.value.metadata.id,
+      userVote.value.metadata.id,
+      onCommit,
+      onCancel
+    )
+  :
+    addUpVote(
+      getConfig(isTest),
+      data.value.metadata.id,
+      data.value.metadata.author,
+      onCommit,
+      onCancel
+    )
 }
 
 const IconContainer = styled.div`
@@ -133,7 +116,7 @@ return (
         props={{
           children: (
             <div className="d-flex">
-              <span>{`+${upVotesData.length}`}</span>
+              <span>{`+${articleUpVotes.length}`}</span>
               <IconContainer>
                 <Icon
                   className={`bi bi-fast-forward-fill ${
