@@ -10,41 +10,55 @@ let config = {};
 
 const currentVersion = "v0.0.3";
 
+function getSplittedCommentIdV0_0_3(commentId) {
+  console.log("split in", commentId);
+  if (commentId.startsWith("comment/")) {
+    console.log("split out", commentId);
+    return commentId.split("/");
+  } else {
+    const commentIdWithoutPrefix = commentId.startsWith("comment/")
+      ? commentId.slice(8)
+      : commentId.slice(2);
+    const prefix = "c-";
+
+    const oldFormatID = prefix + commentIdWithoutPrefix;
+    console.log("oldFormatID: ", oldFormatID);
+
+    const newCommentID = normalizeId(oldFormatID, "comment");
+
+    const splitCommentId = newCommentID.split("/");
+    console.log("split out", commentId);
+
+    return splitCommentId;
+  }
+}
+
 function normalizeOldToV_0_0_1(comment) {
   return comment;
 }
 
 function normalizeFromV0_0_1ToV0_0_2(comment) {
+  console.log("in 01 to 02", comment);
   return comment;
 }
 
 function normalizeFromV0_0_2ToV0_0_3(comment) {
+  console.log("in 02 to 03 in", comment);
   comment.value.comment.rootId = comment.value.comment.originalCommentId;
   delete comment.value.comment.originalCommentId;
   delete comment.value.comment.id;
+  console.log("in 02 to 03 out", comment);
 
   return comment;
 }
 
-function getSplittedCommentIdV0_0_3(commentId) {
-  const commentIdWithoutPrefix = commentId.slice(2);
-  const prefix = "c-";
-
-  const oldFormatID = prefix + commentIdWithoutPrefix;
-
-  const newCommentID = normalizeId(oldFormatID, "comment");
-
-  const splitCommentId = newCommentID.split("/");
-
-  return splitCommentId;
-}
-
 function normalizeFromV0_0_3ToV0_0_4(comment) {
+  console.log("in 03 to 04 in", comment);
   const now = Date.now();
 
-  const splitCommentId = getSplittedCommentIdV0_0_3(
-    comment.value.comment.commentId
-  );
+  const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
+
+  console.log("splitCommentId: ", splitCommentId);
 
   const author = splitCommentId[1];
   comment.value.metadata = {
@@ -60,6 +74,7 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   delete comment.value.comment.rootId;
   delete comment.value.comment.timestamp;
   delete comment.isEdition;
+  console.log("in 03 to 04 out", comment);
 
   return comment;
 }
@@ -173,10 +188,13 @@ function getComments(articleId, config) {
 
       return getFromIndex(action, articleId).then((comments) => {
         // const validComments = filterInvalidComments(comments);
+        console.log("comments: ", action, articleId, comments);
 
         const normalizedComments = comments.map((comment) => {
           return normalize(comment, versions, index);
         });
+
+        console.log("normalizedComments: ", normalizedComments);
 
         return filterInvalidComments(normalizedComments);
       });
@@ -184,6 +202,7 @@ function getComments(articleId, config) {
   );
 
   return Promise.all(commentsByVersionPromise).then((commentsByVersion) => {
+    console.log("commentsByVersion: ", commentsByVersion);
     return processComments(commentsByVersion.flat());
   });
 }
