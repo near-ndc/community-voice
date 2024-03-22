@@ -2,6 +2,9 @@ const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex");
 const { normalize, normalizeId } = VM.require(
   "sayalot.near/widget/lib.normalization"
 );
+const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
+  "sayalot.near/widget/lib.metadata"
+);
 
 let config = {};
 
@@ -31,7 +34,7 @@ function getSplittedCommentIdV0_0_3(commentId) {
 
   const newCommentID = normalizeId(oldFormatID, "comment");
 
-  const splitCommentId = newCommentID.split("-");
+  const splitCommentId = newCommentID.split("/");
 
   return splitCommentId;
 }
@@ -42,9 +45,10 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   const splitCommentId = getSplittedCommentIdV0_0_3(
     comment.value.comment.commentId
   );
+
   const author = splitCommentId[1];
   comment.value.metadata = {
-    id: comment.value.comment.commentId,
+    id: splitCommentId.join("/"),
     author,
     createdTimestamp: now,
     lastEditTimestamp: now,
@@ -54,6 +58,8 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
 
   delete comment.value.comment.commentId;
   delete comment.value.comment.rootId;
+  delete comment.value.comment.timestamp;
+  delete comment.isEdition;
 
   return comment;
 }
@@ -102,11 +108,12 @@ function filterInvalidComments(comments) {
         comment.blockHeight &&
         !getCommentBlackListByBlockHeight().includes(comment.blockHeight) // Comment is not in blacklist
     )
-    .filter(
-      (comment) =>
+    .filter((comment) => {
+      return (
         comment.accountId ===
-        getUserNameFromCommentId(comment.value.comment.commentId)
-    );
+        getUserNameFromCommentId(comment.value.metadata.id)
+      );
+    });
 }
 
 function getUserNameFromCommentId(commentId) {
@@ -128,9 +135,7 @@ function getUserNameFromCommentId(commentId) {
 function processComments(comments) {
   const lastEditionComments = comments.filter((comment) => {
     const firstCommentWithThisCommentId = comments.find((compComment) => {
-      return (
-        compComment.value.comment.commentId === comment.value.comment.commentId
-      );
+      return compComment.value.metadata.id === comment.value.metadata.id;
     });
 
     return (
@@ -139,20 +144,19 @@ function processComments(comments) {
   });
 
   const lastEditionCommentsWithoutDeletedOnes = lastEditionComments.filter(
-    (comment) => !comment.value.comment.isDelete
+    (comment) => !comment.value.metadata.isDelete
   );
 
   const lastEditionCommentsWithEditionMark =
     lastEditionCommentsWithoutDeletedOnes.map((comment) => {
       const commentsWithThisCommentId = comments.filter((compComment) => {
         return (
-          comment.value.comment.commentId ===
-          compComment.value.comment.commentId
+          comment.value.metadata.id === compComment.value.metadata.commentId
         );
       });
 
       if (commentsWithThisCommentId.length > 1) {
-        comment.isEdition = true;
+        comment.value.metadata.isEdition = true;
       }
 
       return comment;
@@ -168,16 +172,13 @@ function getComments(articleId, config) {
       const action = fillAction(versions[version], config);
 
       return getFromIndex(action, articleId).then((comments) => {
-        if (comments.length > 0) {
-          console.log("comments: ", { action, articleId, comments });
-        }
         // const validComments = filterInvalidComments(comments);
 
-        return filterInvalidComments(
-          comments.map((comment) => {
-            return normalize(comment, versions, index);
-          })
-        );
+        const normalizedComments = comments.map((comment) => {
+          return normalize(comment, versions, index);
+        });
+
+        return filterInvalidComments(normalizedComments);
       });
     }
   );
@@ -206,7 +207,7 @@ function getAction(parameterVersion, parameterConfig) {
 function composeCommentData(comment, version, config) {
   // if (comment.metadata.replyingTo) {
   //   //We add the following so the user been replied get's a notification
-  //   comment.commentData.commentText = `@${comment.metadata.replyingTo} ${comment.commentData.commentText}`;
+  //   comment.commentData.text = `@${comment.metadata.replyingTo} ${comment.commentData.text}`;
   // }
 
   let data = {
@@ -222,7 +223,7 @@ function composeCommentData(comment, version, config) {
   };
 
   // TODO handle notifications properly
-  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.commentText);
+  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.text);
 
   // if (mentions.length > 0) {
   //   const dataToAdd = getNotificationData(
@@ -249,7 +250,7 @@ function executeSaveComment(
   parameterVersion,
   parameterConfig
 ) {
-  if (!comment.metadata.isDelete && comment.commentData.commentText) {
+  if (!comment.metadata.isDelete && comment.commentData.text) {
     //parameterVersion and parameterConfig are optative for testing
     const newData = composeCommentData(
       comment,
@@ -265,7 +266,7 @@ function executeSaveComment(
     return comment.metadata.id;
   } else {
     console.error(
-      "The comment should contain a text. Check: comment.commentData.commentText in lib.comment.jsx"
+      "The comment should contain a text. Check: comment.commentData.text in lib.comment.jsx"
     );
     return;
   }
@@ -298,9 +299,11 @@ function createComment(props) {
   metadata.replyingTo = replyingTo;
 
   const comment = {
-    commentData: { commentText },
+    commentData: { text: commentText },
     metadata,
   };
+
+  console.log("comment: ", comment);
 
   const result = executeSaveComment(comment, onCommit, onCancel);
 
@@ -321,19 +324,19 @@ function editComment(props) {
 
   onClick();
 
-  let metadata = comment.metadata;
-
-  metadata.lastEditTimestamp = Date.now();
+  //TODO ask Dani abaut the second parameter in this case
+  let metadata = updateMetadata(comment.metadata, currentVersion);
+  metadata.isEdition = true;
 
   //===========================================================================================================================================================================
   // interface comment {
-  //   commentData: {commentText: string},
+  //   commentData: {text: string},
   //   metadata
   // }
   //===========================================================================================================================================================================
 
   const newComment = {
-    commentData: {commentText: comment.commentText},
+    commentData: { text: comment.text },
     metadata,
   };
 
@@ -370,6 +373,9 @@ function deleteComment(props) {
 
 return {
   getComments,
+  createComment,
+  editComment,
+  deleteComment,
   functionsToTest: {
     normalizeOldToV_0_0_1,
     normalizeFromV0_0_1ToV0_0_2,
@@ -385,5 +391,8 @@ return {
     getComments,
     getSplittedCommentIdV0_0_3,
     composeCommentData,
+    createComment,
+    editComment,
+    deleteComment,
   },
 };

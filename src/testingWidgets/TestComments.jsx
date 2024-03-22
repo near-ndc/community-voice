@@ -1,4 +1,6 @@
-const { getComments } = VM.require("sayalot.near/widget/lib.comment");
+const { getComments, createComment, editComment, deleteComment } = VM.require(
+  "sayalot.near/widget/lib.comment"
+);
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 
 const [comments, setComments] = useState([]);
@@ -22,8 +24,10 @@ useEffect(() => {
   }, 30000);
 }, []);
 
-let commentExampleToEdit = comments[0]
-commentExampleToEdit.commentData.commentText = "Text edited"
+let commentExampleToEdit = comments[0];
+if (commentExampleToEdit) {
+  commentExampleToEdit.value.comment.text = "Text edited";
+}
 
 return (
   <>
@@ -44,15 +48,21 @@ return (
     )}
     <button
       onClick={() => {
-        createComment(
+        createComment({
           config,
-          context.accountId,
-          "Text of the comment",
-          "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use an empty string.
-          "ayelen.near-1699314338205",
-          ()=>{console.log("Create comment clicked")},
-          ()=>{console.log("Comment created")},
-          ()=>{console.log("Comment creation canceled")},
+          author: context.accountId,
+          commentText: "Text of the comment",
+          replyingTo: "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use undefined.
+          articleId: "ayelen.near-1699314338205",
+          onClick: () => {
+            console.log("Create comment clicked");
+          },
+          onCommit: () => {
+            console.log("Comment created");
+          },
+          onCancel: () => {
+            console.log("Comment creation canceled");
+          }}
         );
       }}
     >
@@ -60,27 +70,39 @@ return (
     </button>
     <button
       onClick={() => {
-        editComment(
+        editComment({
           config,
-          commentExampleToEdit,
-          ()=>{console.log("Edit comment clicked")},
-          ()=>{console.log("Comment edited")},
-          ()=>{console.log("Comment edition canceled")},
-        );
+          comment: commentExampleToEdit,
+          onClick: () => {
+            console.log("Edit comment clicked");
+          },
+          onCommit: () => {
+            console.log("Comment edited");
+          },
+          onCancel: () => {
+            console.log("Comment edition canceled");
+          }
+        });
       }}
     >
       editComment
     </button>
     <button
       onClick={() => {
-        deleteComment(
+        deleteComment({
           config,
-          commentExampleToEdit.metadata.id,
-          commentExampleToEdit.metadata.articleId,
-          ()=>{console.log("Delete comment clicked")},
-          ()=>{console.log("Comment deleted")},
-          ()=>{console.log("Comment delet canceled")},
-        );
+          commentId: commentExampleToEdit.metadata.id,
+          articleId: commentExampleToEdit.metadata.articleId,
+          onClick: () => {
+            console.log("Delete comment clicked");
+          },
+          onCommit: () => {
+            console.log("Comment deleted");
+          },
+          onCancel: () => {
+            console.log("Comment delet canceled");
+          }
+        });
       }}
     >
       deleteComment
