@@ -18,7 +18,6 @@ function onCancel() {
 function loadReactions() {
     
     getReactions(config, articleId, context.accountId).then((newReactions) => {
-        console.log(1, newReactions)
         setReactions(newReactions)
     })
 }

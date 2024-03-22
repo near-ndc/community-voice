@@ -125,7 +125,6 @@ function getUpVotes(config, articleId) {
 
       return getUpVotesData(action, articleId).then((upVotes) => {
         const validUpVotes = filterInvalidUpVotes(upVotes);
-        console.log(1, action, validUpVotes)
         const latestUpVotes = getLatestEdits(validUpVotes);
 
         const activeUpVotes = latestUpVotes.filter(isActive);
@@ -139,7 +138,6 @@ function getUpVotes(config, articleId) {
     }
   );
   return Promise.all(upVotesByVersionPromise).then((upVotesByVersion) => {
-    console.log(2, upVotesByVersion)
     return upVotesByVersion.flat();
   });
 }
