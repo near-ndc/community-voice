@@ -47,7 +47,8 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   const splitCommentId = getSplittedCommentIdV0_0_3(
     comment.value.comment.commentId
   );
-
+  
+  comment.value.commentData = {text: comment.value.comment.text};
   const author = splitCommentId[1];
   comment.value.metadata = {
     id: splitCommentId.join("/"),
@@ -61,6 +62,8 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
   delete comment.value.comment.commentId;
   delete comment.value.comment.rootId;
   delete comment.value.comment.timestamp;
+  delete comment.value.comment.text;
+  delete comment.value.comment;
   delete comment.isEdition;
 
   return comment;
@@ -108,7 +111,7 @@ function fillAction(version, config) {
 }
 
 function getCommentBlackListByBlockHeight() {
-  return [98588599, 115199907];
+  return [98588599, 115199907, 115238101];
 }
 
 function filterInvalidComments(comments) {
@@ -186,13 +189,14 @@ function getComments(articleId, config) {
       const action = fillAction(versions[version], config);
 
       return getFromIndex(action, articleId).then((comments) => {
+        console.log("unfiltered coments: ", comments)
         const validComments = filterInvalidComments(comments);
 
         const normalizedComments = validComments.map((comment) => {
           return normalize(comment, versions, index);
         });
 
-        return filterInvalidComments(normalizedComments);
+        return normalizedComments;
       });
     }
   );
@@ -264,26 +268,20 @@ function executeSaveComment(
   parameterVersion,
   parameterConfig
 ) {
-  if (!comment.metadata.isDelete && comment.commentData.text) {
-    //parameterVersion and parameterConfig are optative for testing
-    const newData = composeCommentData(
-      comment,
-      parameterVersion ?? currentVersion,
-      parameterConfig ?? config
-    );
-    Social.set(newData, {
-      force: true,
-      onCommit,
-      onCancel,
-    });
+  //parameterVersion and parameterConfig are optative for testing
+  const newData = composeCommentData(
+    comment,
+    parameterVersion ?? currentVersion,
+    parameterConfig ?? config
+  );
+  
+  Social.set(newData, {
+    force: true,
+    onCommit,
+    onCancel,
+  });
 
-    return comment.metadata.id;
-  } else {
-    console.error(
-      "The comment should contain a text. Check: comment.commentData.text in lib.comment.jsx"
-    );
-    return;
-  }
+  return comment.metadata.id;
 }
 
 function createComment(props) {
@@ -307,7 +305,7 @@ function createComment(props) {
 
   let metadata = generateMetadata(metadataHelper);
   metadata.articleId = articleId;
-  metadata.replyingTo = replyingTo;
+  metadata.rootId = replyingTo;
 
   const comment = {
     commentData: { text: commentText },
@@ -322,21 +320,13 @@ function createComment(props) {
 function editComment(props) {
   const { config, comment, onCommit, onCancel } = props;
 
-  console.log("In editComment", comment)
-
-  if (!comment.value.metadata.id) {
-    console.error(
-      "comment.metadata.id should be provided when editing comment"
-    );
-    return;
-  }
-
   setConfig(config);
 
   //TODO ask Dani abaut the second parameter in this case
-  let metadata = updateMetadata(comment.metadata, currentVersion);
+  // let metadata = updateMetadata(comment.metadata, currentVersion);
+  let metadata = updateMetadata(comment.value.metadata, currentVersion);
   metadata.isEdition = true;
-  
+
   //===========================================================================================================================================================================
   // interface comment {
   //   commentData: {text: string},
@@ -345,11 +335,9 @@ function editComment(props) {
   //===========================================================================================================================================================================
 
   const newComment = {
-    commentData: { text: comment.value.comment.text },
+    commentData: { text: comment.value.commentData.text },
     metadata,
   };
-
-  console.log("newComment: ", newComment)
 
   const result = executeSaveComment(newComment, onCommit, onCancel);
 
@@ -357,19 +345,13 @@ function editComment(props) {
 }
 
 function deleteComment(props) {
-  const { config, commentId, articleId, onCommit, onCancel } = props;
+  const { config, commentId, articleId, rootId, onCommit, onCancel } = props;
 
   setConfig(config);
 
-  if (!comment.metadata.id) {
-    console.error(
-      "comment.metadata.id should be provided when editing comment"
-    );
-    return;
-  }
-
   let metadata = buildDeleteMetadata(commentId);
   metadata.articleId = articleId;
+  metadata.rootId = rootId;
 
   const comment = {
     metadata,

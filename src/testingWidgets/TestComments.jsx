@@ -38,42 +38,34 @@ function newComment() {
     config,
     author: context.accountId,
     commentText: "@ayelen.near Text of the comment",
-    replyingTo: "ayelen.near", //replyingTo will have the userName of the person you are responding to in case it is a reply. If not, use undefined.
+    replyingTo: articleId, //replyingTo will have the rootId. It can be an articleId or a comment.value.comment.metadata.id.
     articleId,
     onCommit,
     onCancel
   });
 }
 
+let commentExampleToEdit = comments[comments.length - 1];
+
 function doEdition() {
+  commentExampleToEdit.value.commentData.text = "Text edited 4";
   editComment({
     config,
     comment: commentExampleToEdit,
-    onCommit: () => {
-      console.log("Comment edited");
-    },
-    onCancel: () => {
-      console.log("Comment edition canceled");
-    }
+    onCommit,
+    onCancel,
   });
 }
 
-let commentExampleToEdit = comments[0];
-if (commentExampleToEdit) {
-  commentExampleToEdit.value.comment.text = "Text edited";
-}
 
 function supressComment() {
   deleteComment({
     config,
-    commentId: commentExampleToEdit.metadata.id,
-    articleId: commentExampleToEdit.metadata.articleId,
-    onCommit: () => {
-      console.log("Comment deleted");
-    },
-    onCancel: () => {
-      console.log("Comment delet canceled");
-    }
+    commentId: commentExampleToEdit.value.metadata.id,
+    articleId: commentExampleToEdit.value.metadata.articleId,
+    rootId: commentExampleToEdit.value.metadata.rootId,
+    onCommit,
+    onCancel,
   });
 }
 
