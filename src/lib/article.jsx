@@ -28,7 +28,6 @@ function getAction(version) {
   const baseAction = getConfig().baseActions.article;
   const versionData = version ? versions[version] : versions[currentVersion];
   const action = baseAction + versionData.actionSuffix;
-  //   console.log(1, version, baseAction, versionData, action);
   return getConfig().isTest ? `test_${action}` : action;
 }
 
@@ -69,9 +68,7 @@ function getArticleNormalized(articleIndex, action) {
       blockHeight: articleIndex.blockHeight,
     }),
   }).then((response) => {
-    // console.log("response 2: ", response)
     //ERROR: Check the structure of the response to define "article"
-    // console.log("response 3: ", response);
     let article = JSON.parse(
       response.body[articleIndex.accountId][action][key]
     );
@@ -105,9 +102,7 @@ function processArticles(articles) {
         });
       })
   ).then((uniqueAuthorsSBTs) => {
-    // console.log("User sbts", uniqueAuthorsSBTs);
     let articlesBySBT = {};
-    // console.log(3, articles);
     articles
       .filter((article) => {
         const articleSbt = article.sbts[0];
@@ -159,8 +154,6 @@ function processArticlesData(articlesData) {
         return article.author === articleIndex.accountId;
       });
 
-      // const articlesWithExtraData = nonFakeAuthorsArticles.map(appendExtraDataToArticle)
-      // console.log(2, articlesWithExtraData)
       return processArticles(nonFakeAuthorsArticles, validLatestEdits);
     }
   );
