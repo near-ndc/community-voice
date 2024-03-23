@@ -1,4 +1,8 @@
 // NDC.AddComment
+const { getComments, createComment, editComment, deleteComment } = VM.require(
+  "sayalot.near/widget/lib.comment"
+);
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 
 const {
   widgets,
@@ -16,7 +20,7 @@ const {
   editionData,
 } = props;
 
-const rootId = rootCommentId ?? article.id; //To render in the proper location
+const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location
 
 const commentId = editionData ? editionData.value.comment.commentId : undefined; //(OPTIONAL) to edit comment
 
@@ -345,27 +349,37 @@ function onClickAddComment() {
 }
 
 function addCommentListener() {
-  const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
+  // const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
 
-  const comment = {
-    text: state.reply,
-    timestamp: Date.now(),
-    rootId,
-  };
+  // const comment = {
+  //   text: state.reply,
+  //   timestamp: Date.now(),
+  //   rootId,
+  // };
 
-  newLibCalls.comment.push({
-    functionName: "createComment",
-    key: "createComment",
-    props: {
-      comment,
-      replyingTo,
-      articleId: article.id,
-      onClick: onClickAddComment,
+    createComment({
+      config:getConfig(isTest),
+      author: context.accountId,
+      commentText: state.reply,
+      replyingTo: rootId, //replyingTo will have the rootId. It can be an articleId or a comment.value.comment.metadata.id.
+      articleId:article.value.metadata.id,
       onCommit,
-      onCancel,
-    },
-  });
-  State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
+      onCancel
+    });
+  
+  // newLibCalls.comment.push({
+  //   functionName: "createComment",
+  //   key: "createComment",
+  //   props: {
+  //     comment,
+  //     replyingTo,
+  //     articleId: article.id,
+  //     onClick: onClickAddComment,
+  //     onCommit,
+  //     onCancel,
+  //   },
+  // });
+  // State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
 }
 
 function editCommentListener() {

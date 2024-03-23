@@ -411,13 +411,13 @@ function closeModal() {
 
 function getProperRootId(isEdition) {
   if (isEdition) {
-    return data.value.comment.rootId;
+    return data.value.metadata.rootId;
   }
 
   if (data.answers) {
-    return data.value.comment.commentId;
+    return data.value.metadata.id;
   } else {
-    return data.value.comment.rootId;
+    return data.value.metadata.rootId;
   }
 }
 
@@ -444,7 +444,7 @@ function handleReplyListener() {
 return (
   <>
     {state.showDeleteModal && renderDeleteModal()}
-    <CommentCard id={data.value.comment.commentId}>
+    <CommentCard id={data.value.metadata.id}>
       <CommentCardHeader>
         <CommentUserContent>
           <Widget
@@ -500,7 +500,7 @@ return (
         <Widget
           src={widgets.views.standardWidgets.socialMarkdown}
           props={{
-            text: data.value.comment.text,
+            text: data.value.commentData.text,
             onHashtag: (hashtag) => (
               <span
                 key={hashtag}
@@ -522,7 +522,7 @@ return (
         <TimestampCommentDiv>
           <i className="bi bi-clock" />
           <TimestampTextComment>
-            {new Date(data.value.comment.timestamp).toDateString()}
+            {new Date(data.value.metadata.lastEditTimestamp).toDateString()}
           </TimestampTextComment>
           {data.isEdition && (
             <EditedIndication className="text-muted">(edited)</EditedIndication>
@@ -575,7 +575,7 @@ return (
             widgets,
             isTest,
             authorForWidget,
-            elementReactedId: data.value.comment.commentId,
+            elementReactedId: data.value.metadata.id,
             disabled: !canLoggedUserCreateComment,
             callLibs,
             baseActions,
