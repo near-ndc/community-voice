@@ -713,7 +713,7 @@ return (
         src={widgets.views.editableWidgets.showArticlesListSortedByAuthors}
         props={{
           isTest,
-          finalArticles,
+          finalArticles: articlesToRender,
           tabs,
           widgets,
           handleOpenArticle,

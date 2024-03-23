@@ -32,7 +32,7 @@ if (!handleShareButton) {
   };
 }
 
-const articles = finalArticles[sbts[0]];
+const articles = finalArticles;
 
 if (!articles) {
   return (
@@ -62,7 +62,7 @@ const articlesPerLabel = kanbanColumns.map((cl) => {
   let articlesOnThisColumn = articles.filter((article) => {
     const lowerCaseCL = cl.toLocaleLowerCase().replace(` `, "-");
 
-    return article.tags.includes(lowerCaseCL);
+    return article.value.articleData.tags.includes(lowerCaseCL);
   });
   return { label: cl, articles: articlesOnThisColumn };
 });

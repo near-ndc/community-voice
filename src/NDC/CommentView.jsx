@@ -38,7 +38,7 @@ const CommentCard = styled.div`
     gap: 12px;
     border-radius: "10px"};
     background: ${
-      sharedCommentId === data.value.comment.commentId
+      sharedCommentId === data.value.metadata.id
         ? "rgba(194, 205, 255, 0.8)"
         : "#fff"
     };
@@ -537,7 +537,7 @@ return (
               }}
             />
           )}
-          {articleSbts.length > 0 && (
+          {(
             <>
               <Widget
                 src={

@@ -517,7 +517,7 @@ const rootComments = comments.filter(
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
   let answers = comments.filter((comment) => {
-    return comment.value.metadata.rootId === rootComment.value.metadata.commentId;
+    return comment.value.metadata.rootId === rootComment.value.metadata.id;
   });
 
   return {

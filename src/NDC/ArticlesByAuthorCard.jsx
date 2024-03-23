@@ -37,7 +37,7 @@ return (
           src={widgets.views.editableWidgets.profileShortInlineBlock}
           props={{
             widgets,
-            accountId: authorArticlesArray[0].author,
+            accountId: authorArticlesArray[0].value.metadata.author,
             tooltip: true,
             maxWidth: "90%",
           }}

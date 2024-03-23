@@ -32,7 +32,7 @@ function moveArticleListener() {
 }
 
 function getArticleData() {
-  let newTags = article.tags.filter((tag) => {
+  let newTags = article.value.articleData.tags.filter((tag) => {
     let lowerCaseTag = tag.toLowerCase().replace(` `, "-");
 
     const lowercaseLabels = [];
@@ -148,7 +148,7 @@ const header = (
       <div className="row justify-content-between">
         <div className="w-75 text-truncate">
           <a
-            href={`#/mob.near/widget/ProfilePage?accountId=${article.author}`}
+            href={`#/mob.near/widget/ProfilePage?accountId=${article.value.metadata.author}`}
             target="_blank"
             className="link-dark text-truncate w-100"
           >
@@ -156,12 +156,12 @@ const header = (
               src={widgets.views.standardWidgets.profileImage}
               props={{
                 metadata,
-                accountId: article.author,
+                accountId: article.value.metadata.author,
                 widgetName,
                 style: { height: "1.5em", width: "1.5em", minWidth: "1.5em" },
               }}
             />
-            <span className="text-muted">@{article.author}</span>
+            <span className="text-muted">@{article.value.metadata.author}</span>
           </a>
         </div>
         <div className="w-25">
@@ -177,7 +177,7 @@ const header = (
                 onClick: () =>
                   handleShareButton(true, {
                     type: "sharedBlockHeight",
-                    value: article.blockHeight,
+                    value: article.value.metadata.blockHeight,
                   }),
               }}
             />
@@ -204,9 +204,9 @@ function toggleShowModal() {
   State.update({ showModal: !state.showModal });
 }
 
-const articleTags = article.tags ? (
+const articleTags = article.value.articleData.tags ? (
   <div className="card-title">
-    {article.tags.map((tag) => {
+    {article.value.articleData.tags.map((tag) => {
       const filter = { filterBy: "tag", value: tag };
       return (
         <CursorPointer onClick={() => handleFilterArticles(filter)}>
@@ -229,7 +229,7 @@ const articleTags = article.tags ? (
 const articleTitle = (
   <div className="card-text">
     <div className="row justify-content-between">
-      <h6 className="col-9">{article.title}</h6>
+      <h6 className="col-9">{article.value.articleData.title}</h6>
     </div>
   </div>
 );
@@ -245,7 +245,7 @@ const footerActionButtons = (
             <i className="bi bi-arrows"></i>
           </div>
         ),
-        disabled: context.accountId !== article.author,
+        disabled: context.accountId !== article.value.articleData.author,
         size: "sm",
         className: "info outline w-25",
         onClick: toggleShowModal,
@@ -289,7 +289,7 @@ const LimitedMarkdown = styled.div`
 // Should make sure the posts under the currently top viewed post are limited in size.
 const descriptionArea = (
   <LimitedMarkdown className="overflow-auto">
-    <Markdown className="card-text" text={article.body}></Markdown>
+    <Markdown className="card-text" text={article.value.articleData.body}></Markdown>
   </LimitedMarkdown>
 );
 
