@@ -1,5 +1,5 @@
 // NDC.AddComment
-const { getComments, createComment, editComment, deleteComment } = VM.require(
+const { createComment, editComment } = VM.require(
   "sayalot.near/widget/lib.comment"
 );
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");

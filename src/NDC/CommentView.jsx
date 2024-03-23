@@ -1,4 +1,6 @@
 // NDC.CommentView
+const { deleteComment } = VM.require("sayalot.near/widget/lib.comment");
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
 
 const {
   widgets,
@@ -366,7 +368,7 @@ const renderDeleteModal = () => {
   );
 };
 
-function onCommitDeletArticle() {
+function onCommitDeleteComment() {
   State.update({
     showDeleteModal: false,
   });
@@ -382,21 +384,30 @@ function deleteCommentListener() {
   //To test without commiting use the next line and comment the rest
   // onCommit();
   State.update({ saving: true });
-  const comment = data.value.comment;
+  // const comment = data.value.comment;
 
-  const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-  newLibsCalls.comment.push({
-    functionName: "deleteComment",
-    key: "deletedComment",
-    props: {
-      comment,
-      articleId: articleToRenderData.id,
-      onCommit: onCommitDeletcomment,
-      onCancel: closeDeleteCommentModal,
-    },
+  deleteComment({
+    config: getConfig(isTest),
+    commentId: data.value.metadata.id,
+    articleId: data.value.metadata.articleId,
+    rootId: data.value.metadata.rootId,
+    onCommit: onCommitDeleteComment,
+    onCancel: closeDeleteCommentModal,
   });
 
-  State.update({ functionsToCallByLibrary: newLibsCalls });
+  // const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
+  // newLibsCalls.comment.push({
+  //   functionName: "deleteComment",
+  //   key: "deletedComment",
+  //   props: {
+  //     comment,
+  //     articleId: articleToRenderData.id,
+  //     onCommit: onCommitDeleteComment,
+  //     onCancel: closeDeleteCommentModal,
+  //   },
+  // });
+
+  // State.update({ functionsToCallByLibrary: newLibsCalls });
 }
 
 function handleDeleteComment() {
