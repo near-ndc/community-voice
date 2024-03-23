@@ -8,35 +8,13 @@ const {
   sbts,
   baseActions,
   kanbanColumns,
-  callLibs,
   widgets,
 } = props;
-
-const initLibsCalls = {
-  article: [
-    {
-      functionName: "getArticleVersions",
-      key: "versions",
-      props: {
-        env: isTest ? "test" : "prod",
-        sbtsNames: sbtWhiteList,
-        articleIdToFilter: articleId,
-      },
-    },
-  ],
-};
 
 State.init({
   selectedTab: "code",
   selectedBlockHeight: null,
-  functionsToCallByLibrary: initLibsCalls,
 });
-
-let newLibsCalls = state.functionsToCallByLibrary;
-
-State.update({ libsCalls: newLibsCalls });
-
-const libSrcArray = [widgets.libs.libArticle];
 
 const versions = state.versions ?? [];
 
@@ -212,16 +190,5 @@ return (
         </div>
       )}
     </div>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          articleHistoryHasndlerStateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.articlesBaseAction, kanbanColumns },
-          "NDC.ArticleHistory.Handler"
-        );
-      })}
-    </CallLibrary>
   </>
 );

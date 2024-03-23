@@ -13,28 +13,13 @@ let {
   topicShared,
 } = props;
 
-State.init({
-  functionsToCallByLibrary: initLibsCalls,
-  usersSBTs: [],
-});
-
-const usersSBTs = state.usersSBTs; //TODO delete this const
-const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
-console.log("sbtWhiteList - SayALot.jsx - line 23", sbtWhiteList)
 function createSbtOptions() {
   return getSBTWhiteList(getConfig(isTest));
 }
 
-// const componentsOwner =
-//   "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb";
+const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
 const componentsOwner = "sayalot.near";
-
 const authorForWidget = "sayalot.near";
-// const authorForWidget =
-//   "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb";
-// const authorForWidget = "kenrou-it.near";
-// const authorForWidget = "silkking.near";
-
 const configWidget = "SayALot";
 
 const widgets = {
@@ -97,8 +82,6 @@ const widgets = {
   },
 };
 
-const libSrcArray = [widgets.libs.libSBT];
-
 const brand = {
   brandName: "Say a lot",
   logoHref:
@@ -118,39 +101,6 @@ const kanbanColumns = ["Open", "Claimed", "In Work", "Closed"];
 
 const kanbanRequiredTags = [];
 const kanbanExcludedTags = [];
-
-const CallLibrary = styled.div`
-  display: none;
-`;
-
-function mainStateUpdate(obj) {
-  State.update(obj);
-}
-
-function callLibs(
-  src,
-  stateUpdate,
-  functionsToCallByLibrary,
-  extraProps,
-  callerWidget
-) {
-  return (
-    <Widget
-      src={src}
-      props={{
-        mainStateUpdate,
-        isTest,
-        stateUpdate,
-        functionsToCallByLibrary,
-        callLibs,
-        widgets,
-        callerWidget,
-        ...extraProps,
-        usersSBTs,
-      }}
-    />
-  );
-}
 
 return (
   <>
@@ -175,8 +125,6 @@ return (
           sharedCommentId,
           sharedSearchInputValue,
           topicShared,
-          callLibs,
-          mainStateUpdate,
         }}
       />
     ) : (
@@ -184,16 +132,5 @@ return (
         src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
       />
     )}
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          mainStateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.articlesBaseAction, kanbanColumns },
-          "SayALot"
-        );
-      })}
-    </CallLibrary>
   </>
 );

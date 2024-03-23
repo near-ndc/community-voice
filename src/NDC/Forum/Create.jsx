@@ -18,12 +18,9 @@ const {
   sbtWhiteList,
   sbts,
   canLoggedUserCreateArticles,
-  callLibs,
   baseActions,
   handleOnCommitArticle,
 } = props;
-
-const libSrcArray = [widgets.libs.libArticle];
 
 const errTextNoBody = "ERROR: no article Body",
   errTextNoId = "ERROR: no article Id",
@@ -32,9 +29,6 @@ const errTextNoBody = "ERROR: no article Body",
 State.init({
   ...initialCreateState,
   initialBody: props.initialBody ?? "",
-  functionsToCallByLibrary: {
-    article: [],
-  },
   tags:[]
 });
 
@@ -146,26 +140,6 @@ function getInitialMarkdownBody() {
   }
 }
 
-function createArticleListener() {
-  //To test without commiting use the next line and comment the rest
-  // onCommit();
-  State.update({ saving: true });
-  const article = getArticleData();
-
-  const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-  newLibsCalls.article.push({
-    functionName: "createArticle",
-    key: "createdArticle",
-    props: {
-      article,
-      onCommit: () => onCommit(article),
-      onCancel,
-    },
-  });
-
-  State.update({ functionsToCallByLibrary: newLibsCalls });
-}
-
 function switchShowPreview() {
   State.update({
     showPreview: !state.showPreview,
@@ -269,7 +243,6 @@ return (
                   handleFilterArticles: () => {},
                   authorForWidget,
                   handleShareButton: () => {},
-                  callLibs,
                   baseActions,
                   switchShowPreview,
                 }}
@@ -380,19 +353,7 @@ return (
               />
             </div>
           </SecondContainer>
-          <div style={{ display: "none" }}>
-            {libSrcArray.map((src) => {
-              return callLibs(
-                src,
-                createStateUpdate,
-                state.functionsToCallByLibrary,
-                { baseAction: baseActions.articlesBaseAction },
-                "Create"
-              );
-            })}
-          </div>
         </div>
-        {/*)}*/}
       </BoxShadow>
     </GeneralContainer>
   </div>

@@ -22,46 +22,15 @@ let {
   handleShareSearch,
   canLoggedUserCreateArticles,
   filterBy,
-  callLibs,
   baseActions,
   handleOnCommitArticle,
   sharedSearchInputValue,
 } = props;
 
-const libSrcArray = [widgets.libs.libUpVotes];
-
-let initLibsCalls = { upVotes: [] };
-
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-
-initLibsCalls.upVotes = articlesToRender.map((article) => {
-  return {
-    functionName: "getUpVotes",
-    key: `upVotes-${article.metadata.id}`,
-    props: {
-      id: article.metadata.id ?? `${article.metadata.author}-${article.metadata.timeCreate}`,
-      sbtsNames: article.metadata.sbts ?? [],
-    },
-  };
-});
-
-if (articlesToRender.length > 0) {
-  State.update({ libsCalls: initLibsCalls });
-}
-
 State.init({
   start: Date.now(),
-  libsCalls: initLibsCalls,
   searchInputValue: sharedSearchInputValue ?? "",
 });
-
-if (state.upVotesBySBT && Object.keys(state.upVotesBySBT).length > 0) {
-  const key = Object.keys(state.upVotesBySBT)[0]; // There should always be one for now
-  const newUpvotes = state.upVotesBySBT[key];
-  if (JSON.stringify(state.upVotes) !== JSON.stringify(newUpvotes)) {
-    State.update({ upVotes: newUpvotes });
-  }
-}
 
 let finalArticlesWithUpVotes = articlesToRender.map((article) => {
   if (state[`upVotes-${article.metadata.id}`]) {
@@ -165,10 +134,6 @@ function getDateLastEdit(timestamp) {
   return dateString;
 }
 
-function allArticlesListStateUpdate(obj) {
-  State.update(obj);
-}
-
 function handleSearch(e) {
   State.update({ searchInputValue: e.target.value });
 }
@@ -209,7 +174,6 @@ return (
                     widgets,
                     initialCreateState,
                     editArticleData,
-                    callLibs,
                     handleFilterArticles,
                     handleEditArticle,
                     initialBody: "",
@@ -308,7 +272,6 @@ return (
                     handleShareButton,
                     sbtWhiteList,
                     handleEditArticle,
-                    callLibs,
                     baseActions,
                   }}
                 />
@@ -324,16 +287,5 @@ return (
         )}
       </ArticlesListContainer>
     </NoMargin>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          allArticlesListStateUpdate,
-          state.libsCalls,
-          { baseAction: baseActions.upVoteBaseAction },
-          "All articles list"
-        );
-      })}
-    </CallLibrary>
   </>
 );

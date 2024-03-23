@@ -12,17 +12,12 @@ const {
   handleEditArticle,
   handleDeleteArticle,
   handleShareButton,
-  callLibs,
   baseActions,
   kanbanColumns,
   sharedCommentId,
   allArticlesWithThisSBT,
   sbtWhiteList,
 } = props;
-
-if (!callLibs) {
-  callLibs = () => {};
-}
 
 const accountId = articleToRenderData.value.metadata.author;
 const id =
@@ -43,8 +38,6 @@ articleToRenderData.value.articleData.tags = articleToRenderData.value.articleDa
 //For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
 const articleSbts = articleToRenderData.sbts ?? [];
 
-const libSrcArray = [widgets.libs.libComment];
-
 const tabs = [
   {
     id: "generalInfo",
@@ -53,24 +46,10 @@ const tabs = [
   },
 ];
 
-const initLibsCalls = {
-  comment: [
-    {
-      functionName: "canUserCreateComment",
-      key: "canLoggedUserCreateComment",
-      props: {
-        accountId: context.accountId,
-        sbtsNames: articleSbts,
-      },
-    },
-  ],
-};
-
 //To slice the article body and show the showMore button just uncoment the sliceContent: true, un the State.init
 State.init({
   tabSelected: tabs[0].id,
   // sliceContent: true,
-  libsCalls: initLibsCalls,
 });
 
 const [comments, setComments] = useState([])
@@ -105,7 +84,7 @@ useEffect(() => {
         loadUpVotes()
     }, 30000)
 }, [])
-const canLoggedUserCreateComment = state.canLoggedUserCreateComment;
+const canLoggedUserCreateComment = true;
 
 const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
 
@@ -609,7 +588,6 @@ return (
                   sbts: articleSbts,
                   baseActions,
                   kanbanColumns,
-                  callLibs,
                   widgets,
                 }}
               />
@@ -687,7 +665,6 @@ return (
                             !canLoggedUserCreateComment),
                         articleSbts,
                         upVotes,
-                        callLibs,
                         baseActions,
                       }}
                     />
@@ -719,7 +696,6 @@ return (
                         !context.accountId ||
                         (articleSbts.length > 0 && !canLoggedUserCreateComment),
                       sbtsNames: articleSbts,
-                      callLibs,
                       baseActions,
                     }}
                   />
@@ -836,9 +812,7 @@ return (
                   isReplying: false,
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
-                  callLibs,
                   baseActions,
-                  // nomination_contract,
                 }}
               />
             )}
@@ -873,7 +847,6 @@ return (
                   isReply: false,
                   canLoggedUserCreateComment: canLoggedUserCreateComment,
                   articleSbts,
-                  callLibs,
                   baseActions,
                   sharedCommentId,
                   articleToRenderData,
@@ -935,16 +908,5 @@ return (
         </>
       </SecondContainer>
     </Container>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.libsCalls,
-          { baseAction: baseActions.commentBaseAction },
-          "Article view"
-        );
-      })}
-    </CallLibrary>
   </>
 );

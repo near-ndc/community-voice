@@ -13,7 +13,6 @@ const {
   addressForArticles,
   authorForWidget,
   handleShareButton,
-  callLibs,
   handleEditArticle,
   baseActions,
   switchShowPreview,
@@ -50,36 +49,21 @@ useEffect(() => {
 //For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
 const articleSbts = articleToRenderData.sbts ?? data.sbts ?? [];
 
-const libSrcArray = [widgets.libs.libComment];
-
 function stateUpdate(obj) {
   State.update(obj);
 }
 console.log("data - GeneralCard.jsx - line 58", data)
-const initLibsCalls = {
-  comment: [
-    {
-      functionName: "canUserCreateComment",
-      key: "canLoggedUserCreateComment",
-      props: {
-        accountId: context.accountId,
-        sbtsNames: articleSbts,
-      },
-    },
-  ],
-};
 
 State.init({
   verified: true,
   start: true,
   voted: false,
   sliceContent: true,
-  libsCalls: initLibsCalls,
 });
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
-const canLoggedUserCreateComment = state.canLoggedUserCreateComment;
+const canLoggedUserCreateComment = true
 
 //=================================================END CONSTS=======================================================
 
@@ -451,7 +435,6 @@ return (
             username: data.author,
             id,
             onCloseModal: toggleShowModal,
-            callLibs,
             baseActions,
           }}
         />
@@ -489,7 +472,6 @@ return (
                 (articleSbts.length > 0 && !canLoggedUserCreateComment),
               articleSbts,
               upVotes,
-              callLibs,
               baseActions,
             }}
           />
@@ -560,7 +542,6 @@ return (
                   switchShowPreviewExists() ||
                   !context.accountId ||
                   (articleSbts.length > 0 && !canLoggedUserCreateComment),
-                callLibs,
                 baseActions,
                 sbtsNames: articleSbts,
               }}
@@ -633,16 +614,5 @@ return (
         </LowerSectionContainer>
       </LowerSection>
     </Card>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.libsCalls,
-          { baseAction: baseActions.commentBaseAction },
-          "General card"
-        );
-      })}
-    </CallLibrary>
   </CardContainer>
 );

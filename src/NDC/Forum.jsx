@@ -1,6 +1,6 @@
 // NDC.Forum
-const { getArticles, deleteArticle } = VM.require("sayalot.near/widget/lib.article");
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+const { getArticles, deleteArticle } = VM.require("sayalot.near/widget/lib.article");
 const { isValidUser, getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
@@ -21,8 +21,6 @@ let {
   sharedCommentId,
   sharedSearchInputValue,
   topicShared,
-  callLibs,
-  mainStateUpdate,
 } = props;
 
 const splitedTopic = topicShared ? topicShared.split("-class") : undefined;
@@ -40,27 +38,13 @@ const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
 
-const initLibsCalls = {
-  article: [
-    {
-      functionName: "canUserCreateArticle",
-      key: "canLoggedUserCreateArticle",
-      props: {
-        accountId: context.accountId,
-        sbtsNames: sbtWhiteList,
-      },
-    },
-  ],
-};
-
 const [articlesToRender, setArticlesToRender] = useState([])
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
-console.log("sbts - Forum.jsx - line 56",state.sbts)
+
 function loadArticles(sbts) {
-  const userFilters = {id: undefined, sbt: sbts}
+  const userFilters = {id: undefined, sbt: undefined}
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
-    console.log("articlesToRender - Forum.jsx - line 61",newArticles)
   })
 }
 
@@ -119,35 +103,19 @@ function getInitialTabId() {
   }
 }
 
-// userSBTs object type
-// {
-//   user: string,
-//   credentials: {}
-// }
-
 State.init({
   displayedTabId: getInitialTabId(),
   articleToRenderData: {},
   filterBy: getInitialFilter(),
   authorsProfiles: [],
-  functionsToCallByLibrary: initLibsCalls,
   sbtsNames: initSbtsNames,
   sbts: topicShared ? [topicShared] : initSbtsNames,
   firstRender: !isNaN(sharedBlockHeight) || typeof sharedArticleId === "string",
-  // usersSBTs: [],
 });
-
-// const usersSBTs = state.usersSBTs;
-
-let newLibsCalls = state.functionsToCallByLibrary;
-
-State.update({ libsCalls: newLibsCalls });
 
 //=============================================END INITIALIZATION===================================================
 
 //==================================================CONSTS==========================================================
-
-const libSrcArray = [widgets.libs.libArticle];
 
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
@@ -532,10 +500,6 @@ const initialCreateState = {
   sbts: [sbtWhiteList[0]],
 };
 
-// function mainStateUpdate(obj) {
-//   State.update(obj);
-// }
-
 function handleOpenArticle(articleToRenderData) {
   State.update({
     displayedTabId: tabs.SHOW_ARTICLE.id,
@@ -668,7 +632,6 @@ return (
       src={widgets.views.editableWidgets.header}
       props={{
         isTest,
-        mainStateUpdate,
         handleGoHomeButton,
         handlePillNavigation,
         brand,
@@ -719,7 +682,6 @@ return (
           handleShareSearch,
           canLoggedUserCreateArticles,
           filterBy: state.filterBy,
-          callLibs,
           baseActions,
           handleOnCommitArticle,
           sharedSearchInputValue,
@@ -739,7 +701,6 @@ return (
             handleEditArticle,
             handleShareButton,
             handleDeleteArticle,
-            callLibs,
             baseActions,
             kanbanColumns,
             sharedCommentId,
@@ -769,7 +730,6 @@ return (
           isTest,
           addressForArticles,
           authorForWidget,
-          mainStateUpdate,
           widgets,
           initialBody: initialBodyAtCreation,
           initialCreateState,
@@ -779,7 +739,6 @@ return (
           sbtWhiteList,
           sbts,
           canLoggedUserCreateArticles,
-          callLibs,
           baseActions,
           handleOnCommitArticle,
         }}
@@ -797,26 +756,13 @@ return (
           handleFilterArticles,
           handleShareButton,
           authorForWidget,
-          finalArticles,
+          finalArticles: articlesToRender,
           sbts,
           kanbanRequiredTags,
           kanbanExcludedTags,
           baseActions,
-          callLibs,
         }}
       />
     )}
-
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.articlesBaseAction, kanbanColumns },
-          "NDC.Forum"
-        );
-      })}
-    </CallLibrary>
   </>
 );

@@ -15,7 +15,6 @@ const {
   placement,
   rootCommentId,
   replyingTo,
-  callLibs,
   baseActions,
   editionData,
 } = props;
@@ -278,8 +277,6 @@ const CallLibrary = styled.div`
     display: none;
   `;
 
-const libSrcArray = [widgets.libs.libComment];
-
 function stateUpdate(obj) {
   State.update(obj);
 }
@@ -289,9 +286,6 @@ State.init({
   reply: "",
   cancel: false,
   e_message: "",
-  functionsToCallByLibrary: {
-    comment: [],
-  },
 });
 
 function getShouldDisplayOriginalComment() {
@@ -349,43 +343,23 @@ function onClickAddComment() {
 }
 
 function addCommentListener() {
-  // const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
-
-  // const comment = {
-  //   text: state.reply,
-  //   timestamp: Date.now(),
-  //   rootId,
-  // };
-
     createComment({
       config:getConfig(isTest),
       author: context.accountId,
       commentText: state.reply,
-      replyingTo: rootId, //replyingTo will have the rootId. It can be an articleId or a comment.value.comment.metadata.id.
+      replyingTo: rootId,
       articleId:article.value.metadata.id,
       onCommit,
       onCancel
     });
   
-  // newLibCalls.comment.push({
-  //   functionName: "createComment",
-  //   key: "createComment",
-  //   props: {
-  //     comment,
-  //     replyingTo,
-  //     articleId: article.id,
-  //     onClick: onClickAddComment,
-  //     onCommit,
-  //     onCancel,
-  //   },
-  // });
-  // State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
+  State.update({reply: "Reply here" });
 }
 
 function editCommentListener() {
-  //const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
   const comment = originalComment
   comment.value.commentData.text=state.reply
+  
   editComment({
     config: getConfig(isTest),
     comment,
@@ -393,25 +367,7 @@ function editCommentListener() {
     onCancel,
   });
 
-  // const comment = {
-  //   text: state.reply,
-  //   timestamp: editionData.value.comment.timestamp ?? Date.now(),
-  //   rootId,
-  //   commentId,
-  // };
-
-  // newLibCalls.comment.push({
-  //   functionName: "editComment",
-  //   key: "editComment",
-  //   props: {
-  //     comment,
-  //     articleId: article.id,
-  //     onClick: onClickAddComment,
-  //     onCommit,
-  //     onCancel,
-  //   },
-  // });
-  // State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
+  State.update({ reply: "Reply here" });
 }
 
 return (
@@ -514,16 +470,5 @@ return (
         </CommentFooter>
       </Container>
     </CommentCard>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.commentBaseAction },
-          "AddComment"
-        );
-      })}
-    </CallLibrary>
   </ModalCard>
 );

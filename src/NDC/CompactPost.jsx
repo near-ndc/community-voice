@@ -9,16 +9,10 @@ const {
   handleShareButton,
   colLabel,
   baseActions,
-  callLibs,
 } = props;
-
-const libSrcArray = [widgets.libs.libArticle];
 
 State.init({
   showModal: false,
-  functionsToCallByLibrary: {
-    article: [],
-  },
 });
 
 function compactPostStateUpdate(obj) {
@@ -34,25 +28,7 @@ function onCancel() {
 }
 
 function moveArticleListener() {
-  if (!state.newLabel) {
-    return;
-  }
-  //To test without commiting use the next line and comment the rest
-  // onCommit();
-  // State.update({ saving: true });
-  const article = getArticleData();
-  const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-  newLibsCalls.article.push({
-    functionName: "createArticle",
-    key: "createdArticle",
-    props: {
-      article,
-      onCommit,
-      onCancel,
-    },
-  });
-
-  State.update({ functionsToCallByLibrary: newLibsCalls });
+  //TODO add createArticle function
 }
 
 function getArticleData() {
@@ -329,16 +305,5 @@ return (
         {footerActionButtons}
       </div>
     </Card>
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          compactPostStateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.articlesBaseAction },
-          "CompactPost"
-        );
-      })}
-    </CallLibrary>
   </>
 );

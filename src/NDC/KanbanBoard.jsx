@@ -13,33 +13,7 @@ const {
   kanbanExcludedTags,
   sbts,
   baseActions,
-  callLibs,
 } = props;
-
-//Commented so you can test if needed
-
-// function callLibs(
-//   src,
-//   stateUpdate,
-//   functionsToCallByLibrary,
-//   extraProps,
-//   callerWidget
-// ) {
-//   return (
-//     <Widget
-//       src={src}
-//       props={{
-//         isTest,
-//         stateUpdate,
-//         functionsToCallByLibrary,
-//         callLibs,
-//         widgets,
-//         callerWidget,
-//         ...extraProps,
-//       }}
-//     />
-//   );
-// }
 
 //This is here so the code dosn't brake if the functions are not passed
 if (!handleFilterArticles) {
@@ -190,7 +164,6 @@ return (
                         handleShareButton,
                         colLabel: col.label,
                         baseActions,
-                        callLibs,
                       }}
                     />
                   );

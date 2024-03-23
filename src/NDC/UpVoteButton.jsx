@@ -10,7 +10,6 @@ const {
   disabled,
   articleSbts,
   upVotes: articleUpVotes,
-  callLibs,
   baseActions,
 } = props;
 
@@ -94,17 +93,5 @@ return (
         }}
       />
     </div>
-
-    {/* <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.upVoteBaseAction },
-          "Up vote button"
-        );
-      })}
-    </CallLibrary> */}
   </>
 );

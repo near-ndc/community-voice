@@ -11,7 +11,6 @@ const {
   orginalCommentData,
   canLoggedUserCreateComment,
   articleSbts,
-  callLibs,
   baseActions,
   sharedCommentId,
   articleToRenderData,
@@ -20,12 +19,7 @@ const {
 State.init({
   showModal: false,
   hasReply: false,
-  functionsToCallByLibrary: {
-    comment: [],
-  },
 });
-
-const libSrcArray = [widgets.libs.libComment];
 
 function stateUpdate(obj) {
   State.update(obj);
@@ -394,20 +388,6 @@ function deleteCommentListener() {
     onCommit: onCommitDeleteComment,
     onCancel: closeDeleteCommentModal,
   });
-
-  // const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-  // newLibsCalls.comment.push({
-  //   functionName: "deleteComment",
-  //   key: "deletedComment",
-  //   props: {
-  //     comment,
-  //     articleId: articleToRenderData.id,
-  //     onCommit: onCommitDeleteComment,
-  //     onCancel: closeDeleteCommentModal,
-  //   },
-  // });
-
-  // State.update({ functionsToCallByLibrary: newLibsCalls });
 }
 
 function handleDeleteComment() {
@@ -551,7 +531,6 @@ return (
                 replyingTo: data.accountId,
                 placement: "bottom",
                 onCloseModal: closeModal,
-                callLibs,
                 baseActions,
                 editionData: state.editionData,
                 rootCommentId: state.rootId,
@@ -588,7 +567,6 @@ return (
             authorForWidget,
             elementReactedId: data.value.metadata.id,
             disabled: !canLoggedUserCreateComment,
-            callLibs,
             baseActions,
             sbtsNames: articleSbts,
           }}
@@ -614,7 +592,6 @@ return (
                   isReply: true,
                   canLoggedUserCreateComment,
                   articleSbts,
-                  callLibs,
                   baseActions,
                   sharedCommentId,
                   articleToRenderData,
@@ -625,16 +602,5 @@ return (
         })}
       </>
     )}
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          stateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.commentBaseAction },
-          "NDC.CommentView"
-        );
-      })}
-    </CallLibrary>
   </>
 );

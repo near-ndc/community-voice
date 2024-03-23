@@ -9,7 +9,6 @@ const {
   widgets,
   disabled,
   sbtsNames,
-  callLibs,
   baseActions,
 } = props;
 // Don't forget to put space between emoji and text -> "❤️ Positive"
@@ -27,14 +26,6 @@ const emojiArray = [
   "⚡ Lightning",
   "⋈ Bowtie",
 ];
-
-const accountThatIsLoggedIn = context.accountId;
-
-const libSrcArray = [widgets.libs.libReactions];
-
-State.init({
-  functionsToCallByLibrary: initLibsCalls,
-});
 
 const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userEmoji: undefined})
 const [show, setShow] = useState(false)
@@ -86,25 +77,7 @@ function reactListener(emojiToWrite) {
         console.error(result.data)
     }
 
-  // const newLibsCalls = Object.assign({}, state.functionsToCallByLibrary);
-
-  // newLibsCalls.emojis.push({
-  //   functionName: "createEmoji",
-  //   key: "createReaction",
-  //   props: {
-  //     elementReactedId,
-  //     reaction: emojiToWrite,
-  //     articleSbts: sbtsNames,
-  //     onCommit: onPushEnd,
-  //     onCancel: onPushEnd,
-  //   },
-  // });
   setLoading(true)
-  // State.update({ functionsToCallByLibrary: newLibsCalls });
-}
-
-function reactionsStateUpdate(obj) {
-  State.update(obj);
 }
 
 // =============== CSS Styles ===============
@@ -314,17 +287,5 @@ return (
           renderReaction(item, false)
         )}
     </EmojiWrapper>
-
-    <CallLibrary>
-      {libSrcArray.map((src) => {
-        return callLibs(
-          src,
-          reactionsStateUpdate,
-          state.functionsToCallByLibrary,
-          { baseAction: baseActions.reactionBaseAction },
-          "Reactions"
-        );
-      })}
-    </CallLibrary>
   </>
 );
