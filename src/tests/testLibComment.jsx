@@ -15,36 +15,36 @@ const action = isTest ? testAction : prodAction;
 const config = { baseActions: { comment: baseAction }, isTest };
 const userNameRegEx = /^[a-zA-Z0-9._-]/;
 
-const commentIdToTestSplit1 = "c_NEAR.near-12312323123";
-// const commentIdToTestSplit2 = "c-NEAR-near-12312323123"
-const commentIdToTestSplit3 = "c_NEAR-near-12312323123";
-const commentIdToTestSplit4 = "c_NEARnear-12312323123";
-const commentIdToTestSplit5 = "c_NEAR_near-12312323123";
-const commentIdToTestSplit6 = "c/NEAR_near-12312323123";
-const commentIdToTestSplit7 = "c/NEAR-near-12312323123";
-const commentIdToTestSplit8 = "c/NEARnear-12312323123";
+// const commentIdToTestSplit1 = "c_NEAR.near-12312323123";
+// // const commentIdToTestSplit2 = "c-NEAR-near-12312323123"
+// const commentIdToTestSplit3 = "c_NEAR-near-12312323123";
+// const commentIdToTestSplit4 = "c_NEARnear-12312323123";
+// const commentIdToTestSplit5 = "c_NEAR_near-12312323123";
+// const commentIdToTestSplit6 = "c/NEAR_near-12312323123";
+// const commentIdToTestSplit7 = "c/NEAR-near-12312323123";
+// const commentIdToTestSplit8 = "c/NEARnear-12312323123";
 //=======================================================================End consts=========================================================================
 
 //=======================================================================Start lib functions=======================================================================
 
-function testGetSplittedCommentId() {
-  const showThisTest = false;
-  if (showThisTest) {
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit1));
-    // console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit2))
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit3));
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit4));
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit5));
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit6));
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit7));
-    console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit8));
-  }
-}
+// function testGetSplittedCommentId() {
+//   const showThisTest = false;
+//   if (showThisTest) {
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit1));
+//     // console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit2))
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit3));
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit4));
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit5));
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit6));
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit7));
+//     console.log(functionsToTest.getSplittedCommentId(commentIdToTestSplit8));
+//   }
+// }
 
-testGetSplittedCommentId();
+// testGetSplittedCommentId();
 
 function doesCommentIdHavePropperStructure(id) {
-  let splittedCommentId = functionsToTest.getSplittedCommentId(id);
+  let splittedCommentId = functionsToTest.getSplittedCommentIdV0_0_3(id);
   const timeStampPartOfCommentId = splittedCommentId.pop();
 
   const commentIdPrefix = splittedCommentId.shift();

@@ -1,9 +1,28 @@
 const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex");
-const { normalize } = VM.require("sayalot.near/widget/lib.normalization");
+const { normalize, normalizeId } = VM.require(
+  "sayalot.near/widget/lib.normalization"
+);
+const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
+  "sayalot.near/widget/lib.metadata"
+);
 
 let config = {};
 
-const currentVersion = "v0.0.3";
+const currentVersion = "v0.0.4";
+
+function getSplittedCommentIdV0_0_3(commentId) {
+  const commentIdWithoutPrefix = commentId.slice(2);
+  const prefix = "c-";
+
+  const oldFormatID = prefix + commentIdWithoutPrefix;
+
+  const newCommentID = normalizeId(oldFormatID, "comment");
+
+  const splitCommentId = newCommentID.split("/");
+
+  return splitCommentId;
+  // }
+}
 
 function normalizeOldToV_0_0_1(comment) {
   return comment;
@@ -21,39 +40,18 @@ function normalizeFromV0_0_2ToV0_0_3(comment) {
   return comment;
 }
 
-function getSplittedCommentId(commentId) {
-  const commentIdSecondCharacter = commentId.slice(1, 2);
-  if (commentIdSecondCharacter !== "/" && commentIdSecondCharacter !== "_") {
-    console.error(
-      "Comment ID might not have a propper structure. Check getSplittedCommentId function in lib.comment.jsx"
-    );
-  }
-
-  const commentIdWithoutPrefix = commentId.slice(2);
-  const prefix = "c/";
-
-  let splittedCommentIdWithoutPrefix;
-  if (commentIdWithoutPrefix.includes("/")) {
-    splittedCommentIdWithoutPrefix = commentIdWithoutPrefix.split("/");
-  } else {
-    const splittedByMiddleDash = commentIdWithoutPrefix.split("-");
-    const timestamp = splittedByMiddleDash.pop();
-    const userName = splittedByMiddleDash.join("-");
-
-    splittedCommentIdWithoutPrefix = [userName, timestamp];
-  }
-
-  splittedCommentIdWithoutPrefix.unshift(prefix);
-
-  return splittedCommentIdWithoutPrefix;
-}
-
 function normalizeFromV0_0_3ToV0_0_4(comment) {
   const now = Date.now();
-  const splitCommentId = getSplittedCommentId(comment.value.comment.commentId);
+
+  // const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
+  const splitCommentId = getSplittedCommentIdV0_0_3(
+    comment.value.comment.commentId
+  );
+  
+  comment.value.commentData = {text: comment.value.comment.text};
   const author = splitCommentId[1];
   comment.value.metadata = {
-    id: comment.value.comment.commentId,
+    id: splitCommentId.join("/"),
     author,
     createdTimestamp: now,
     lastEditTimestamp: now,
@@ -63,14 +61,22 @@ function normalizeFromV0_0_3ToV0_0_4(comment) {
 
   delete comment.value.comment.commentId;
   delete comment.value.comment.rootId;
+  delete comment.value.comment.timestamp;
+  delete comment.value.comment.text;
+  delete comment.value.comment;
+  delete comment.isEdition;
 
+  return comment;
+}
+
+function normalizeFromV0_0_4ToV0_0_5(comment) {
   return comment;
 }
 
 const versions = {
   old: {
     normalizationFunction: normalizeOldToV_0_0_1,
-    suffixAction: baseAction,
+    suffixAction: "",
   },
   "v1.0.1": {
     normalizationFunction: normalizeFromV0_0_1ToV0_0_2,
@@ -83,6 +89,10 @@ const versions = {
   "v0.0.3": {
     normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
     suffixAction: `_v0.0.3`,
+  },
+  "v0.0.4": {
+    normalizationFunction: normalizeFromV0_0_4ToV0_0_5,
+    suffixAction: `_v0.0.4`,
   },
 };
 
@@ -101,7 +111,7 @@ function fillAction(version, config) {
 }
 
 function getCommentBlackListByBlockHeight() {
-  return [98588599];
+  return [98588599, 115199907, 115238101];
 }
 
 function filterInvalidComments(comments) {
@@ -111,21 +121,30 @@ function filterInvalidComments(comments) {
         comment.blockHeight &&
         !getCommentBlackListByBlockHeight().includes(comment.blockHeight) // Comment is not in blacklist
     )
-    .filter(
-      (comment) =>
+    .filter((comment) => {
+      return (
         comment.accountId ===
-        getUserNameFromCommentId(comment.value.comment.commentId)
-    );
+        getUserNameFromCommentId(
+          comment.value.metadata.id ?? comment.value.comment.commentId
+        )
+      );
+    });
 }
 
 function getUserNameFromCommentId(commentId) {
-  const userNamePlusTimestamp = commentId.split("c_")[1];
+  let userName;
+  if (commentId.startsWith("c/") || commentId.startsWith("comment/")) {
+    const splittedCommentId = commentId.split("/");
+    userName = splittedCommentId[1];
+  } else if (commentId.startsWith("c_")) {
+    const userNamePlusTimestamp = commentId.split("c_")[1];
 
-  const splittedUserNamePlusTimestamp = userNamePlusTimestamp.split("-");
+    const splittedUserNamePlusTimestamp = userNamePlusTimestamp.split("-");
 
-  splittedUserNamePlusTimestamp.pop();
+    splittedUserNamePlusTimestamp.pop();
 
-  const userName = splittedUserNamePlusTimestamp.join("-");
+    userName = splittedUserNamePlusTimestamp.join("-");
+  }
 
   return userName;
 }
@@ -133,9 +152,7 @@ function getUserNameFromCommentId(commentId) {
 function processComments(comments) {
   const lastEditionComments = comments.filter((comment) => {
     const firstCommentWithThisCommentId = comments.find((compComment) => {
-      return (
-        compComment.value.comment.commentId === comment.value.comment.commentId
-      );
+      return compComment.value.metadata.id === comment.value.metadata.id;
     });
 
     return (
@@ -144,20 +161,19 @@ function processComments(comments) {
   });
 
   const lastEditionCommentsWithoutDeletedOnes = lastEditionComments.filter(
-    (comment) => !comment.value.comment.isDelete
+    (comment) => !comment.value.metadata.isDelete
   );
 
   const lastEditionCommentsWithEditionMark =
     lastEditionCommentsWithoutDeletedOnes.map((comment) => {
       const commentsWithThisCommentId = comments.filter((compComment) => {
         return (
-          comment.value.comment.commentId ===
-          compComment.value.comment.commentId
+          comment.value.metadata.id === compComment.value.metadata.commentId
         );
       });
 
       if (commentsWithThisCommentId.length > 1) {
-        comment.isEdition = true;
+        comment.value.metadata.isEdition = true;
       }
 
       return comment;
@@ -175,9 +191,11 @@ function getComments(articleId, config) {
       return getFromIndex(action, articleId).then((comments) => {
         const validComments = filterInvalidComments(comments);
 
-        return validComments.map((comment) => {
+        const normalizedComments = validComments.map((comment) => {
           return normalize(comment, versions, index);
         });
+
+        return normalizedComments;
       });
     }
   );
@@ -206,7 +224,7 @@ function getAction(parameterVersion, parameterConfig) {
 function composeCommentData(comment, version, config) {
   // if (comment.metadata.replyingTo) {
   //   //We add the following so the user been replied get's a notification
-  //   comment.commentData.commentText = `@${comment.metadata.replyingTo} ${comment.commentData.commentText}`;
+  //   comment.commentData.text = `@${comment.metadata.replyingTo} ${comment.commentData.text}`;
   // }
 
   let data = {
@@ -222,7 +240,7 @@ function composeCommentData(comment, version, config) {
   };
 
   // TODO handle notifications properly
-  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.commentText);
+  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.text);
 
   // if (mentions.length > 0) {
   //   const dataToAdd = getNotificationData(
@@ -249,63 +267,47 @@ function executeSaveComment(
   parameterVersion,
   parameterConfig
 ) {
-  if (comment.commentData.commentText) {
-    //parameterVersion and parameterConfig are optative for testing
-    const newData = composeCommentData(
-      comment,
-      parameterVersion ?? currentVersion,
-      parameterConfig ?? config
-    );
-    Social.set(newData, {
-      force: true,
-      onCommit,
-      onCancel,
-    });
+  //parameterVersion and parameterConfig are optative for testing
+  const newData = composeCommentData(
+    comment,
+    parameterVersion ?? currentVersion,
+    parameterConfig ?? config
+  );
 
-    return comment.metadata.id;
-  } else {
-    console.error("The comment should contain a text. Check: comment.commentData.commentText in lib.comment.jsx")
-    return
-  }
+  Social.set(newData, {
+    force: true,
+    onCommit,
+    onCancel,
+  });
+
+  return comment.metadata.id;
 }
 
 function createComment(props) {
   const {
     config,
-    userMetadataHelper,
-    commentData,
+    author,
+    commentText,
     replyingTo,
     articleId,
-    onClick,
     onCommit,
     onCancel,
   } = props;
 
   setConfig(config);
 
-  onClick();
-
   const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "c",
+    author,
+    idPrefix: "comment",
     versionKey: currentVersion,
   };
 
   let metadata = generateMetadata(metadataHelper);
   metadata.articleId = articleId;
-  metadata.replyingTo = replyingTo;
-
-  //===========================================================================================================================================================================
-  // interface commentData {
-  //   commentText: string,
-  //   isDelete: boolean,
-  // }
-  //===========================================================================================================================================================================
-
-  commentData.isDelete = false;
+  metadata.rootId = replyingTo;
 
   const comment = {
-    commentData,
+    commentData: { text: commentText },
     metadata,
   };
 
@@ -315,44 +317,24 @@ function createComment(props) {
 }
 
 function editComment(props) {
-  const {
-    config,
-    userMetadataHelper,
-    comment,
-    articleId,
-    onClick,
-    onCommit,
-    onCancel,
-  } = props;
-
-  if (!comment.metadata.id) {
-    console.error(
-      "comment.metadata.id should be provided when editing comment"
-    );
-    return;
-  }
+  const { config, comment, onCommit, onCancel } = props;
 
   setConfig(config);
 
-  onClick();
-
-  let metadata = comment.metadata;
-
-  metadata.lastEditTimestamp = Date.now();
-
-  metadata.replyingTo = undefined;
+  //TODO ask Dani abaut the second parameter in this case
+  // let metadata = updateMetadata(comment.metadata, currentVersion);
+  let metadata = updateMetadata(comment.value.metadata, currentVersion);
+  metadata.isEdition = true;
 
   //===========================================================================================================================================================================
   // interface comment {
-  //   commentText: string,
-  //   isDelete: boolean,
+  //   commentData: {text: string},
+  //   metadata
   // }
   //===========================================================================================================================================================================
 
-  comment.isDelete = false;
-
   const newComment = {
-    commentData: comment,
+    commentData: { text: comment.value.commentData.text },
     metadata,
   };
 
@@ -362,48 +344,15 @@ function editComment(props) {
 }
 
 function deleteComment(props) {
-  const {
-    config,
-    userMetadataHelper,
-    commentData,
-    articleId,
-    onClick,
-    onCommit,
-    onCancel,
-  } = props;
+  const { config, commentId, articleId, rootId, onCommit, onCancel } = props;
 
   setConfig(config);
 
-  if (!comment.metadata.id) {
-    console.error(
-      "comment.metadata.id should be provided when editing comment"
-    );
-    return;
-  }
-
-  onClick();
-
-  const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "c",
-    versionKey: currentVersion,
-  };
-
-  let metadata = generateMetadata(metadataHelper);
+  let metadata = buildDeleteMetadata(commentId);
   metadata.articleId = articleId;
-  metadata.replyingTo = undefined;
-
-  //===========================================================================================================================================================================
-  // interface commentData {
-  //   commentText: string,
-  //   isDelete: boolean,
-  // }
-  //===========================================================================================================================================================================
-
-  comment.commentData.isDelete = true;
+  metadata.rootId = rootId;
 
   const comment = {
-    commentData,
     metadata,
   };
 
@@ -414,6 +363,9 @@ function deleteComment(props) {
 
 return {
   getComments,
+  createComment,
+  editComment,
+  deleteComment,
   functionsToTest: {
     normalizeOldToV_0_0_1,
     normalizeFromV0_0_1ToV0_0_2,
@@ -427,7 +379,10 @@ return {
     getUserNameFromCommentId,
     processComments,
     getComments,
-    getSplittedCommentId,
+    getSplittedCommentIdV0_0_3,
     composeCommentData,
+    createComment,
+    editComment,
+    deleteComment,
   },
 };
