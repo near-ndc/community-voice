@@ -1,6 +1,7 @@
 // NDC.ArticleView
 const { getComments } = VM.require("sayalot.near/widget/lib.comment")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
+const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes")
 
 const {
   widgets,
@@ -89,7 +90,21 @@ useEffect(() => {
   }, 30000)
 }, [])
 
+const [upVotes, setUpVotes] = useState([])
 
+function loadUpVotes() {
+    getUpVotes(getConfig(isTest),id).then((newVotes) => {
+      console.log("newVotes - GeneralCards.jsx - line 38", newVotes)
+      setUpVotes(newVotes)
+    })
+}
+
+useEffect(() => {
+    loadUpVotes()
+    setInterval(() => {
+        loadUpVotes()
+    }, 30000)
+}, [])
 const canLoggedUserCreateComment = state.canLoggedUserCreateComment;
 
 const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
@@ -517,13 +532,13 @@ const AccordionBody = styled.div`padding: 0;`;
 
 //Get basic original comments info
 const rootComments = comments.filter(
-  (comment) => comment.value.comment.rootId === id
+  (comment) => comment.value.metadata.rootId === id
 );
 
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
   let answers = comments.filter((comment) => {
-    return comment.value.comment.rootId === rootComment.value.comment.commentId;
+    return comment.value.metadata.rootId === rootComment.value.metadata.commentId;
   });
 
   return {
@@ -552,8 +567,8 @@ const getShortUserName = () => {
 };
 
 let displayedContent = state.sliceContent
-  ? articleToRenderData.body.slice(0, 1000)
-  : articleToRenderData.body;
+  ? articleToRenderData.value.articleData.body.slice(0, 1000)
+  : articleToRenderData.value.articleData.body;
 
 return (
   <>
@@ -633,8 +648,8 @@ return (
                   }}
                 />
                 <TagContainer>
-                  {articleToRenderData.value.metadata.tags.length > 0 &&
-                    articleToRenderData.value.metadata.tags.map((tag) => {
+                  {articleToRenderData.value.articleData.tags.length > 0 &&
+                    articleToRenderData.value.articleData.tags.map((tag) => {
                       const filter = { filterBy: "tag", value: tag };
                       return (
                         <CursorPointer
@@ -671,7 +686,7 @@ return (
                           (articleSbts.length > 0 &&
                             !canLoggedUserCreateComment),
                         articleSbts,
-                        upVotes: articleToRenderData.upVotes,
+                        upVotes,
                         callLibs,
                         baseActions,
                       }}
