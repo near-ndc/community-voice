@@ -22,7 +22,7 @@ const {
 
 const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location
 
-const commentId = editionData ? editionData.value.comment.commentId : undefined; //(OPTIONAL) to edit comment
+const commentId = editionData ? editionData.value.metadata.id : undefined; //(OPTIONAL) to edit comment
 
 const isEdition = commentId !== undefined;
 
@@ -299,16 +299,16 @@ function getShouldDisplayOriginalComment() {
     (!editionData && replyingTo) ||
     (editionData &&
       replyingTo &&
-      editionData.value.comment.id !== editionData.value.comment.rootId)
+      editionData.value.metadata.id !== editionData.value.metadata.rootId)
   );
 }
 
 function getInitialText() {
   if (editionData) {
-    if (!state.reply || editionData.value.comment.text === state.reply) {
-      return editionData.value.comment.text;
+    if (!state.reply || editionData.value.commentData.text === state.reply) {
+      return editionData.value.commentData.text;
     }
-  } else if (state.reply && state.reply !== editionData.value.comment.text) {
+  } else if (state.reply && state.reply !== editionData.value.commentData.text) {
     return state.reply;
   } else {
     return "Reply here";
@@ -383,27 +383,35 @@ function addCommentListener() {
 }
 
 function editCommentListener() {
-  const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
-
-  const comment = {
-    text: state.reply,
-    timestamp: editionData.value.comment.timestamp ?? Date.now(),
-    rootId,
-    commentId,
-  };
-
-  newLibCalls.comment.push({
-    functionName: "editComment",
-    key: "editComment",
-    props: {
-      comment,
-      articleId: article.id,
-      onClick: onClickAddComment,
-      onCommit,
-      onCancel,
-    },
+  //const newLibCalls = Object.assign({}, state.functionsToCallByLibrary);
+  const comment = originalComment
+  comment.value.commentData.text=state.reply
+  editComment({
+    config: getConfig(isTest),
+    comment,
+    onCommit,
+    onCancel,
   });
-  State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
+
+  // const comment = {
+  //   text: state.reply,
+  //   timestamp: editionData.value.comment.timestamp ?? Date.now(),
+  //   rootId,
+  //   commentId,
+  // };
+
+  // newLibCalls.comment.push({
+  //   functionName: "editComment",
+  //   key: "editComment",
+  //   props: {
+  //     comment,
+  //     articleId: article.id,
+  //     onClick: onClickAddComment,
+  //     onCommit,
+  //     onCancel,
+  //   },
+  // });
+  // State.update({ functionsToCallByLibrary: newLibCalls, reply: "Reply here" });
 }
 
 return (
@@ -438,7 +446,7 @@ return (
                     </BCMProfileUsername>
                   </BCMHeader>
                   <BCMMessage>
-                    {originalComment && originalComment.value.comment.text}
+                    {originalComment && originalComment.value.commentData.text}
                   </BCMMessage>
                 </BCommentmessage>
               </BComment>
