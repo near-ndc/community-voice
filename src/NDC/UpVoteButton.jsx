@@ -1,5 +1,5 @@
 //NDC.UpVoteButton
-const { addUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
+const { createUpVote, deleteUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
 const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const {
@@ -16,46 +16,7 @@ const {
 
 const data = reactedElementData;
 
-const libSrcArray = [widgets.libs.libUpVotes];
-
-// const initLibCalls = {
-//   upVotes: [
-//     {
-//       functionName: "getUpVotes",
-//       key: "upVotesBySBT",
-//       props: {
-//         id: data.id ?? `${data.author}-${data.timeCreate}`,
-//         sbtsNames: articleSbts,
-//       },
-//     },
-//   ],
-// };
-// const initUpVotesBySBT = {};
-
-// if (!articleUpVotes) {
-//   State.init({
-//     functionsToCallByLibrary: initLibCalls,
-//     articleUpVotes: [],
-//     upVotesBySBT: initUpVotesBySBT,
-//   });
-// } else {
-//   State.init({
-//     articleUpVotes,
-//     functionsToCallByLibrary: { upVotes: [] },
-//   });
-// }
-
-// if (state.upVotesBySBT && Object.keys(state.upVotesBySBT).length > 0) {
-//   const key = Object.keys(state.upVotesBySBT)[0]; // There should always be one for now
-//   const newUpvotes = state.upVotesBySBT[key];
-//   if (JSON.stringify(state.articleUpVotes) !== JSON.stringify(newUpvotes)) {
-//     State.update({ articleUpVotes: newUpvotes });
-//   }
-// }
-
 let userVote = articleUpVotes.find((vote) => vote.accountId === context.accountId);
-
-// let hasUserVoted = userVote !== undefined;
 
 function getUpVoteButtonClass() {
   if (userVote) {
@@ -81,13 +42,13 @@ function handleUpVote() {
   userVote?
     deleteUpVote(
       getConfig(isTest),
-      data.value.metadata.id,
+      userVote.value.metadata.articleId,
       userVote.value.metadata.id,
       onCommit,
       onCancel
     )
   :
-    addUpVote(
+    createUpVote(
       getConfig(isTest),
       data.value.metadata.id,
       data.value.metadata.author,
@@ -134,7 +95,7 @@ return (
       />
     </div>
 
-    <CallLibrary>
+    {/* <CallLibrary>
       {libSrcArray.map((src) => {
         return callLibs(
           src,
@@ -144,6 +105,6 @@ return (
           "Up vote button"
         );
       })}
-    </CallLibrary>
+    </CallLibrary> */}
   </>
 );

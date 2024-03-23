@@ -34,7 +34,7 @@ const id = data.value.metadata.id ?? `${data.author}-${data.metadata.createdTiem
 const [upVotes, setUpVotes] = useState([])
 
 function loadUpVotes() {
-    getUpVotes(id, getConfig(isTest)).then((newVotes) => {
+    getUpVotes(getConfig(isTest),id).then((newVotes) => {
       console.log("newVotes - GeneralCards.jsx - line 38", newVotes)
       setUpVotes(newVotes)
     })
