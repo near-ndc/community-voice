@@ -19,7 +19,7 @@ function onCancel() {
 }
 
 function loadArticles() {
-    const userFilters = {id: undefined, sbt: undefined, authors: ["silkking.near", "rodrigos.near"]}
+    const userFilters = {id: "article/rodrigos.near/1710843635815", sbt: undefined, authors: ["rodrigos.near"], tags: ["tag1"]}
     getArticles(config, userFilters).then((newArticles) => {
         setArticles(newArticles)
     })
