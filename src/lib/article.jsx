@@ -225,7 +225,7 @@ function getLatestEdits(articles) {
 }
 
 function applyUserFilters(articles, filters) {
-  const { id, sbt } = filters;
+  const { id, sbt, authors } = filters;
   if (id) {
     articles = articles.filter((article) => {
       return article.value.metadata.id === id;
@@ -234,6 +234,11 @@ function applyUserFilters(articles, filters) {
   if (sbt) {
     articles = articles.filter((article) => {
       return article.value.metadata.sbt === sbt;
+    });
+  }
+  if(authors && authors.length > 0) {
+    articles = articles.filter((article) => {
+      return authors.includes(article.value.metadata.author);
     });
   }
   return articles;
