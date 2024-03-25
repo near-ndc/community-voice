@@ -646,7 +646,7 @@ return (
         widgets,
       }}
     />
-    {(state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id ||
+    {/* {(state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id ||
       state.displayedTabId == tabs.SHOW_KANBAN_VIEW.id) && (
       <div className="my-3 col-lg-8 col-md-8 col-sm-12">
         <Widget
@@ -659,7 +659,7 @@ return (
           }}
         />
       </div>
-    )}
+    )} */}
     {articlesToRender && state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
       <Widget
         src={widgets.views.editableWidgets.showArticlesList}
