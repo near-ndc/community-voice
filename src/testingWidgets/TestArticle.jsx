@@ -19,7 +19,7 @@ function onCancel() {
 }
 
 function loadArticles() {
-    const userFilters = {id: undefined, sbt: undefined}
+    const userFilters = {id: "article/rodrigos.near/1710843635815", sbt: undefined, authors: ["rodrigos.near"], tags: ["tag1"]}
     getArticles(config, userFilters).then((newArticles) => {
         setArticles(newArticles)
     })
@@ -101,7 +101,9 @@ return <>
         {articles.map((article, index) => 
         {
             return (<div key={index}>
-                    {JSON.stringify(article)}
+                    {index + 1})
+                    {JSON.stringify(article, null, 2)}
+                    <br/>
             </div>) 
         })}
     </div>}

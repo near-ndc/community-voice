@@ -225,7 +225,7 @@ function getLatestEdits(articles) {
 }
 
 function applyUserFilters(articles, filters) {
-  const { id, sbt } = filters;
+  const { id, sbt, authors, tags } = filters;
   if (id) {
     articles = articles.filter((article) => {
       return article.value.metadata.id === id;
@@ -234,6 +234,17 @@ function applyUserFilters(articles, filters) {
   if (sbt) {
     articles = articles.filter((article) => {
       return article.value.metadata.sbt === sbt;
+    });
+  }
+  if(authors && authors.length > 0) {
+    articles = articles.filter((article) => {
+      return authors.includes(article.value.metadata.author);
+    });
+  }
+  if(tags && tags.length > 0) {
+    articles = articles.filter((article) => {
+      console.log(1, article)
+      return tags.some((tag) => article.value.articleData.tags.includes(tag));
     });
   }
   return articles;
@@ -255,10 +266,10 @@ function getArticlesNormalized(userFilters) {
   return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
     const articles = articlesVersionArray.flat();
     const latestActiveEdits = getLatestEdits(articles);
-    const filteredArticles = applyUserFilters(latestActiveEdits, userFilters);
-    const activeArticles = filteredArticles.filter(isActive);
+    const activeArticles = latestActiveEdits.filter(isActive);
+    const filteredArticles = applyUserFilters(activeArticles, userFilters);
 
-    return activeArticles;
+    return filteredArticles;
   });
 }
 
