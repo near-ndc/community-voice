@@ -84,7 +84,6 @@ const handleCreate = () => {
   
   const metadataHelper = {
     author: context.accountId,
-    sbt: "fractal-v2.i-am-human.testnet - class 1" //TODO change this after testing //sbts[0].value,
   }
   createArticle(getConfig(isTest), articleData, metadataHelper, onCommit, onCancel)
 }

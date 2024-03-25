@@ -41,7 +41,7 @@ const sbtsNames = state.sbt;
 const [articlesToRender, setArticlesToRender] = useState([])
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
 
-function loadArticles(sbts) {
+function loadArticles() {
   const userFilters = {id: undefined, sbt: undefined}
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
@@ -49,13 +49,13 @@ function loadArticles(sbts) {
 }
 
 useEffect(() => {
-  loadArticles(state.sbts[0])
-  isValidUser(context.accountId,state.sbts[0]).then(isValid=>setCanLoggedUserCreateArticle(isValid))
+  loadArticles()
+  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
   const intervalId = setInterval(() => {
-    loadArticles(state.sbts[0])
+    loadArticles()
   }, 30000)
   return () => clearInterval(intervalId)
-}, [state.sbts[0]])
+}, [])
 
 accountId = context.accountId;
 
@@ -675,7 +675,7 @@ return (
           initialCreateState,
           editArticleData: state.editArticleData,
           handleEditArticle,
-          showCreateArticle: true,//TODO change this after testing //canLoggedUserCreateArticle,
+          showCreateArticle: canLoggedUserCreateArticle,
           sbtWhiteList,
           sbts,
           handleShareButton,

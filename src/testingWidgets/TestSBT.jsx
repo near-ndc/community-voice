@@ -1,9 +1,14 @@
 const { getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT")
+const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
 
 const [userSbts, setSbts] = useState([])
 
+const isTest = !!props.isTest
+
+const config = getConfig(isTest)
+
 function loadSbts(index) {
-    getUserSBTs("silkking.near").then((newArticles) => {
+    getUserSBTs("silkking.near",config).then((newArticles) => {
         setSbts(newArticles)
     })
 }

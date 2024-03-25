@@ -1,6 +1,7 @@
-function getConfig(isTest) {
+function getConfig(isTest,networkId) {
     return {
         isTest,
+        networkId,
         baseActions: {
             article: "communityVoiceArticle",
             upVote: "communityVoiceUpVote",
