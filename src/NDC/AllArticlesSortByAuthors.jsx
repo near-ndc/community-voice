@@ -40,7 +40,7 @@ return (
         articlesByAuthorsArray.map((authorArticlesArray) => {
           const filter = {
             filterBy: "author",
-            value: authorArticlesArray[0].author,
+            value: authorArticlesArray[0].value.metadata.author,
           };
           return (
             <Widget

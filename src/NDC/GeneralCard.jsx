@@ -484,7 +484,7 @@ return (
               onClick: () =>
                 handleShareButton(true, {
                   type: "sharedArticleId",
-                  value: data.id,
+                  value: data.value.metadata.id,
                 }),
             }}
           />
