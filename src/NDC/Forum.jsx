@@ -40,6 +40,11 @@ const sbtsNames = state.sbt;
 
 const [articlesToRender, setArticlesToRender] = useState([])
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
+const [showShareModal, setShowShareModal] = useState(false)
+const [sharedElement, setSharedElement] = useState(undefined)
+const [showShareSearchModal, setShowShareSearchModal] = useState(false)
+const [sharingSearch, setSharingSearch] = useState(false)
+const [linkCopied, setlinkCopied] = useState(false)
 
 function loadArticles() {
   const userFilters = {id: undefined, sbt: undefined}
@@ -316,40 +321,39 @@ const renderShareInteraction = () => {
         <ClosePopUpContainer>
           <CloseIcon
             className="bi bi-x"
-            onClick={() =>
-              State.update({
-                showShareSearchModal: false,
-                showShareModal: false,
-                linkCopied: false,
-                sharedElement: undefined,
-                sharingSearch: false,
-              })
+            onClick={() => {
+                setShowShareSearchModal(false)
+                setShowShareModal(false)
+                setLinkCopied(false)
+                setSharedElement(undefined)
+                setSharingSearch(false)
+              }
             }
           ></CloseIcon>
         </ClosePopUpContainer>
         <h3>Share</h3>
         <PopUpDescription>
-          {state.sharedElement.value
+          {sharedElement.value
             ? "Use this link to share the article"
-            : state.sharingSearch
+            : sharingSearch
             ? "Use this link to share the search"
             : "Can't share yet. Reload the app and try again."}
         </PopUpDescription>
         <ShowLinkShared>
-          {(state.sharedElement.value || state.sharingSearch) && (
+          {(sharedElement.value || sharingSearch) && (
             <LinkShared>{getLink()}</LinkShared>
           )}
           <ClipboardContainer>
-            {(state.sharedElement.value || state.sharingSearch) && (
+            {(sharedElement.value || sharingSearch) && (
               <ClipboardIcon
                 className="bi-clipboard"
                 onClick={() => {
                   clipboard.writeText(getLink());
-                  State.update({ linkCopied: true });
+                  setLinkCopied(true)
                 }}
               />
             )}
-            {state.linkCopied && <CopiedFeedback>Copied!</CopiedFeedback>}
+            {linkCopied && <CopiedFeedback>Copied!</CopiedFeedback>}
           </ClipboardContainer>
         </ShowLinkShared>
       </ShareInteractionMainContainer>
@@ -590,16 +594,19 @@ function handleShareButton(showShareModal, sharedElement) {
   //   type: string,
   //   value: number||string,
   // }
-  State.update({ showShareModal, sharedElement });
+  setShowShareModal(showShareModal)
+  setSharedElement(sharedElement)
 }
 
 function handleShareSearch(showShareSearchModal, searchInputValue) {
   //showShareSearchModal is a boolean
-  State.update({ showShareSearchModal, sharingSearch: true, searchInputValue });
+  setShowShareSearchModal(showShareSearchModal)
+  setSharingSearch(true)
+  State.update({ searchInputValue });
 }
 
 function getLink() {
-  if (state.sharingSearch) {
+  if (sharingSearch) {
     return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
       state.filterBy.parameterName === "tag"
         ? `tagShared=${state.filterBy.parameterValue}&`
@@ -610,8 +617,8 @@ function getLink() {
     }`;
   } else {
     return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
-      state.sharedElement.type
-    }=${state.sharedElement.value}`;
+      sharedElement.type
+    }=${sharedElement.value}`;
   }
 }
 
@@ -626,7 +633,7 @@ function handleOnCommitArticle(articleToRenderData) {
 return (
   <>
     {state.showDeleteModal && renderDeleteModal()}
-    {(state.showShareModal || state.showShareSearchModal) &&
+    {(showShareModal || showShareSearchModal) &&
       renderShareInteraction()}
     <Widget
       src={widgets.views.editableWidgets.header}
