@@ -70,11 +70,9 @@ function getArticleData() {
 }
 
 function onCommit() {
-  console.log("Executing on commit")
 }
 
 function onCancel() {
-  console.log("Executing on cancel")
 }
 
 const handleCreate = () => {

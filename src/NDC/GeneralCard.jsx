@@ -34,7 +34,6 @@ const [upVotes, setUpVotes] = useState([])
 
 function loadUpVotes() {
     getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      console.log("newVotes - GeneralCards.jsx - line 38", newVotes)
       setUpVotes(newVotes)
     })
 }
@@ -52,7 +51,6 @@ const articleSbts = articleToRenderData.sbts ?? data.sbts ?? [];
 function stateUpdate(obj) {
   State.update(obj);
 }
-console.log("data - GeneralCard.jsx - line 58", data)
 
 State.init({
   verified: true,

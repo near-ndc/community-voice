@@ -19,8 +19,7 @@ const allFinalArticles = finalArticles;
 const articlesAuthors =
   allFinalArticles.length &&
   Array.from(allFinalArticles, (article) => article.value.metadata.author);
-  console.log("articlesAuthorsarticlesAuthorsarticlesAuthorsarticlesAuthors",articlesAuthors);
-
+  
 let authors = [...new Set(articlesAuthors)];
 
 let articlesByAuthorsArray = [];

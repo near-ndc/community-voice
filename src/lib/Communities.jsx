@@ -65,7 +65,6 @@ function validateCommunityData(communityData) {
     if (!isTypeOk) {
         errArrMessage.push("Type should be between 0 and 2")
     }
-    console.log("Finished validating")
     return errArrMessage
 }
 
@@ -105,7 +104,6 @@ function composeDeleteData(communityData) {
 
 function executeSaveCommunity(communityData, metadata, onCommit, onCancel) {
     const newData = composeData(communityData, metadata);
-    console.log(1)
     Social.set(newData, {
         force: true,
         onCommit,

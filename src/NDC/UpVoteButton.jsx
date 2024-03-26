@@ -30,11 +30,9 @@ function stateUpdate(obj) {
 }
 
 function onCommit() {
-  console.log("On commit")
 }
 
 function onCancel() {
-  console.log("On cancel")
 }
 
 function handleUpVote() {

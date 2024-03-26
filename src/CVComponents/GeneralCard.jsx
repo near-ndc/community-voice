@@ -425,14 +425,14 @@ const renderBottomButtonsSection = () => {
         children: <>{`${number}`}</>,
         icon: { ubication: "before", name: "bi-hand-thumbs-up" },
         onClick: () => {
-          console.log("Button thumbs up clicked");
+          //console.log("Button thumbs up clicked");
         },
       },
       {
         children: <>{`${number}`}</>,
         icon: { ubication: "after", name: "bi-hand-thumbs-down" },
         onClick: () => {
-          console.log("Button thumbs down clicked");
+          //console.log("Button thumbs down clicked");
         },
       },
     ],
@@ -443,21 +443,21 @@ const renderBottomButtonsSection = () => {
       children: <>{`${number} Comments`}</>,
       icon: { ubication: "before", name: "bi-chat-left" },
       onClick: () => {
-        console.log("Button comment clicked");
+        //console.log("Button comment clicked");
       },
     },
     reactions: {
       children: <>{`${number} Reactions`}</>,
       icon: { ubication: "before", name: "bi-emoji-smile" },
       onClick: () => {
-        console.log("Button reactions clicked");
+        //console.log("Button reactions clicked");
       },
     },
     save: {
       children: <>Save</>,
       icon: { ubication: "before", name: "bi-bookmark" },
       onClick: () => {
-        console.log("Button save clicked");
+        //console.log("Button save clicked");
       },
     },
   };
@@ -509,7 +509,7 @@ return (
             className: "info soft icon",
             children: <i className="bi bi-flag"></i>,
             onClick: () => {
-              console.log("click flag button");
+              //console.log("click flag button");
             },
           })}
           {RenderButton({
@@ -517,7 +517,7 @@ return (
             className: "info soft icon",
             children: <i className="bi bi-share"></i>,
             onClick: () => {
-              console.log("click share button");
+              //console.log("click share button");
             },
           })}
         </HeaderRightSideContainer>

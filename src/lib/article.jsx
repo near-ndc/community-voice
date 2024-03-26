@@ -243,7 +243,6 @@ function applyUserFilters(articles, filters) {
   }
   if(tags && tags.length > 0) {
     articles = articles.filter((article) => {
-      console.log(1, article)
       return tags.some((tag) => article.value.articleData.tags.includes(tag));
     });
   }

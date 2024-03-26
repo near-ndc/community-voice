@@ -225,7 +225,6 @@ if (state.filterBy.parameterName === "tag") {
     state.filterBy.parameterValue,
     articlesToRender
   );
-  console.log("articlesToRenderData - Forum.jsx - line 254", articlesToRender[0])
   if (articlesToRender.length > 0) {
     State.update({ articleToRenderData: articlesToRender[0] });
   }

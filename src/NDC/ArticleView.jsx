@@ -57,7 +57,6 @@ const [comments, setComments] = useState([])
 function loadComments() {
   const articleId = articleToRenderData.value.metadata.id
   getComments(articleId, getConfig(isTest)).then((newComments) => {
-    console.log("newComments - ArticleView.jsx - line 87", newComments)
     setComments(newComments)
   })
 }
@@ -73,7 +72,6 @@ const [upVotes, setUpVotes] = useState([])
 
 function loadUpVotes() {
     getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      console.log("newVotes - GeneralCards.jsx - line 38", newVotes)
       setUpVotes(newVotes)
     })
 }

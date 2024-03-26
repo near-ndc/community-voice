@@ -34,7 +34,6 @@ const [loading, setLoading] = useState(false)
 function loadReactions() {
   getReactions( getConfig(isTest), elementReactedId, context.accountId).then((reactions) => {
     setReactionsData(reactions)
-    console.log("reactions - Reactions.jsx - line 63", reactions, elementReactedId)
   })
 }
 
