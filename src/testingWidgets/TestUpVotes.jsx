@@ -1,5 +1,5 @@
-const { getUpVotes, createUpVote, deleteUpVote } = VM.require("sayalot.near/widget/lib.upVotes")
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
+const { getUpVotes, createUpVote, deleteUpVote } = VM.require("cv.near/widget/lib.upVotes")
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 const [upVotes, setUpVotes] = useState([])
 

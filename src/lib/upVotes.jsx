@@ -1,6 +1,6 @@
-const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex");
+const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex");
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "sayalot.near/widget/lib.metadata"
+  "cv.near/widget/lib.metadata"
 );
 
 let config = {};

@@ -7,9 +7,9 @@ const {
   filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
-} = VM.require("sayalot.near/widget/lib.article");
+} = VM.require("cv.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
-  "sayalot.near/widget/tests.lib.tester"
+  "cv.near/widget/tests.lib.tester"
 );
 
 const isTest = false;

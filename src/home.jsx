@@ -1,6 +1,6 @@
 // SayALot
-const { getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT");
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 let {
   sharedBlockHeight,
@@ -18,13 +18,12 @@ function createSbtOptions() {
 }
 
 const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
-const componentsOwner = "sayalot.near";
-const authorForWidget = "sayalot.near";
-const configWidget = "SayALot";
+const componentsOwner = "cv.near";
+const authorForWidget = "cv.near";
+const configWidget = "home";
 
 const widgets = {
-  // thisForum: `${authorForWidget}/widget/${configWidget}`, //////////////////////////////////////////////////////
-  thisForum: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/${configWidget}`, //////////////////////////////////////////////////////
+  thisForum: `${authorForWidget}/widget/${configWidget}`,
 
   views: {
     editableWidgets: {
@@ -73,12 +72,12 @@ const widgets = {
   },
 
   libs: {
-    libSBT: `sayalot.near/widget/lib.SBT`,
-    libComment: `sayalot.near/widget/lib.comment`,
-    libArticle: `sayalot.near/widget/lib.article`,
-    libReactions: `sayalot.near/widget/lib.reactions`,
-    libUpVotes: `sayalot.near/widget/lib.upVotes`,
-    libNotifications: `sayalot.near/widget/lib.notifications`,
+    libSBT: `cv.near/widget/lib.SBT`,
+    libComment: `cv.near/widget/lib.comment`,
+    libArticle: `cv.near/widget/lib.article`,
+    libReactions: `cv.near/widget/lib.reactions`,
+    libUpVotes: `cv.near/widget/lib.upVotes`,
+    libNotifications: `cv.near/widget/lib.notifications`,
   },
 };
 

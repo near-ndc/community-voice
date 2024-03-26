@@ -1,7 +1,7 @@
 // NDC.Forum
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
-const { getArticles, deleteArticle } = VM.require("sayalot.near/widget/lib.article");
-const { isValidUser, getUserSBTs } = VM.require("sayalot.near/widget/lib.SBT");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
+const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
   sharedBlockHeight,

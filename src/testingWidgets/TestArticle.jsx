@@ -1,6 +1,6 @@
-const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("sayalot.near/widget/lib.article")
-const { getSBTWhiteList } = VM.require("sayalot.near/widget/lib.SBT")
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
+const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("cv.near/widget/lib.article")
+const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT")
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 
 const [articles, setArticles] = useState([])

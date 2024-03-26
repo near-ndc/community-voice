@@ -1,14 +1,14 @@
 const { getUserSBTs, getSBTWhiteList } = VM.require(
-  "sayalot.near/widget/lib.SBT"
+  "cv.near/widget/lib.SBT"
 );
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "sayalot.near/widget/lib.metadata"
+  "cv.near/widget/lib.metadata"
 );
 const { normalizeObjectWithMetadata } = VM.require(
-  "sayalot.near/widget/lib.normalization"
+  "cv.near/widget/lib.normalization"
 );
 const { camelCaseToUserReadable } = VM.require(
-  "sayalot.near/widget/lib.strings"
+  "cv.near/widget/lib.strings"
 );
 
 

@@ -1,8 +1,8 @@
-const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex")
+const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex")
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-    "sayalot.near/widget/lib.metadata"
+    "cv.near/widget/lib.metadata"
 );
-const { normalizeId } = VM.require("sayalot.near/widget/lib.normalization")
+const { normalizeId } = VM.require("cv.near/widget/lib.normalization")
 
 let config = {}
 const ID_PREFIX = "reaction"

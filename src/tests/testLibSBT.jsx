@@ -1,9 +1,9 @@
 const { getSBTWhiteList, isValidUser, getUserSBTs } = VM.require(
-  "sayalot.near/widget/lib.SBT"
+  "cv.near/widget/lib.SBT"
 );
 
 const { displayTestsResults } = VM.require(
-  "sayalot.near/widget/tests.lib.tester"
+  "cv.near/widget/tests.lib.tester"
 );
 
 function testGetSBTWhiteListWorking() {

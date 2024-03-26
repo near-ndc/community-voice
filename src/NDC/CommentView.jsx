@@ -1,6 +1,6 @@
 // NDC.CommentView
-const { deleteComment } = VM.require("sayalot.near/widget/lib.comment");
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+const { deleteComment } = VM.require("cv.near/widget/lib.comment");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 const {
   widgets,

@@ -1,6 +1,6 @@
 //NDC.Forum.Create
-const { createArticle, editArticle } = VM.require("sayalot.near/widget/lib.article")
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
+const { createArticle, editArticle } = VM.require("cv.near/widget/lib.article")
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 
 const {

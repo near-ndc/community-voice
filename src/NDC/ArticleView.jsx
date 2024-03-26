@@ -1,7 +1,7 @@
 // NDC.ArticleView
-const { getComments } = VM.require("sayalot.near/widget/lib.comment")
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice")
-const { getUpVotes } = VM.require("sayalot.near/widget/lib.upVotes")
+const { getComments } = VM.require("cv.near/widget/lib.comment")
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
+const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
 
 const {
   widgets,

@@ -1,7 +1,7 @@
 const { getComments, createComment, editComment, deleteComment } = VM.require(
-  "sayalot.near/widget/lib.comment"
+  "cv.near/widget/lib.comment"
 );
-const { getConfig } = VM.require("sayalot.near/widget/config.CommunityVoice");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 const [comments, setComments] = useState([]);
 

@@ -1,6 +1,6 @@
-const { functionsToTest } = VM.require("sayalot.near/widget/lib.comment");
+const { functionsToTest } = VM.require("cv.near/widget/lib.comment");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
-  "sayalot.near/widget/tests.lib.tester"
+  "cv.near/widget/tests.lib.tester"
 );
 
 //=======================================================================Start consts=======================================================================

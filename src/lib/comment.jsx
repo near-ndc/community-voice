@@ -1,9 +1,9 @@
-const { getFromIndex } = VM.require("sayalot.near/widget/lib.socialDbIndex");
+const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex");
 const { normalize, normalizeId } = VM.require(
-  "sayalot.near/widget/lib.normalization"
+  "cv.near/widget/lib.normalization"
 );
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "sayalot.near/widget/lib.metadata"
+  "cv.near/widget/lib.metadata"
 );
 
 let config = {};
