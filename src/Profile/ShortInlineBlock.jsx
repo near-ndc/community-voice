@@ -1,5 +1,5 @@
 const accountId = props.accountId;
-
+console.log(1, props.tooltip)
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
 const maxNameLength = props.maxNameLength;
@@ -54,7 +54,7 @@ return (
   >
     {props.tooltip ? (
       <Widget
-        src={widgets.standardWidgets.profileOverlayTrigger}
+        src={widgets.views.standardWidgets.profileOverlayTrigger}
         props={{ accountId, children: inner, maxWidth: `${maxWidth}` }}
       />
     ) : (
