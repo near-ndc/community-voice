@@ -1,19 +1,17 @@
 // NDC.Forum
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
-const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
+const { isValidUser } = VM.require("cv.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
   sharedBlockHeight,
   tagShared,
   isTest,
   accountId,
-  sbtWhiteList,
   authorForWidget,
   widgets,
   brand,
   baseActions,
-  createSbtOptions,
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
@@ -34,10 +32,6 @@ if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
 
 sharedBlockHeight = Number(sharedBlockHeight);
 
-const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
-
-const sbtsNames = state.sbt;
-
 const [articlesToRender, setArticlesToRender] = useState([])
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false)
@@ -47,7 +41,7 @@ const [sharingSearch, setSharingSearch] = useState(false)
 const [linkCopied, setlinkCopied] = useState(false)
 
 function loadArticles() {
-  const userFilters = {id: undefined, sbt: undefined}
+  const userFilters = { id: undefined }
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
   })
@@ -113,8 +107,6 @@ State.init({
   articleToRenderData: {},
   filterBy: getInitialFilter(),
   authorsProfiles: [],
-  sbtsNames: initSbtsNames,
-  sbts: topicShared ? [topicShared] : initSbtsNames,
   firstRender: !isNaN(sharedBlockHeight) || typeof sharedArticleId === "string",
 });
 
@@ -143,35 +135,12 @@ const navigationButtons = [
   // { id: tabs.ARTICLE_WORKSHOP.id, title: "+Create article" },
 ];
 
-const sbts = state.sbts;
-
 const initialBodyAtCreation = state.editArticleData.value.articleData.body;
 
 //=================================================END CONSTS=======================================================
 
 //=================================================GET DATA=========================================================
 const finalArticles = state.articles;
-
-// function getArticlesToRender() {
-//   if (
-//     (sharedBlockHeight || sharedArticleId) &&
-//     finalArticles &&
-//     state.firstRender
-//   ) {
-//     let finalArticlesSbts = Object.keys(finalArticles);
-//     let allArticles = [];
-
-//     finalArticlesSbts.forEach((sbt) => {
-//       allArticles = [...allArticles, ...finalArticles[sbt]];
-//     });
-
-//     return allArticles;
-//   } else {
-//     return finalArticles[sbts[0]];
-//   }
-// }
-
-//const articlesToRender = getArticlesToRender() ?? [];
 
 function filterArticlesByTag(tag, articles) {
   return articles.filter((article) => {
@@ -439,27 +408,7 @@ const renderDeleteModal = () => {
   );
 };
 
-const renderSelectorLabel = () => {
-  return (
-    <>
-      <span>Post & Filter Topics by SBT</span>
 
-      <SmallButton>
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip>
-              <p className="m-0">Topics for Community SBT Holders.</p>
-              <p className="m-0">Anyone can post to Public.</p>
-            </Tooltip>
-          }
-        >
-          <i className="bi bi-info-circle"></i>
-        </OverlayTrigger>
-      </SmallButton>
-    </>
-  );
-};
 //==============================================END COMPONENTS======================================================
 
 //=================================================FUNCTIONS========================================================
@@ -500,7 +449,6 @@ const initialCreateState = {
   articleBody: state.editArticleData.value.articleData.body ?? initialBodyAtCreation,
   tags: state.editArticleData.value.articleData.tags ? getValidEditArticleDataTags() : {},
   libsCalls: { comment: {}, article: {}, emojis: {}, upVotes: {} },
-  sbts: [sbtWhiteList[0]],
 };
 
 function handleOpenArticle(articleToRenderData) {
@@ -581,18 +529,7 @@ function handlePillNavigation(navegateTo) {
   State.update({ displayedTabId: navegateTo, editArticleData: undefined });
 }
 
-function handleSbtSelection(selectedSbt) {
-  State.update({
-    sbts: [selectedSbt],
-  });
-}
-
 function handleShareButton(showShareModal, sharedElement) {
-  //showShareModal is a boolean
-  //sharedElement is and object like the example: {
-  //   type: string,
-  //   value: number||string,
-  // }
   setShowShareModal(showShareModal)
   setSharedElement(sharedElement)
 }
@@ -606,16 +543,16 @@ function handleShareSearch(showShareSearchModal, searchInputValue) {
 
 function getLink() {
   if (sharingSearch) {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=true&"}${
       state.filterBy.parameterName === "tag"
         ? `tagShared=${state.filterBy.parameterValue}&`
         : ""
-    }topicShared=${sbts[0].replace(/\s+/g, "")}${
+    }${
       state.searchInputValue !== "" &&
       `&sharedSearchInputValue=${state.searchInputValue}`
     }`;
   } else {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=true&"}${
       sharedElement.type
     }=${sharedElement.value}`;
   }
@@ -648,24 +585,9 @@ return (
         filterParameter: state.filterBy.parameterName,
         handleBackButton,
         tabs,
-        sbtsNames,
         widgets,
       }}
     />
-    {/* {(state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id ||
-      state.displayedTabId == tabs.SHOW_KANBAN_VIEW.id) && (
-      <div className="my-3 col-lg-8 col-md-8 col-sm-12">
-        <Widget
-          src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
-          props={{
-            label: renderSelectorLabel(),
-            value: sbts[0],
-            onChange: handleSbtSelection,
-            options: createSbtOptions(),
-          }}
-        />
-      </div>
-    )} */}
     {articlesToRender && state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
       <Widget
         src={widgets.views.editableWidgets.showArticlesList}
@@ -682,8 +604,6 @@ return (
           editArticleData: state.editArticleData,
           handleEditArticle,
           showCreateArticle: canLoggedUserCreateArticle,
-          sbtWhiteList,
-          sbts,
           handleShareButton,
           handleShareSearch,
           canLoggedUserCreateArticles,
@@ -742,8 +662,6 @@ return (
           editArticleData: state.editArticleData,
           handleFilterArticles,
           handleEditArticle,
-          sbtWhiteList,
-          sbts,
           canLoggedUserCreateArticles,
           baseActions,
           handleOnCommitArticle,
@@ -763,7 +681,6 @@ return (
           handleShareButton,
           authorForWidget,
           finalArticles: articlesToRender,
-          sbts,
           kanbanRequiredTags,
           kanbanExcludedTags,
           baseActions,

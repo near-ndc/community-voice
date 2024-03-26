@@ -15,8 +15,6 @@ const {
   handleFilterArticles,
   handleEditArticle,
   handlerStateUpdate,
-  sbtWhiteList,
-  sbts,
   canLoggedUserCreateArticles,
   baseActions,
   handleOnCommitArticle,
@@ -64,7 +62,6 @@ function getArticleData() {
     navigation_id: null,
     tags: tagsArray ?? [],
     id: getRealArticleId(),
-    sbts,
   };
   return args;
 }
@@ -233,7 +230,6 @@ return (
                     navigation_id: null,
                     tags: tagsArray,
                     id: getRealArticleId(),
-                    sbts,
                   },
                   addressForArticles,
                   handleOpenArticle: () => {},

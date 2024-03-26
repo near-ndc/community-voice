@@ -10,7 +10,6 @@ const {
   isReply,
   orginalCommentData,
   canLoggedUserCreateComment,
-  articleSbts,
   baseActions,
   sharedCommentId,
   articleToRenderData,
@@ -568,7 +567,6 @@ return (
             elementReactedId: data.value.metadata.id,
             disabled: !canLoggedUserCreateComment,
             baseActions,
-            sbtsNames: articleSbts,
           }}
         />
       </CommentCardLowerSection>
@@ -591,7 +589,6 @@ return (
                   authorForWidget,
                   isReply: true,
                   canLoggedUserCreateComment,
-                  articleSbts,
                   baseActions,
                   sharedCommentId,
                   articleToRenderData,

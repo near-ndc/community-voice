@@ -16,8 +16,6 @@ let {
   editArticleData,
   handleEditArticle,
   showCreateArticle,
-  sbtWhiteList,
-  sbts,
   handleShareButton,
   handleShareSearch,
   canLoggedUserCreateArticles,
@@ -178,7 +176,6 @@ return (
                     handleEditArticle,
                     initialBody: "",
                     canLoggedUserCreateArticles,
-                    sbts,
                     baseActions,
                     handleOnCommitArticle,
                   }}
@@ -189,7 +186,7 @@ return (
         </AcordionContainer>
       </>
     ) : (
-      <h6>You can't post since you don't own this SBT</h6>
+      <h6>You can't post since you don't own any SBT</h6>
     )}
     <Widget
       src={widgets.views.standardWidgets.styledComponents}
@@ -270,7 +267,6 @@ return (
                     handleFilterArticles,
                     authorForWidget,
                     handleShareButton,
-                    sbtWhiteList,
                     handleEditArticle,
                     baseActions,
                   }}
@@ -281,8 +277,8 @@ return (
         ) : (
           <h5>{`No articles ${
             state.searchInputValue !== ""
-              ? `haver been found searching for ${state.searchInputValue}`
-              : "uploaded using this SBT yet"
+              ? `have been found searching for ${state.searchInputValue}`
+              : "uploaded using yet"
           }`}</h5>
         )}
       </ArticlesListContainer>

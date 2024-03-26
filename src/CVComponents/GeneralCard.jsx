@@ -3,96 +3,6 @@
 //===============================================INITIALIZATION=====================================================
 const { widgets, isTest, data } = props;
 
-if (!widgets) {
-  widgets = {
-    thisForum:
-      "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/home",
-    views: {
-      editableWidgets: {
-        ndcForum:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.Forum",
-        create:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.Forum.Create",
-        header:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.NavBar",
-        showArticlesList:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.Forum.AllArticlesList",
-        showArticlesListSortedByAuthors:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.AllArticlesSortByAuthors",
-        articlesByAuthorCard:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.ArticlesByAuthorCard",
-        generalCard:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/CommunityVoice.GeneralCard",
-        articleBody:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/CommunityVoice.ArticleBody",
-        articleView:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.ArticleView",
-        reactions:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.Reactions",
-        addComment:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/CommunityVoice.AddComment",
-        commentView:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.CommentView",
-        upVoteButton:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.UpVoteButton",
-        profileShortInlineBlock:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/Profile.ShortInlineBlock",
-        tagsEditor:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/TagsEditor",
-        kanbanBoard:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.KanbanBoard",
-        compactPost:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.CompactPost",
-        articleHistory:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.ArticleHistory.Handler",
-      },
-      standardWidgets: {
-        fasterTextInput:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput",
-        markownEditorIframe:
-          "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/MarkdownEditorIframe",
-        styledComponents: "rubycop.near/widget/NDC.StyledComponents",
-        newStyledComponents: {
-          Element: {
-            Badge:
-              "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/Element.Badge",
-            User: "nearui.near/widget/Element.User",
-          },
-          Feedback: {
-            Spinner: "nearui.near/widget/Feedback.Spinner",
-          },
-          Input: {
-            Button:
-              "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/Input.Button",
-            Checkbox: "nearui.near/widget/Input.Checkbox",
-            Select: "nearui.near/widget/Input.Select",
-          },
-        },
-        socialMarkdown: "mob.near/widget/SocialMarkdown",
-        profileOverlayTrigger: "mob.near/widget/Profile.OverlayTrigger",
-        profileImage: "mob.near/widget/ProfileImage",
-        wikiOnSocialDB_TooltipProfiles:
-          "testwiki.near/widget/WikiOnSocialDB_TooltipProfiles",
-        navBarImg: "mob.near/widget/Image",
-      },
-    },
-    libs: {
-      libSBT:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.SBT",
-      libComment:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.comment",
-      libArticle:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.article",
-      libEmojis:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.emojis",
-      libUpVotes:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.upVotes",
-      libNotifications:
-        "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/lib.notifications",
-    },
-  };
-}
-
 const { RenderButton } = VM.require(
   widgets.views.standardWidgets.newStyledComponents.Input.button
 );
@@ -103,41 +13,6 @@ const { RenderBodyNew, RenderBodyOld } = VM.require(
   widgets.views.editableWidgets.articleBody
 );
 
-if (!data) {
-  data = {
-    title: "aa",
-    author: "ayelen.near",
-    lastEditor: "ayelen.near",
-    timeLastEdit: 1707411253704,
-    timeCreate: 1699406465524,
-    body: "asd\n@ayelen.near",
-    version: 2,
-    navigation_id: null,
-    tags: ["7-11-2023", "test"],
-    id: "ayelen.near-1699406465524",
-    sbts: ["fractal.i-am-human.near - class 1"],
-    blockHeight: 112398490,
-    upVotes: [
-      {
-        accountId: "ayelen.near",
-        blockHeight: 106745180,
-        value: {
-          upVoteId: "uv-ayelen.near-1701189001307",
-          sbts: ["fractal.i-am-human.near - class 1"],
-        },
-      },
-      {
-        accountId: "silkking.near",
-        blockHeight: 105302475,
-        value: {
-          upVoteId: "uv-silkking.near-1699543277363",
-          sbts: ["fractal.i-am-human.near - class 1"],
-        },
-      },
-    ],
-  };
-}
-
 data.tags = data.tags.filter((tag) => tag !== undefined && tag !== null);
 
 const tags = data.tags;
@@ -146,9 +21,6 @@ const title = data.title;
 const content = data.body;
 const id = data.id ?? `${data.author}-${data.timeCreate}`;
 const upVotes = data.upVotes;
-
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-const articleSbts = articleToRenderData.sbts ?? data.sbts ?? [];
 
 function stateUpdate(obj) {
   State.update(obj);

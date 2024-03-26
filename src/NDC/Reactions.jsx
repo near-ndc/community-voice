@@ -8,7 +8,6 @@ const {
   elementReactedId,
   widgets,
   disabled,
-  sbtsNames,
   baseActions,
 } = props;
 // Don't forget to put space between emoji and text -> "❤️ Positive"

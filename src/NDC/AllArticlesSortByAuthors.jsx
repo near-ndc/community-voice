@@ -11,11 +11,6 @@ const {
 
 const allFinalArticles = finalArticles;
 
-// Object.values(finalArticlesBySbt).forEach((sbt) => {
-//   const allArticlesOnSbt = sbt.map((article) => article);
-//   allFinalArticles = [...allFinalArticles, ...allArticlesOnSbt];
-// });
-
 const articlesAuthors =
   allFinalArticles.length &&
   Array.from(allFinalArticles, (article) => article.value.metadata.author);

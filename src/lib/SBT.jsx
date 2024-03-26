@@ -72,4 +72,4 @@ function getUserSBTs(accountId, config) {
   return userSBTsPromise;
 }
 
-return { getSBTWhiteList, isValidUser, getUserSBTs }
+return { isValidUser, getUserSBTs }

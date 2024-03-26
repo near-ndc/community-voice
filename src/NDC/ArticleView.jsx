@@ -15,8 +15,6 @@ const {
   baseActions,
   kanbanColumns,
   sharedCommentId,
-  allArticlesWithThisSBT,
-  sbtWhiteList,
 } = props;
 
 const accountId = articleToRenderData.value.metadata.author;
@@ -34,9 +32,6 @@ if (
 articleToRenderData.value.articleData.tags = articleToRenderData.value.articleData.tags.filter(
   (tag) => tag !== undefined && tag !== null
 );
-
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-const articleSbts = articleToRenderData.sbts ?? [];
 
 const tabs = [
   {
@@ -581,9 +576,7 @@ return (
                 src={widgets.views.editableWidgets.articleHistory}
                 props={{
                   articleId: articleToRenderData.value.metadata.id,
-                  sbtWhiteList,
                   isTest,
-                  sbts: articleSbts,
                   baseActions,
                   kanbanColumns,
                   widgets,
@@ -659,9 +652,7 @@ return (
                         widgets,
                         disabled:
                           !context.accountId ||
-                          (articleSbts.length > 0 &&
-                            !canLoggedUserCreateComment),
-                        articleSbts,
+                          !canLoggedUserCreateComment,
                         upVotes,
                         baseActions,
                       }}
@@ -692,8 +683,7 @@ return (
                       elementReactedId: id,
                       disabled:
                         !context.accountId ||
-                        (articleSbts.length > 0 && !canLoggedUserCreateComment),
-                      sbtsNames: articleSbts,
+                        !canLoggedUserCreateComment,
                       baseActions,
                     }}
                   />
@@ -827,7 +817,7 @@ return (
                 ),
                 disabled:
                   !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                  !canLoggedUserCreateComment,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
@@ -843,8 +833,7 @@ return (
                   isTest,
                   authorForWidget,
                   isReply: false,
-                  canLoggedUserCreateComment: canLoggedUserCreateComment,
-                  articleSbts,
+                  canLoggedUserCreateComment,
                   baseActions,
                   sharedCommentId,
                   articleToRenderData,
@@ -890,16 +879,6 @@ return (
                     {articleToRenderData.version}
                   </DescriptionInfoSpan>
                 </div>
-                {articleSbts.length > 0 && (
-                  <div>
-                    <DescriptionSubtitle>
-                      SBT requiered to interact:
-                    </DescriptionSubtitle>
-                    {articleSbts.map((sbt) => {
-                      return <DescriptionInfoSpan>{sbt}</DescriptionInfoSpan>;
-                    })}
-                  </div>
-                )}
               </DeclarationCard>
             )}
           </div>

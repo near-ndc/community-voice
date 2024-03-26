@@ -1,5 +1,4 @@
-// SayALot
-const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+// Community voice
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 let {
@@ -13,11 +12,6 @@ let {
   topicShared,
 } = props;
 
-function createSbtOptions() {
-  return getSBTWhiteList(getConfig(isTest));
-}
-
-const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
 const componentsOwner = "cv.near";
 const authorForWidget = "cv.near";
 const configWidget = "home";
@@ -103,7 +97,7 @@ const kanbanExcludedTags = [];
 
 return (
   <>
-    {sbtWhiteList ? (
+    {
       <Widget
         src={widgets.views.editableWidgets.ndcForum}
         props={{
@@ -111,12 +105,10 @@ return (
           tagShared,
           isTest,
           accountId,
-          sbtWhiteList,
           authorForWidget,
           widgets,
           brand,
           baseActions,
-          createSbtOptions,
           kanbanColumns,
           kanbanRequiredLabels,
           kanbanExcludedLabels,
@@ -126,10 +118,6 @@ return (
           topicShared,
         }}
       />
-    ) : (
-      <Widget
-        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
-      />
-    )}
+    }
   </>
 );
