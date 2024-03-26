@@ -38,7 +38,7 @@ const [showShareModal, setShowShareModal] = useState(false)
 const [sharedElement, setSharedElement] = useState(undefined)
 const [showShareSearchModal, setShowShareSearchModal] = useState(false)
 const [sharingSearch, setSharingSearch] = useState(false)
-const [linkCopied, setlinkCopied] = useState(false)
+const [linkCopied, setLinkCopied] = useState(false)
 
 function loadArticles() {
   const userFilters = { id: undefined }
@@ -542,20 +542,24 @@ function handleShareSearch(showShareSearchModal, searchInputValue) {
 }
 
 function getLink() {
+  console.log(1, state.searchInputValue)
+  const baseUrl = `https://near.social/${widgets.thisForum}`
+  const paramsObj = {}
+  if(isTest) paramsObj.isTest = true
   if (sharingSearch) {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=true&"}${
-      state.filterBy.parameterName === "tag"
-        ? `tagShared=${state.filterBy.parameterValue}&`
-        : ""
-    }${
-      state.searchInputValue !== "" &&
-      `&sharedSearchInputValue=${state.searchInputValue}`
-    }`;
+    if(state.filterBy.parameterName === "tag") paramsObj.tagShared = state.filterBy.parameterValue
+    if(state.searchInputValue !== "") paramsObj.sharedSearchInputValue = state.searchInputValue    
   } else {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=true&"}${
-      sharedElement.type
-    }=${sharedElement.value}`;
+    paramsObj[sharedElement.type] = sharedElement.value
   }
+  const url = Object.keys(paramsObj).reduce((acc, currKey, index, arr) => {
+    const currValue = paramsObj[currKey]
+    console.log(index, currKey, arr)
+    if(index === 0) acc += "?"
+    if(index !== 0) acc += "&"
+    return `${acc}${currKey}=${currValue}`
+  }, baseUrl)
+  return url
 }
 
 function handleOnCommitArticle(articleToRenderData) {

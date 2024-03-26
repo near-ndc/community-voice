@@ -278,7 +278,7 @@ return (
           <h5>{`No articles ${
             state.searchInputValue !== ""
               ? `have been found searching for ${state.searchInputValue}`
-              : "uploaded using yet"
+              : "uploaded yet"
           }`}</h5>
         )}
       </ArticlesListContainer>
