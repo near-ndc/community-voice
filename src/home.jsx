@@ -9,7 +9,7 @@ let {
   accountId,
   sharedArticleId,
   sharedCommentId,
-  sharedSearchInputValue,
+  sharedSearch,
   topicShared,
 } = props;
 
@@ -122,7 +122,7 @@ return (
           kanbanExcludedLabels,
           sharedArticleId,
           sharedCommentId,
-          sharedSearchInputValue,
+          sharedSearch,
           topicShared,
         }}
       />

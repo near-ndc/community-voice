@@ -19,7 +19,7 @@ let {
   kanbanExcludedTags,
   sharedArticleId,
   sharedCommentId,
-  sharedSearchInputValue,
+  sharedSearch,
   topicShared,
 } = props;
 
@@ -38,29 +38,33 @@ const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
 
-const [articlesToRender, setArticlesToRender] = useState([])
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
-const [showShareModal, setShowShareModal] = useState(false)
-const [sharedElement, setSharedElement] = useState(undefined)
-const [showShareSearchModal, setShowShareSearchModal] = useState(false)
-const [sharingSearch, setSharingSearch] = useState(false)
-const [linkCopied, setlinkCopied] = useState(false)
+const [articlesToRender, setArticlesToRender] = useState([]);
+const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
+  useState(false);
+const [showShareModal, setShowShareModal] = useState(false);
+const [sharedElement, setSharedElement] = useState(undefined);
+const [showShareSearchModal, setShowShareSearchModal] = useState(false);
+const [sharingSearch, setSharingSearch] = useState(false);
+const [linkCopied, setlinkCopied] = useState(false);
+const [searchInputValue, setSearchInputValue] = useState(undefined);
 
 function loadArticles() {
-  const userFilters = {id: undefined, sbt: undefined}
+  const userFilters = { id: undefined, sbt: undefined };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles)
-  })
+    setArticlesToRender(newArticles);
+  });
 }
 
 useEffect(() => {
-  loadArticles()
-  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
+  loadArticles();
+  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
+    (isValid) => setCanLoggedUserCreateArticle(isValid)
+  );
   const intervalId = setInterval(() => {
-    loadArticles()
-  }, 30000)
-  return () => clearInterval(intervalId)
-}, [])
+    loadArticles();
+  }, 30000);
+  return () => clearInterval(intervalId);
+}, []);
 
 accountId = context.accountId;
 
@@ -195,7 +199,9 @@ function filterOnePostByBlockHeight(blockHeight, articles) {
 
 function filterOnePostByArticleId(articleId, articles) {
   if (articles) {
-    return articles.filter((article) => article.value.metadata.id === articleId);
+    return articles.filter(
+      (article) => article.value.metadata.id === articleId
+    );
   } else {
     return [];
   }
@@ -237,16 +243,16 @@ const CallLibrary = styled.div`
 `;
 
 const ShareInteractionGeneralContainer = styled.div`
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
-    backdrop-filter: blur(10px);
-    z-index: 1;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  backdrop-filter: blur(10px);
+  z-index: 1;
 `;
 
 const ShareInteractionMainContainer = styled.div`
@@ -258,7 +264,7 @@ const ShareInteractionMainContainer = styled.div`
 `;
 
 const ClosePopUpContainer = styled.div`
-  display: flex;  
+  display: flex;
   flex-direction: row-reverse;
 `;
 
@@ -267,20 +273,20 @@ const CloseIcon = styled.div`
 `;
 
 const PopUpDescription = styled.p`
-  color: #474D55;
+  color: #474d55;
 `;
 
 const ShowLinkShared = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #F2F6FA;
+  background-color: #f2f6fa;
   padding: 1rem 2rem;
   border-radius: 17px;
 `;
 
 const LinkShared = styled.span`
-  color: #0065FF;
+  color: #0065ff;
   word-wrap: anywhere;
 `;
 
@@ -304,7 +310,7 @@ const CopiedFeedback = styled.span`
 `;
 
 const SmallButton = styled.button`
-position: relative;
+  position: relative;
   border: 0;
   background: transparent;
   width: 35px;
@@ -321,13 +327,12 @@ const renderShareInteraction = () => {
           <CloseIcon
             className="bi bi-x"
             onClick={() => {
-                setShowShareSearchModal(false)
-                setShowShareModal(false)
-                setLinkCopied(false)
-                setSharedElement(undefined)
-                setSharingSearch(false)
-              }
-            }
+              setShowShareSearchModal(false);
+              setShowShareModal(false);
+              setLinkCopied(false);
+              setSharedElement(undefined);
+              setSharingSearch(false);
+            }}
           ></CloseIcon>
         </ClosePopUpContainer>
         <h3>Share</h3>
@@ -348,7 +353,7 @@ const renderShareInteraction = () => {
                 className="bi-clipboard"
                 onClick={() => {
                   clipboard.writeText(getLink());
-                  setLinkCopied(true)
+                  setLinkCopied(true);
                 }}
               />
             )}
@@ -481,7 +486,12 @@ function onCommitDeletArticle() {
 function deletePostListener() {
   State.update({ saving: true });
   const article = state.deleteArticleData;
-  deleteArticle(getConfig(isTest), article.value.metadata.id, onCommitDeletArticle, closeDeleteArticleModal)
+  deleteArticle(
+    getConfig(isTest),
+    article.value.metadata.id,
+    onCommitDeletArticle,
+    closeDeleteArticleModal
+  );
 }
 
 function getValidEditArticleDataTags() {
@@ -497,8 +507,11 @@ function getValidEditArticleDataTags() {
 
 const initialCreateState = {
   title: state.editArticleData.value.articleData.title ?? "",
-  articleBody: state.editArticleData.value.articleData.body ?? initialBodyAtCreation,
-  tags: state.editArticleData.value.articleData.tags ? getValidEditArticleDataTags() : {},
+  articleBody:
+    state.editArticleData.value.articleData.body ?? initialBodyAtCreation,
+  tags: state.editArticleData.value.articleData.tags
+    ? getValidEditArticleDataTags()
+    : {},
   libsCalls: { comment: {}, article: {}, emojis: {}, upVotes: {} },
   sbts: [sbtWhiteList[0]],
 };
@@ -593,31 +606,34 @@ function handleShareButton(showShareModal, sharedElement) {
   //   type: string,
   //   value: number||string,
   // }
-  setShowShareModal(showShareModal)
-  setSharedElement(sharedElement)
+  setShowShareModal(showShareModal);
+  setSharedElement(sharedElement);
 }
 
-function handleShareSearch(showShareSearchModal, searchInputValue) {
+function handleShareSearch(showShareSearchModal, newSearchInputValue) {
   //showShareSearchModal is a boolean
-  setShowShareSearchModal(showShareSearchModal)
-  setSharingSearch(true)
-  State.update({ searchInputValue });
+  setShowShareSearchModal(showShareSearchModal);
+  setSharingSearch(true);
+  setSearchInputValue(newSearchInputValue);
 }
 
 function getLink() {
   if (sharingSearch) {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    const link = `https://near.social/${widgets.thisForum}?${
+      isTest && "isTest=t"
+    }${
       state.filterBy.parameterName === "tag"
-        ? `tagShared=${state.filterBy.parameterValue}&`
+        ? `&tagShared=${state.filterBy.parameterValue}`
         : ""
-    }topicShared=${sbts[0].replace(/\s+/g, "")}${
-      state.searchInputValue !== "" &&
-      `&sharedSearchInputValue=${state.searchInputValue}`
+    }${
+      searchInputValue !== "" ? `&sharedSearch=${searchInputValue}` : ""
     }`;
+    return link;
   } else {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
-      sharedElement.type
-    }=${sharedElement.value}`;
+    const link = `https://near.social/${widgets.thisForum}?${
+      isTest && "isTest=t&"
+    }${sharedElement.type}=${sharedElement.value}`;
+    return link;
   }
 }
 
@@ -632,8 +648,7 @@ function handleOnCommitArticle(articleToRenderData) {
 return (
   <>
     {state.showDeleteModal && renderDeleteModal()}
-    {(showShareModal || showShareSearchModal) &&
-      renderShareInteraction()}
+    {(showShareModal || showShareSearchModal) && renderShareInteraction()}
     <Widget
       src={widgets.views.editableWidgets.header}
       props={{
@@ -690,7 +705,7 @@ return (
           filterBy: state.filterBy,
           baseActions,
           handleOnCommitArticle,
-          sharedSearchInputValue,
+          sharedSearch,
         }}
       />
     )}
