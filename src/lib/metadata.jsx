@@ -1,15 +1,29 @@
-function generateMetadata() {
-    return {
-        createdTimestamp: Date.now(),
-        lastEditTimestamp: Date.now(),
-    }
+function generateMetadata(metadataHelper) {
+  const { idPrefix, author, versionKey } = metadataHelper;
+  const now = Date.now();
+  return {
+    id: `${idPrefix}/${author}/${now}`,
+    author,
+    createdTimestamp: now,
+    lastEditTimestamp: now,
+    versionKey, // Check `const versions` -> Object.keys(versions)
+  };
 }
 
-function updateMetadata(metadata) {
-    return {
-        ...metadata,
-        lastEditTimestamp: Date.now()
-    }
+function updateMetadata(previousMetadata, versionKey) {
+  return {
+    ...previousMetadata,
+    lastEditTimestamp: Date.now(),
+    versionKey,
+  };
 }
 
-return { generateMetadata, updateMetadata }
+function buildDeleteMetadata(id) {
+  return {
+    id,
+    isDelete: true,
+    deleteTimestamp: Date.now(),
+  };
+}
+
+return { generateMetadata, updateMetadata, buildDeleteMetadata };

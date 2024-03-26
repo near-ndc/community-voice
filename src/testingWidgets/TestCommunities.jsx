@@ -3,7 +3,7 @@ const { parseError } = VM.require("cv.near/widget/lib.errorParser")
 
 const [communities, setCommunities] = useState([])
 const [errors, setErrors] = useState([])
-const [intervalId, setIntervalId] = useState(0)
+// const [intervalId, setIntervalId] = useState(0)
 
 setIsTest(true)
 
@@ -15,23 +15,22 @@ function onCancel() {
     console.log("On cancel executed")
 }
 
-useEffect(() => {
-    const waitTime = !communities || communities.length === 0 ? 500 : 5000
-    if(intervalId !== 0) {
-        clearInterval(intervalId)
-    }
-    const newIntervalId = setInterval(() => {
-        loadCommunities()
-    }, waitTime)
-    setIntervalId(newIntervalId)
-}, [communities])
-
 function loadCommunities() {
     const newCommunities = getCommunities()
     console.log(newCommunities)
     setCommunities(newCommunities)
-    
 }
+
+useEffect(() => {
+    loadCommunities()
+    setTimeout(() => {
+        loadCommunities()
+    }, 200)
+    setInterval(() => {
+        console.log("Loading communities interval", Date.now() / 1000)
+        loadCommunities()
+    }, 30000)
+}, [])
 
 function failNewCommunity() {
     const community = {

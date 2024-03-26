@@ -1,3 +1,4 @@
+# Community Voice
 This project uses [bos-loader](https://github.com/near/bos-loader) v0.10.0 to keep track of the widgets required to implement Community Voice on BOS. 
 
 # How to use

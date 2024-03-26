@@ -143,8 +143,7 @@ function createCommunity(communityData, ownerId, onCommit, onCancel) {
         return { error: true, data: ["There is already a community with this id"] }
     }
 
-
-    communityData.id = `${ownerId}-${Date.now()}`
+    communityData.id = `cd/${ownerId}/${Date.now()}`
     const metadata = generateMetadata()
     executeSaveCommunity(communityData, metadata, onCommit, onCancel)
 
