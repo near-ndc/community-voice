@@ -189,7 +189,7 @@ return (
         </AcordionContainer>
       </>
     ) : (
-      <h6>You can't post since you don't own this SBT</h6>
+      <h6>You can't post since you don't own any SBT</h6>
     )}
     <Widget
       src={widgets.views.standardWidgets.styledComponents}

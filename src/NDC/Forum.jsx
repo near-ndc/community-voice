@@ -140,7 +140,7 @@ if (filterBy.parameterName == "author") {
 const navigationPills = [
   { id: tabs.SHOW_ARTICLES_LIST.id, title: "Articles" },
   { id: tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id, title: "Authors" },
-  { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
+  // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
 ];
 
 const navigationButtons = [
@@ -767,8 +767,7 @@ return (
           }}
         />
       )}
-
-      {state.displayedTabId === tabs.SHOW_KANBAN_VIEW.id && (
+      {/*state.displayedTabId === tabs.SHOW_KANBAN_VIEW.id && (
         <Widget
           src={widgets.views.editableWidgets.kanbanBoard}
           props={{
@@ -786,7 +785,7 @@ return (
             baseActions,
           }}
         />
-      )}
+        )*/}
     </SecondContainer>
   </AppContainer>
 );
