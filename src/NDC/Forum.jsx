@@ -38,7 +38,7 @@ const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
 
-const [articlesToRender, setArticlesToRender] = useState([])
+const [articlesToRender, setArticlesToRender] = useState(undefined)
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false)
 const [sharedElement, setSharedElement] = useState(undefined)
@@ -468,14 +468,18 @@ function stateUpdate(obj) {
 }
 
 function onCommitDeletArticle() {
-  State.update({
-    showDeleteModal: false,
-    deleteArticleData: undefined,
-    displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    articleToRenderData: undefined,
-    filterBy: { parameterName: "", parameterValue: {} },
-    editArticleData: undefined,
-  });
+  setArticlesToRender(undefined)
+  setTimeout(() => {
+    loadArticles()
+  }, 3000);
+    State.update({
+      showDeleteModal: false,
+      deleteArticleData: undefined,
+      displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
+      articleToRenderData: undefined,
+      filterBy: { parameterName: "", parameterValue: {} },
+      editArticleData: undefined,
+    });
 }
 
 function deletePostListener() {
@@ -566,6 +570,7 @@ function handleBackButton() {
           handleBackClicked: true,
         },
       });
+  loadArticles()
 }
 
 function handleGoHomeButton() {
@@ -575,6 +580,7 @@ function handleGoHomeButton() {
     filterBy: { parameterName: "", parameterValue: {} },
     editArticleData: undefined,
   });
+  loadArticles()
 }
 
 function handlePillNavigation(navegateTo) {
@@ -621,11 +627,18 @@ function getLink() {
   }
 }
 
-function handleOnCommitArticle(articleToRenderData) {
-  State.update({
-    articleToRenderData,
-    displayedTabId: tabs.SHOW_ARTICLE.id,
-  });
+function handleOnCommitArticle(articleId) {
+  setTimeout(() => {
+    const userFilters = {id: articleId, sbt: undefined}
+    getArticles(getConfig(isTest), userFilters).then((newArticles) => {
+      if(newArticles[0]){
+        State.update({
+          displayedTabId: tabs.SHOW_ARTICLE.id,
+          articleToRenderData: newArticles[0]
+        });
+      }
+    })
+  }, 3000);
 }
 
 //===============================================END FUNCTIONS======================================================
@@ -666,7 +679,8 @@ return (
         />
       </div>
     )} */}
-    {articlesToRender && state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+    {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+      articlesToRender?
       <Widget
         src={widgets.views.editableWidgets.showArticlesList}
         props={{
@@ -692,6 +706,10 @@ return (
           handleOnCommitArticle,
           sharedSearchInputValue,
         }}
+      />
+      :
+      <Widget
+        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
       />
     )}
     {state.articleToRenderData.value.articleData.title &&
