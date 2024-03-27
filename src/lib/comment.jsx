@@ -248,7 +248,7 @@ function composeCommentData(comment, version, config) {
   //     mentions,
   //     `https://near.social/${
   //       widgets.thisForum
-  //     }?sharedArticleId=${articleId}&sharedCommentId=${comment.metadata.id}${
+  //     }?SAID=${articleId}&SCID=${comment.metadata.id}${
   //       isTest ? "&isTest=t" : ""
   //     }`
   //   );

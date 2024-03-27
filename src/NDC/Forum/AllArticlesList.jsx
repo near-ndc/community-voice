@@ -24,12 +24,12 @@ let {
   filterBy,
   baseActions,
   handleOnCommitArticle,
-  sharedSearch,
+  sharedData,
 } = props;
 
 State.init({
   start: Date.now(),
-  searchInputValue: sharedSearch ?? "",
+  searchInputValue: sharedData.SSRCH ?? "",
 });
 
 let finalArticlesWithUpVotes = articlesToRender.map((article) => {

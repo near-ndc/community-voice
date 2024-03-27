@@ -3,15 +3,24 @@ const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
-  sharedArticleId,
-  sharedCommentId,
-  sharedSearch,
-  topicShared,
+  SBH,
+  STG,
+  SAID,
+  SCID,
+  SSRCH,
+  STPC,
 } = props;
+
+const sharedData = {
+  SBH: Number(SBH),
+  STG,
+  SAID,
+  SCID,
+  SSRCH,
+  STPC,
+} 
 
 function createSbtOptions() {
   return getSBTWhiteList(getConfig(isTest));
@@ -107,8 +116,6 @@ return (
       <Widget
         src={widgets.views.editableWidgets.ndcForum}
         props={{
-          sharedBlockHeight,
-          tagShared,
           isTest,
           accountId,
           sbtWhiteList,
@@ -120,10 +127,7 @@ return (
           kanbanColumns,
           kanbanRequiredLabels,
           kanbanExcludedLabels,
-          sharedArticleId,
-          sharedCommentId,
-          sharedSearch,
-          topicShared,
+          sharedData
         }}
       />
     ) : (

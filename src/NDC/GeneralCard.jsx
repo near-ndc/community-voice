@@ -382,7 +382,7 @@ const renderArticleBody = () => {
               style={{ fontWeight: 500 }}
             >
               <a
-                href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
+                href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?STG=${hashtag}`}
                 target="_blank"
               >
                 #{hashtag}
@@ -481,7 +481,7 @@ return (
               children: <i className="bi bi-share"></i>,
               onClick: () =>
                 handleShareButton(true, {
-                  type: "sharedArticleId",
+                  type: "SAID",
                   value: data.value.metadata.id,
                 }),
             }}

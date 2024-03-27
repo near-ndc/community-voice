@@ -4,8 +4,6 @@ const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
 const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
   sbtWhiteList,
@@ -17,24 +15,19 @@ let {
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
-  sharedArticleId,
-  sharedCommentId,
-  sharedSearch,
-  topicShared,
+  sharedData,
 } = props;
 
-const splitedTopic = topicShared ? topicShared.split("-class") : undefined;
+const splitedTopic = sharedData.STPC ? sharedData.STPC.split("-class") : undefined;
 
 const topicSharedFirstPart = splitedTopic && splitedTopic[0];
 const topicSharedSecondPart = splitedTopic && splitedTopic[1];
 
 if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
-  topicShared = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
+  sharedData.STPC = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
 }
 
-sharedBlockHeight = Number(sharedBlockHeight);
-
-const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
+const initSbtsNames = sharedData.STPC ? [sharedData.STPC] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
 
@@ -77,25 +70,25 @@ const tabs = {
 };
 
 function getInitialFilter() {
-  if (sharedBlockHeight) {
+  if (sharedData.SBH) {
     return {
       parameterName: "getPost",
-      parameterValue: sharedBlockHeight,
+      parameterValue: sharedData.SBH,
     };
-  } else if (tagShared) {
+  } else if (sharedData.STG) {
     return {
       parameterName: "tag",
-      parameterValue: tagShared,
+      parameterValue: sharedData.STG,
     };
   } else if (authorShared) {
     return {
       parameterName: "author",
       parameterValue: authorShared,
     };
-  } else if (sharedArticleId) {
+  } else if (sharedData.SAID) {
     return {
       parameterName: "articleId",
-      parameterValue: sharedArticleId,
+      parameterValue: sharedData.SAID,
     };
   } else {
     return {
@@ -105,7 +98,7 @@ function getInitialFilter() {
 }
 
 function getInitialTabId() {
-  if (sharedBlockHeight || sharedArticleId) {
+  if (sharedData.SBH || sharedData.SAID) {
     return tabs.SHOW_ARTICLE.id;
   } else {
     return tabs.SHOW_ARTICLES_LIST.id;
@@ -118,8 +111,8 @@ State.init({
   filterBy: getInitialFilter(),
   authorsProfiles: [],
   sbtsNames: initSbtsNames,
-  sbts: topicShared ? [topicShared] : initSbtsNames,
-  firstRender: !isNaN(sharedBlockHeight) || typeof sharedArticleId === "string",
+  sbts: sharedData.STPC ? [sharedData.STPC] : initSbtsNames,
+  firstRender: !isNaN(sharedData.SBH) || typeof sharedData.SAID === "string",
 });
 
 //=============================================END INITIALIZATION===================================================
@@ -158,7 +151,7 @@ const finalArticles = state.articles;
 
 // function getArticlesToRender() {
 //   if (
-//     (sharedBlockHeight || sharedArticleId) &&
+//     (sharedData.SBH || sharedData.SAID) &&
 //     finalArticles &&
 //     state.firstRender
 //   ) {
@@ -623,10 +616,10 @@ function getLink() {
       isTest && "isTest=t"
     }${
       state.filterBy.parameterName === "tag"
-        ? `&tagShared=${state.filterBy.parameterValue}`
+        ? `&STG=${state.filterBy.parameterValue}`
         : ""
     }${
-      searchInputValue !== "" ? `&sharedSearch=${searchInputValue}` : ""
+      searchInputValue !== "" ? `&SSRCH=${searchInputValue}` : ""
     }`;
     return link;
   } else {
@@ -705,7 +698,7 @@ return (
           filterBy: state.filterBy,
           baseActions,
           handleOnCommitArticle,
-          sharedSearch,
+          sharedData,
         }}
       />
     )}
@@ -724,7 +717,7 @@ return (
             handleDeleteArticle,
             baseActions,
             kanbanColumns,
-            sharedCommentId,
+            sharedData,
           }}
         />
       )}
