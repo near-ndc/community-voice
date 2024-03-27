@@ -299,7 +299,9 @@ function getInitialText() {
   if (editionData) {
     if (!state.reply || editionData.value.commentData.text === state.reply) {
       return editionData.value.commentData.text;
-    }
+    } 
+  } else if (replyingTo) {
+    return `@${replyingTo} `;
   } else if (state.reply && state.reply !== editionData.value.commentData.text) {
     return state.reply;
   } else {
