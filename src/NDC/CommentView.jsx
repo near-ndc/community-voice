@@ -10,7 +10,6 @@ const {
   isReply,
   loggedUserHaveSbt,
   orginalCommentData,
-  canLoggedUserCreateComment,
   articleSbts,
   baseActions,
   sharedCommentId,
@@ -369,6 +368,10 @@ function onCommitDeleteComment() {
   State.update({
     showDeleteModal: false,
   });
+  setLoadingComments(true)
+  setTimeout(() => {
+    loadComments()
+  }, 3000);
 }
 
 function closeDeleteCommentModal() {
@@ -378,11 +381,8 @@ function closeDeleteCommentModal() {
 }
 
 function deleteCommentListener() {
-  //To test without commiting use the next line and comment the rest
-  // onCommit();
   State.update({ saving: true });
-  // const comment = data.value.comment;
-
+  
   deleteComment({
     config: getConfig(isTest),
     commentId: data.value.metadata.id,

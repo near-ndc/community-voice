@@ -316,9 +316,9 @@ const renderSpinner = () => {
 };
 
 function onCommit() {
-  setLoadingComments(true)
+  setLoadingComments && setLoadingComments(true)
   setTimeout(() => {
-    loadComments()
+    loadComments && loadComments()
     State.update({reply: "Reply here", showSpinner: false });
     onCloseModal();
   }, 3000);
