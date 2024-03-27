@@ -68,12 +68,14 @@ useEffect(() => {
   }, 30000)
 }, [])
 
-const [upVotes, setUpVotes] = useState([])
+const [upVotes, setUpVotes] = useState(undefined)
+const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 
 function loadUpVotes() {
-    getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      setUpVotes(newVotes)
-    })
+  getUpVotes(getConfig(isTest),id).then((newVotes) => {
+    setUpVotes(newVotes)
+    setLoadingUpVotes(false)
+  })
 }
 
 useEffect(() => {
@@ -664,6 +666,9 @@ return (
                         articleSbts,
                         upVotes,
                         baseActions,
+                        loadUpVotes,
+                        loadingUpVotes,
+                        setLoadingUpVotes,
                       }}
                     />
                     <Widget

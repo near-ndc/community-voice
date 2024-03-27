@@ -56,6 +56,7 @@ function loadArticles() {
 useEffect(() => {
   loadArticles()
   isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
+  //TODO change isValidUser name to getIsValidUser and share this prop whit all writers widget
   const intervalId = setInterval(() => {
     loadArticles()
   }, 30000)

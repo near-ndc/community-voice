@@ -30,12 +30,14 @@ const title = data.value.articleData.title;
 const content = data.value.articleData.body;
 const timeLastEdit = data.value.metadata.lastEditTimestamp;
 const id = data.value.metadata.id ?? `${data.author}-${data.metadata.createdTiemestamp}`;
-const [upVotes, setUpVotes] = useState([])
+const [upVotes, setUpVotes] = useState(undefined)
+const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 
 function loadUpVotes() {
-    getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      setUpVotes(newVotes)
-    })
+  getUpVotes(getConfig(isTest),id).then((newVotes) => {
+    setUpVotes(newVotes)
+    setLoadingUpVotes(false)
+  })
 }
 
 useEffect(() => {
@@ -462,16 +464,19 @@ return (
             props={{
               isTest,
               authorForWidget,
-              reactedElementData: data,
-              widgets,
-              disabled:
+                reactedElementData: data,
+                widgets,
+                disabled:
                 switchShowPreviewExists() ||
                 !context.accountId ||
                 (articleSbts.length > 0 && !canLoggedUserCreateComment),
-              articleSbts,
-              upVotes,
-              baseActions,
-            }}
+                articleSbts,
+                upVotes,
+                baseActions,
+                loadUpVotes,
+                loadingUpVotes,
+                setLoadingUpVotes,
+              }}
           />
           <Widget
             src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
