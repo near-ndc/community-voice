@@ -188,7 +188,7 @@ function getComments(articleId, config) {
     (version, index, arr) => {
       const action = fillAction(versions[version], config);
 
-      return getFromIndex(action, articleId).then((comments) => {
+      return getFromIndex(action, articleId, "asc").then((comments) => {
         const validComments = filterInvalidComments(comments);
 
         const normalizedComments = validComments.map((comment) => {
