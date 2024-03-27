@@ -1,18 +1,18 @@
-const { getUserSBTs, getSBTWhiteList } = VM.require(
-  "cv.near/widget/lib.SBT"
-);
+const { getUserSBTs, getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "cv.near/widget/lib.metadata"
 );
 const { normalizeObjectWithMetadata } = VM.require(
   "cv.near/widget/lib.normalization"
 );
-const { camelCaseToUserReadable } = VM.require(
-  "cv.near/widget/lib.strings"
+const { camelCaseToUserReadable } = VM.require("cv.near/widget/lib.strings");
+
+const { extractMentions, getNotificationData } = VM.require(
+  "cv.near/widget/lib.notifications"
 );
 
-
-const currentVersion = "v0.0.4"
+const currentVersion = "v0.0.4";
 
 let config = {};
 
@@ -236,12 +236,12 @@ function applyUserFilters(articles, filters) {
       return article.value.metadata.sbt === sbt;
     });
   }
-  if(authors && authors.length > 0) {
+  if (authors && authors.length > 0) {
     articles = articles.filter((article) => {
       return authors.includes(article.value.metadata.author);
     });
   }
-  if(tags && tags.length > 0) {
+  if (tags && tags.length > 0) {
     articles = articles.filter((article) => {
       return tags.some((tag) => article.value.articleData.tags.includes(tag));
     });
@@ -468,24 +468,6 @@ function validateEditArticle(articleData, previousMetadata) {
   return errorArray;
 }
 
-function extractMentions(text) {
-  const mentionRegex =
-    /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
-  mentionRegex.lastIndex = 0;
-  const accountIds = new Set();
-  for (const match of text.matchAll(mentionRegex)) {
-    if (
-      !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
-      !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
-      match[1].length >= 2 &&
-      match[1].length <= 64
-    ) {
-      accountIds.add(match[1].toLowerCase());
-    }
-  }
-  return [...accountIds];
-}
-
 // function handleNotifications(article) {
 //     const mentions = extractMentions(article.body);
 
@@ -515,21 +497,20 @@ function composeData(article) {
     },
   };
 
-  // TODO handle notifications properly
-  // const mentions = extractMentions(article.body);
+  if(article.metadata.isDelete) return data
 
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mention",
-  //     mentions,
-  //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
+  const mentions = extractMentions(article.articleData.body);
 
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
+  if (mentions.length > 0) {
+    const dataToAdd = getNotificationData(
+      "mention",
+      mentions,
+      article.metadata
+    );
+
+    data.post = dataToAdd.post;
+    data.index.notify = dataToAdd.index.notify;
+  }
 
   return data;
 }

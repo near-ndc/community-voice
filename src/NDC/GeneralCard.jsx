@@ -382,7 +382,7 @@ const renderArticleBody = () => {
               style={{ fontWeight: 500 }}
             >
               <a
-                href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
+                href={`https://near.org/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
                 target="_blank"
               >
                 #{hashtag}

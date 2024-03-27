@@ -1,47 +1,76 @@
 //lib.notifications
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
-const { stateUpdate, imports, fatherNotificationsState } = props;
-
-if (!stateUpdate) {
-  stateUpdate = () => {};
-}
-
-if (!imports) {
-  imports = [];
-}
-
-const newImportsFormat = { notifications: ["getNotificationData"] };
-
-let fatherStateHasAllFunction = true;
-imports.forEach((fnName) => {
-  fatherStateHasAllFunction =
-    fatherStateHasAllFunction && fatherNotificationsState[fnName] !== undefined;
-});
-
-if (fatherStateHasAllFunction) {
-  return <></>;
-}
-
-function appendExports(fnName) {
-  if (fnName === "getNotificationData") {
-    libNotificationsOutput[fnName] = getNotificationData;
+function extractMentions(text) {
+  const mentionRegex =
+    /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
+  mentionRegex.lastIndex = 0;
+  const accountIds = new Set();
+  for (const match of text.matchAll(mentionRegex)) {
+    if (
+      !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
+      !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
+      match[1].length >= 2 &&
+      match[1].length <= 64
+    ) {
+      accountIds.add(match[1].toLowerCase());
+    }
   }
+  return [...accountIds];
 }
 
-function getNotificationData(notificationType, usersToNotify, redirectTo) {
+function joinPeoplesName(usersToNotify) {
+  if (usersToNotify.length === 1) return `@${usersToNotify[0]}`;
+
+  return usersToNotify.reduce((acc, user, index) => {
+    if(index === usersToNotify.length - 1) {
+      acc += ` and `;
+    } else if(index !== 0) {
+      acc += `, `;
+    }
+
+    return `${acc}@${user}`
+  }, "");
+}
+
+function getNotificationData(notificationType, usersToNotify, metadata, extraParams) {
+  const { author } = extraParams;
+
+  const config = getConfig();
+
+  const baseURL = `https://near.social/${config.forumURL}?${config.isTest ? "isTest=true" : ""}`
+
   const notificationTypeText = {
-    mention: `I have mentioned @${usersToNotify} in this post: `,
-    mentionOnComment: `I have mentioned @${usersToNotify} on my comment on this post: `,
-    upVote: "I have upVoted this post: ",
-    emoji: "I have reacted to this post: ",
-    comment: "I have commented this post: ",
+    mention: {
+      text: `I have mentioned ${joinPeoplesName(usersToNotify)} in this post: `,
+      url: `${baseURL}&SAID=${metadata.id}`
+    },
+    mentionOnComment: {
+      text: `I have mentioned ${joinPeoplesName(usersToNotify)} on my comment on this post: `,
+      url: `${baseURL}&SAID=${metadata.articleId}&SCID=${metadata.id}`
+    },
+    upVote: {
+      text: "I have upVoted this post: ",
+      url: `${baseURL}SAID=${metadata.articleId}`
+    },
+    // emoji: {
+    //   text: "I have reacted to this post: ",
+    //   url: ``},
+    comment: {
+      text: "I have commented this post: ",
+      url: `${baseURL}SAID=${metadata.articleId}&SCID=${metadata.id}`
+    },
   };
+
+  if(author && !usersToNotify.includes(author)) {
+    usersToNotify.push(author);
+  }
 
   const dataToAdd = {
     post: {
       main: JSON.stringify({
         type: "md",
-        text: `${notificationTypeText[notificationType]} ${redirectTo}`,
+        text: `${notificationTypeText[notificationType].text} ${notificationTypeText[notificationType].url}`,
       }),
     },
     index: {
@@ -53,7 +82,7 @@ function getNotificationData(notificationType, usersToNotify, redirectTo) {
               type: "mention",
               item: {
                 type: "social",
-                path: `${context.accountId}/post/main`,
+                path: `${metadata.author}/post/main`,
               },
             },
           };
@@ -65,12 +94,8 @@ function getNotificationData(notificationType, usersToNotify, redirectTo) {
   return dataToAdd;
 }
 
-const libNotificationsOutput = {};
-
-imports.forEach((fnName) => {
-  appendExports(fnName);
-});
-
-stateUpdate({ notifications: libNotificationsOutput });
-
-return <></>;
+return {
+  extractMentions,
+  getNotificationData,
+  functionsToTest: {joinPeoplesName},
+};

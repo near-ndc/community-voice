@@ -38,8 +38,11 @@ const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
 
+//TODO delete this before pushing
+const areWeTesting = true;
+
 const [articlesToRender, setArticlesToRender] = useState([])
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
+const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(!!areWeTesting)
 const [showShareModal, setShowShareModal] = useState(false)
 const [sharedElement, setSharedElement] = useState(undefined)
 const [showShareSearchModal, setShowShareSearchModal] = useState(false)
@@ -55,7 +58,7 @@ function loadArticles() {
 
 useEffect(() => {
   loadArticles()
-  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
+  !areWeTesting && isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
   const intervalId = setInterval(() => {
     loadArticles()
   }, 30000)
@@ -606,7 +609,7 @@ function handleShareSearch(showShareSearchModal, searchInputValue) {
 
 function getLink() {
   if (sharingSearch) {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    return `https://near.org/${widgets.thisForum}?${isTest && "isTest=t&"}${
       state.filterBy.parameterName === "tag"
         ? `tagShared=${state.filterBy.parameterValue}&`
         : ""
@@ -615,7 +618,7 @@ function getLink() {
       `&sharedSearchInputValue=${state.searchInputValue}`
     }`;
   } else {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    return `https://near.org/${widgets.thisForum}?${isTest && "isTest=t&"}${
       sharedElement.type
     }=${sharedElement.value}`;
   }
