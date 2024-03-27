@@ -14,7 +14,7 @@ let {
 } = props;
 
 const sharedData = {
-  SBH: Number(SBH),
+  SBH: SBH ? Number(SBH) : undefined,
   STG,
   SAID,
   SCID,
