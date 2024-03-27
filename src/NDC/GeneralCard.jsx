@@ -16,6 +16,7 @@ const {
   handleEditArticle,
   baseActions,
   switchShowPreview,
+  loggedUserHaveSbt
 } = props;
 
 if (!Array.isArray(data.value.articleData.tags) && typeof data.value.articleData.tags === "object") {
@@ -63,7 +64,6 @@ State.init({
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
-const canLoggedUserCreateComment = true
 
 //=================================================END CONSTS=======================================================
 
@@ -466,10 +466,7 @@ return (
               authorForWidget,
                 reactedElementData: data,
                 widgets,
-                disabled:
-                switchShowPreviewExists() ||
-                !context.accountId ||
-                (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                disabled: switchShowPreviewExists() || !loggedUserHaveSbt,
                 articleSbts,
                 upVotes,
                 baseActions,
@@ -541,10 +538,7 @@ return (
                 isTest,
                 authorForWidget,
                 elementReactedId: id,
-                disabled:
-                  switchShowPreviewExists() ||
-                  !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                disabled: switchShowPreviewExists() || !loggedUserHaveSbt,
                 baseActions,
                 sbtsNames: articleSbts,
               }}
@@ -565,9 +559,7 @@ return (
                       <i className="bi bi-chat-square-text-fill"></i>
                     </div>
                   ),
-                  disabled:
-                    !context.accountId ||
-                    (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                  disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline w-25",
                   onClick: switchShowPreviewExists()

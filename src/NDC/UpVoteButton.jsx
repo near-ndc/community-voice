@@ -1,7 +1,6 @@
 //NDC.UpVoteButton
 const { createUpVote, deleteUpVote } = VM.require("cv.near/widget/lib.upVotes")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
-const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
 
 const {
   isTest,
@@ -18,7 +17,6 @@ const {
 } = props;
 
 const data = reactedElementData;
-const [canLoggedUserVote, setCanLoggedUserVote] = useState(false)
 
 let userVote = articleUpVotes? articleUpVotes.find((vote) => vote.accountId === context.accountId) : undefined;
 
@@ -29,10 +27,6 @@ function getUpVoteButtonClass() {
     return "info outline";
   }
 }
-
-useEffect(() => {
-  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserVote(isValid))
-}, [])
 
 function onCommitUpVotes() {
   setLoadingUpVotes(true)
@@ -110,13 +104,13 @@ return (
                 <IconContainer>
                   <Icon
                     className={`bi bi-fast-forward-fill ${
-                      (!disabled || canLoggedUserVote) && "text-success"
+                      (!disabled) && "text-success"
                     }`}
                   ></Icon>
                 </IconContainer>
               </div>
             ),
-            disabled: disabled || !canLoggedUserVote,
+            disabled: disabled,
             className: `${getUpVoteButtonClass()}`,
             size: "sm",
             onClick: handleUpVote,

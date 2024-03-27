@@ -39,7 +39,7 @@ const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
 const sbtsNames = state.sbt;
 
 const [articlesToRender, setArticlesToRender] = useState(undefined)
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] = useState(false)
+const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false)
 const [sharedElement, setSharedElement] = useState(undefined)
 const [showShareSearchModal, setShowShareSearchModal] = useState(false)
@@ -55,13 +55,16 @@ function loadArticles() {
 
 useEffect(() => {
   loadArticles()
-  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setCanLoggedUserCreateArticle(isValid))
-  //TODO change isValidUser name to getIsValidUser and share this prop whit all writers widget
   const intervalId = setInterval(() => {
     loadArticles()
   }, 30000)
   return () => clearInterval(intervalId)
 }, [])
+
+useEffect(() => {
+  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setLoggedUserHaveSbt(isValid))
+  //TODO change isValidUser name to getIsValidUser
+}, [context.accountId])
 
 accountId = context.accountId;
 
@@ -696,7 +699,7 @@ return (
           initialCreateState,
           editArticleData: state.editArticleData,
           handleEditArticle,
-          showCreateArticle: canLoggedUserCreateArticle,
+          loggedUserHaveSbt,
           sbtWhiteList,
           sbts,
           handleShareButton,
@@ -729,6 +732,7 @@ return (
             baseActions,
             kanbanColumns,
             sharedCommentId,
+            loggedUserHaveSbt
           }}
         />
       )}

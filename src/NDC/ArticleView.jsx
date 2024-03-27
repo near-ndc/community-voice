@@ -17,6 +17,7 @@ const {
   sharedCommentId,
   allArticlesWithThisSBT,
   sbtWhiteList,
+  loggedUserHaveSbt
 } = props;
 
 const accountId = articleToRenderData.value.metadata.author;
@@ -84,7 +85,6 @@ useEffect(() => {
         loadUpVotes()
     }, 30000)
 }, [])
-const canLoggedUserCreateComment = true;
 
 const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
 
@@ -659,10 +659,7 @@ return (
                         authorForWidget,
                         reactedElementData: articleToRenderData,
                         widgets,
-                        disabled:
-                          !context.accountId ||
-                          (articleSbts.length > 0 &&
-                            !canLoggedUserCreateComment),
+                        disabled: !loggedUserHaveSbt,
                         articleSbts,
                         upVotes,
                         baseActions,
@@ -695,9 +692,7 @@ return (
                       isTest,
                       authorForWidget,
                       elementReactedId: id,
-                      disabled:
-                        !context.accountId ||
-                        (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                      disabled: !loggedUserHaveSbt,
                       sbtsNames: articleSbts,
                       baseActions,
                     }}
@@ -830,9 +825,7 @@ return (
                     <i className="bi bi-plus-lg"></i>
                   </div>
                 ),
-                disabled:
-                  !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                disabled: !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
@@ -848,7 +841,7 @@ return (
                   isTest,
                   authorForWidget,
                   isReply: false,
-                  canLoggedUserCreateComment: canLoggedUserCreateComment,
+                  disabled: !loggedUserHaveSbt,
                   articleSbts,
                   baseActions,
                   sharedCommentId,

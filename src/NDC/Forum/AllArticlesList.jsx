@@ -20,7 +20,7 @@ let {
   sbts,
   handleShareButton,
   handleShareSearch,
-  canLoggedUserCreateArticles,
+  loggedUserHaveSbt,
   filterBy,
   baseActions,
   handleOnCommitArticle,
@@ -177,7 +177,7 @@ return (
                     handleFilterArticles,
                     handleEditArticle,
                     initialBody: "",
-                    canLoggedUserCreateArticles,
+                    canLoggedUserCreateArticles: loggedUserHaveSbt,
                     sbts,
                     baseActions,
                     handleOnCommitArticle,
@@ -273,6 +273,7 @@ return (
                     sbtWhiteList,
                     handleEditArticle,
                     baseActions,
+                    loggedUserHaveSbt
                   }}
                 />
               </div>
