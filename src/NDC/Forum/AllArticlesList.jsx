@@ -26,6 +26,7 @@ let {
   baseActions,
   handleOnCommitArticle,
   sharedSearchInputValue,
+  category
 } = props;
 
 const [searchInputValue, setSearchInputValue] = useState(
@@ -179,6 +180,7 @@ return (
                     sbts,
                     baseActions,
                     handleOnCommitArticle,
+                    category
                   }}
                 />
               </AccordionBody>

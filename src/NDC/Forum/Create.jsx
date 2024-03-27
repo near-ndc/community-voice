@@ -20,6 +20,7 @@ const {
   canLoggedUserCreateArticles,
   baseActions,
   handleOnCommitArticle,
+  category
 } = props;
 
 const errTextNoBody = "ERROR: no article Body",
@@ -65,6 +66,7 @@ function getArticleData() {
     tags: tagsArray ?? [],
     id: getRealArticleId(),
     sbts,
+    category: editArticleData.value.articleData.category ?? category,
   };
   return args;
 }
@@ -76,20 +78,21 @@ function onCancel() {
 }
 
 const handleCreate = () => {
-  const {title, body, tags} = getArticleData()
+  const {title, body, tags, category} = getArticleData()
 
-  const articleData = { title, body, tags }
+  const articleData = { title, body, tags, category }
   
   const metadataHelper = {
     author: context.accountId,
+    category
   }
   createArticle(getConfig(isTest), articleData, metadataHelper, onCommit, onCancel)
 }
 
 const handleEdit = () => {
-  const {title, body, tags} = getArticleData()
+  const {title, body, tags, category} = getArticleData()
 
-  const articleData = { title, body, tags }
+  const articleData = { title, body, tags, category }
 
   const articleMetadata = editArticleData.value.metadata 
   

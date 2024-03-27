@@ -23,6 +23,13 @@ let {
   topicShared,
 } = props;
 
+const categories = [
+  {title:"a",value:"aa"},
+  {title:"b",value:"bb"},
+  {title:"c",value:"cc"},
+  {title:"d",value:"dd"},
+]
+
 const splitedTopic = topicShared ? topicShared.split("-class") : undefined;
 
 const topicSharedFirstPart = splitedTopic && splitedTopic[0];
@@ -68,31 +75,36 @@ function getInitialFilter() {
 
 const [articlesToRender, setArticlesToRender] = useState([]);
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-  useState(false);
+  useState(true);
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
 const [sharingSearch, setSharingSearch] = useState(false);
 const [linkCopied, setlinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
+const [category, setCategory] = useState(categories[0])
+
+const handleChangeCategory = (category) => {
+  setCategory(category)
+}
 
 function loadArticles() {
-  const userFilters = { id: undefined, sbt: undefined };
+  const userFilters = { id: undefined, category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles);
   });
 }
 
 useEffect(() => {
-  loadArticles();
-  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
-    (isValid) => setCanLoggedUserCreateArticle(isValid)
-  );
+  loadArticles(category);
+  // isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
+  //   (isValid) => setCanLoggedUserCreateArticle(isValid)
+  // );
   const intervalId = setInterval(() => {
-    loadArticles();
+    loadArticles(category);
   }, 30000);
   return () => clearInterval(intervalId);
-}, []);
+}, [category]);
 
 accountId = context.accountId;
 
@@ -449,10 +461,10 @@ const renderDeleteModal = () => {
   );
 };
 
-const renderSelectorLabel = () => {
+const getCategoriesSelectorLabel = () => {
   return (
     <>
-      <span>Post & Filter Topics by SBT</span>
+      <span>Post & Filter by Categories</span>
 
       <SmallButton>
         <OverlayTrigger
@@ -460,7 +472,6 @@ const renderSelectorLabel = () => {
           overlay={
             <Tooltip>
               <p className="m-0">Topics for Community SBT Holders.</p>
-              <p className="m-0">Anyone can post to Public.</p>
             </Tooltip>
           }
         >
@@ -597,12 +608,6 @@ function handlePillNavigation(navegateTo) {
   State.update({ displayedTabId: navegateTo, editArticleData: undefined });
 }
 
-function handleSbtSelection(selectedSbt) {
-  State.update({
-    sbts: [selectedSbt],
-  });
-}
-
 function handleShareButton(showShareModal, sharedElement) {
   //showShareModal is a boolean
   //sharedElement is and object like the example: {
@@ -668,20 +673,19 @@ return (
           widgets,
         }}
       />
-      {/* {(state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id ||
-      state.displayedTabId == tabs.SHOW_KANBAN_VIEW.id) && (
-      <div className="my-3 col-lg-8 col-md-8 col-sm-12">
-        <Widget
-          src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
-          props={{
-            label: renderSelectorLabel(),
-            value: sbts[0],
-            onChange: handleSbtSelection,
-            options: createSbtOptions(),
-          }}
-        />
-      </div>
-    )} */}
+      {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+        <div className="my-3 col-lg-8 col-md-8 col-sm-12">
+          <Widget
+            src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
+            props={{
+              label: getCategoriesSelectorLabel(),
+              value: category,
+              onChange: handleChangeCategory,
+              options: categories
+            }}
+          />
+        </div>
+      )}
       {articlesToRender &&
         state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
           <Widget
@@ -708,6 +712,7 @@ return (
               baseActions,
               handleOnCommitArticle,
               sharedSearchInputValue,
+              category
             }}
           />
         )}
@@ -764,6 +769,7 @@ return (
             canLoggedUserCreateArticles,
             baseActions,
             handleOnCommitArticle,
+            category
           }}
         />
       )}
