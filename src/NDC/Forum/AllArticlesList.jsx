@@ -1,4 +1,5 @@
 // NDC.Forum.AllArticlesList
+const { arrayIncludesIgnoreCase } = VM.require("cv.near/widget/lib.strings")
 
 //===============================================INITIALIZATION=====================================================
 
@@ -25,99 +26,96 @@ let {
   sharedSearchInputValue,
 } = props;
 
-State.init({
-  start: Date.now(),
-  searchInputValue: sharedSearchInputValue ?? "",
-});
+const [searchInputValue, setSearchInputValue] = useState(
+  sharedSearchInputValue
+);
 
-let finalArticlesWithUpVotes = articlesToRender.map((article) => {
-  if (state[`upVotes-${article.metadata.id}`]) {
-    const key = Object.keys(state[`upVotes-${article.metadata.id}`])[0];
-    const articleUpVotes = state[`upVotes-${article.id}`][key];
-    article.upVotes = articleUpVotes;
+// let finalArticlesWithUpVotes = articlesToRender.map((article) => {
+//   if (state[`upVotes-${article.metadata.id}`]) {
+//     const key = Object.keys(state[`upVotes-${article.metadata.id}`])[0];
+//     const articleUpVotes = state[`upVotes-${article.id}`][key];
+//     article.upVotes = articleUpVotes;
 
-    return article;
-  }
-});
+//     return article;
+//   }
+// });
 
-const articlesFilteredBySerch =
-  !state.searchInputValue || state.searchInputValue === ""
-    ? finalArticlesWithUpVotes
-    : finalArticlesWithUpVotes.filter((article) => {
-        if (article.title && article.body && article.author) {
-          return (
-            article.title
-              .toLowerCase()
-              .includes(state.searchInputValue.toLowerCase()) ||
-            article.body
-              .toLowerCase()
-              .includes(state.searchInputValue.toLowerCase()) ||
-            article.author
-              .toLowerCase()
-              .includes(state.searchInputValue.toLowerCase())
-          );
-        } else {
-          return true;
-        }
-      });
+function filterArticlesBySearch(articles, searchInputValue) {
+  if(!searchInputValue || searchInputValue === "") return articles
+  return articles.filter((article) => {
+    const { title, body } = article.value.articleData
+    const { author } = article.value.metadata
+    const arr = [ title, body, author ]
+    if (arr.some((item) => item === undefined)) return false
+    
+    return arrayIncludesIgnoreCase(arr, searchInputValue)        
+  });
+}
 
-const fiveDaysTimeLapse = 432000000;
+const articlesFilteredBySearch = filterArticlesBySearch(articlesToRender, searchInputValue);
 
-const newestArticlesWithUpVotes = articlesFilteredBySerch
-  .filter((article) => article.timeLastEdit > Date.now() - fiveDaysTimeLapse)
-  .sort((a, b) => b.timeLastEdit - a.timeLastEdit);
+const fiveDaysTimeLapse = 5 * 24 * 60 * 60 * 1000;
 
-const olderArticlesWithUpVotes = articlesFilteredBySerch
-  .filter((article) => article.timeLastEdit < Date.now() - fiveDaysTimeLapse)
-  .sort((a, b) => b.upVotes.length - a.upVotes.length);
+const newestArticlesWithUpVotes = articlesFilteredBySearch
+  .filter((article) => article.value.metadata.lastEditTimestamp > Date.now() - fiveDaysTimeLapse)
+  // .sort((a, b) => b.timeLastEdit - a.timeLastEdit);
 
-const sortedFinalArticlesWithUpVotes = [
-  // ...newestArticlesWithUpVotes,
-  // ...olderArticlesWithUpVotes,
-  ...articlesToRender
+const olderArticlesWithUpVotes = articlesFilteredBySearch
+  .filter((article) => article.value.metadata.lastEditTimestamp < Date.now() - fiveDaysTimeLapse)
+  // .sort((a, b) => b.upVotes.length - a.upVotes.length);
+
+const sortedArticlesToRender = [
+  ...newestArticlesWithUpVotes,
+  ...olderArticlesWithUpVotes,
 ];
 
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
 
-const AcordionContainer = styled.div`--bs-accordion-border-width: 0px!important;`;
+const AcordionContainer = styled.div`
+  --bs-accordion-border-width: 0px !important;
+`;
 
-const NoMargin = styled.div`margin: 0 0.75rem;`;
+const NoMargin = styled.div`
+  margin: 0 0.75rem;
+`;
 
-const AccordionBody = styled.div`padding: 0;`;
+const AccordionBody = styled.div`
+  padding: 0;
+`;
 
 const ArticlesListContainer = styled.div`
-    background-color: rgb(248, 248, 249);
-    margin: 0;
-  `;
+  background-color: rgb(248, 248, 249);
+  margin: 0;
+`;
 
 const CallLibrary = styled.div`
-    display: none;
-  `;
+  display: none;
+`;
 
 const IconCursorPointer = styled.i`
-    cursor: pointer;
-  `;
+  cursor: pointer;
+`;
 
 const ShareSearchRow = styled.div`
-    display: flex;
-    justify-content: flex-start;
-    align-content: center;
-    margin-bottom: 1rem;
-    margin-top: 1rem;
-  `;
+  display: flex;
+  justify-content: flex-start;
+  align-content: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+`;
 
 const ShareSearchText = styled.h6`
-    margin-bottom: 0;
-    margin-left: 1rem;
-    margin-right: 1rem;
-  `;
+  margin-bottom: 0;
+  margin-left: 1rem;
+  margin-right: 1rem;
+`;
 
 const SearchResult = styled.span`
-    margin-left: 0.5rem;
-    font-size: small;
-  `;
+  margin-left: 0.5rem;
+  font-size: small;
+`;
 
 //=================================================END CONSTS=======================================================
 
@@ -133,7 +131,7 @@ function getDateLastEdit(timestamp) {
 }
 
 function handleSearch(e) {
-  State.update({ searchInputValue: e.target.value });
+  setSearchInputValue(e.target.value);
 }
 
 //================================================END FUNCTIONS=====================================================
@@ -193,18 +191,18 @@ return (
       props={{
         Input: {
           label: "Search",
-          value: state.searchInputValue,
+          value: searchInputValue,
           type: "text",
           placeholder: "You can search by title, content or author",
           handleChange: handleSearch,
         },
       }}
     />
-    {state.searchInputValue !== "" &&
-      state.searchInputValue &&
-      sortedFinalArticlesWithUpVotes.length > 0 && (
+    {searchInputValue &&
+      searchInputValue !== "" &&
+      sortedArticlesToRender.length > 0 && (
         <SearchResult className="text-secondary">
-          {`Found ${sortedFinalArticlesWithUpVotes.length} articles searching for "${state.searchInputValue}"`}
+          {`Found ${sortedArticlesToRender.length} articles searching for "${searchInputValue}"`}
         </SearchResult>
       )}
     <ShareSearchRow>
@@ -215,7 +213,7 @@ return (
           size: "sm",
           className: "info outline icon",
           children: <i className="bi bi-share"></i>,
-          onClick: () => handleShareSearch(true, state.searchInputValue),
+          onClick: () => handleShareSearch(true, searchInputValue),
         }}
       />
     </ShareSearchRow>
@@ -242,16 +240,19 @@ return (
         </div>
       )}
       <ArticlesListContainer className="row card-group py-3">
-        {sortedFinalArticlesWithUpVotes.length > 0 ? (
-          sortedFinalArticlesWithUpVotes.map((article, i) => {
-            const authorProfileCall = Social.getr(`${article.value.metadata.author}/profile`);
+        {sortedArticlesToRender.length > 0 ? (
+          sortedArticlesToRender.map((article, i) => {
+            const authorProfileCall = Social.getr(
+              `${article.value.metadata.author}/profile`
+            );
 
             if (authorProfileCall) {
               article.authorProfile = authorProfileCall;
             }
 
             // If some widget posts data different than an array it will be ignored
-            if (!Array.isArray(article.value.articleData.tags)) article.value.articleData.tags = [];
+            if (!Array.isArray(article.value.articleData.tags))
+              article.value.articleData.tags = [];
             return (
               <div key={article.value.metadata.id}>
                 <Widget
@@ -276,8 +277,8 @@ return (
           })
         ) : (
           <h5>{`No articles ${
-            state.searchInputValue !== ""
-              ? `have been found searching for ${state.searchInputValue}`
+            searchInputValue !== ""
+              ? `have been found searching for ${searchInputValue}`
               : "uploaded yet"
           }`}</h5>
         )}
