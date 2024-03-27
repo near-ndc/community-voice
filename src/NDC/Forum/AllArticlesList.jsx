@@ -1,4 +1,5 @@
 // NDC.Forum.AllArticlesList
+const { arrayIncludesIgnoreCase } = VM.require("cv.near/widget/lib.strings")
 
 //===============================================INITIALIZATION=====================================================
 
@@ -41,38 +42,27 @@ const [searchInputValue, setSearchInputValue] = useState(
 //   }
 // });
 
-const articlesFilteredBySerch =
-  !searchInputValue || searchInputValue === ""
-    ? articlesToRender
-    : articlesToRender.filter((article) => {
-        if (
-          article.value.articleData.title &&
-          article.value.articleData.body &&
-          article.value.metadata.author
-        ) {
-          return (
-            article.value.articleData.title
-              .toLowerCase()
-              .includes(searchInputValue.toLowerCase()) ||
-            article.value.articleData.body
-              .toLowerCase()
-              .includes(searchInputValue.toLowerCase()) ||
-            article.value.metadata.author
-              .toLowerCase()
-              .includes(searchInputValue.toLowerCase())
-          );
-        } else {
-          return true;
-        }
-      });
+function filterArticlesBySearch(articles, searchInputValue) {
+  if(!searchInputValue || searchInputValue === "") return articles
+  return articles.filter((article) => {
+    const { title, body } = article.value.articleData
+    const { author } = article.value.metadata
+    const arr = [ title, body, author ]
+    if (arr.some((item) => item === undefined)) return false
+    
+    return arrayIncludesIgnoreCase(arr, searchInputValue)        
+  });
+}
 
-const fiveDaysTimeLapse = 432000000;
+const articlesFilteredBySearch = filterArticlesBySearch(articlesToRender, searchInputValue);
 
-const newestArticlesWithUpVotes = articlesFilteredBySerch
+const fiveDaysTimeLapse = 5 * 24 * 60 * 60 * 1000;
+
+const newestArticlesWithUpVotes = articlesFilteredBySearch
   .filter((article) => article.value.metadata.lastEditTimestamp > Date.now() - fiveDaysTimeLapse)
   // .sort((a, b) => b.timeLastEdit - a.timeLastEdit);
 
-const olderArticlesWithUpVotes = articlesFilteredBySerch
+const olderArticlesWithUpVotes = articlesFilteredBySearch
   .filter((article) => article.value.metadata.lastEditTimestamp < Date.now() - fiveDaysTimeLapse)
   // .sort((a, b) => b.upVotes.length - a.upVotes.length);
 
@@ -211,8 +201,8 @@ return (
         },
       }}
     />
-    {searchInputValue !== "" &&
-      searchInputValue &&
+    {searchInputValue &&
+      searchInputValue !== "" &&
       sortedArticlesToRender.length > 0 && (
         <SearchResult className="text-secondary">
           {`Found ${sortedArticlesToRender.length} articles searching for "${searchInputValue}"`}
