@@ -560,6 +560,19 @@ function executeSaveArticle(article, onCommit, onCancel) {
   });
 }
 
+function buildArticle(articleData, userMetadataHelper){
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "article",
+    versionKey: currentVersion,
+  };
+  const metadata = generateMetadata(metadataHelper);
+  return {
+    articleData,
+    metadata,
+  };
+}
+
 function createArticle(
   config,
   articleData,
@@ -568,21 +581,12 @@ function createArticle(
   onCancel
 ) {
   setConfig(config);
-  const errors = validateNewArticle(articleData, author);
+  const errors = validateNewArticle(articleData);
   if (errors && errors.length) {
     return { error: true, data: errors };
   }
 
-  const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "article",
-    versionKey: currentVersion,
-  };
-  const metadata = generateMetadata(metadataHelper);
-  const article = {
-    articleData,
-    metadata,
-  };
+  const article = buildArticle(articleData,userMetadataHelper)
   const result = executeSaveArticle(article, onCommit, onCancel);
   return { error: false, data: result };
 }
@@ -622,6 +626,7 @@ function deleteArticle(config, articleId, onCommit, onCancel) {
 return {
   createArticle,
   getArticles,
+  buildArticle,
   editArticle,
   deleteArticle,
   getArticlesIndexes,

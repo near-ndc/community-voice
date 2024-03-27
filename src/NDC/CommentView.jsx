@@ -8,12 +8,15 @@ const {
   isTest,
   authorForWidget,
   isReply,
+  loggedUserHaveSbt,
   orginalCommentData,
   canLoggedUserCreateComment,
   articleSbts,
   baseActions,
   sharedCommentId,
   articleToRenderData,
+  loadComments,
+  setLoadingComments,
 } = props;
 
 State.init({
@@ -421,7 +424,7 @@ function handleEditComment() {
 }
 
 function handleReplyListener() {
-  if (!canLoggedUserCreateComment) {
+  if (!loggedUserHaveSbt) {
     return;
   }
 
@@ -534,6 +537,8 @@ return (
                 baseActions,
                 editionData: state.editionData,
                 rootCommentId: state.rootId,
+                loadComments,
+                setLoadingComments,
               }}
             />
           )}
@@ -550,7 +555,7 @@ return (
                       <i className="bi bi bi-reply"></i>
                     </div>
                   ),
-                  disabled: !canLoggedUserCreateComment,
+                  disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline",
                   onClick: handleReplyListener,
@@ -566,7 +571,7 @@ return (
             isTest,
             authorForWidget,
             elementReactedId: data.value.metadata.id,
-            disabled: !canLoggedUserCreateComment,
+            disabled: !loggedUserHaveSbt,
             baseActions,
             sbtsNames: articleSbts,
           }}
@@ -590,7 +595,7 @@ return (
                   isTest,
                   authorForWidget,
                   isReply: true,
-                  canLoggedUserCreateComment,
+                  loggedUserHaveSbt,
                   articleSbts,
                   baseActions,
                   sharedCommentId,

@@ -15,7 +15,6 @@ let {
   initialCreateState,
   editArticleData,
   handleEditArticle,
-  showCreateArticle,
   sbtWhiteList,
   sbts,
   handleShareButton,
@@ -141,7 +140,7 @@ function handleSearch(e) {
 //================================================END FUNCTIONS=====================================================
 return (
   <>
-    {showCreateArticle ? (
+    {loggedUserHaveSbt ? (
       <>
         <AcordionContainer className="accordion" id="accordionExample">
           <NoMargin className="accordion-item">

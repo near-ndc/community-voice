@@ -316,7 +316,6 @@ const renderSpinner = () => {
 };
 
 function onCommit() {
-  console.log("-----------------------------------------------------------")
   setLoadingComments(true)
   setTimeout(() => {
     loadComments()
@@ -342,7 +341,6 @@ function handleSubmitButton() {
   }
 }
 
-
 function addCommentListener() {
   State.update({showSpinner: true });
   
@@ -353,7 +351,7 @@ function addCommentListener() {
     replyingTo: rootId,
     articleId:article.value.metadata.id,
     onCommit,
-    onCancel:onCommit,
+    onCancel,
   });
 }
 
@@ -365,8 +363,8 @@ function editCommentListener() {
   editComment({
     config: getConfig(isTest),
     comment,
-    onCommit:onCancel,
-    onCancel:onCommit,
+    onCommit,
+    onCancel,
   });
 }
 

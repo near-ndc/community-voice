@@ -1,5 +1,5 @@
 //NDC.Forum.Create
-const { createArticle, editArticle } = VM.require("cv.near/widget/lib.article")
+const { createArticle, editArticle, buildArticle } = VM.require("cv.near/widget/lib.article")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 
@@ -225,17 +225,17 @@ return (
                   widgets,
                   isTest,
                   data: {
-                    title: state.title,
-                    author: accountId,
-                    lastEditor: accountId,
-                    timeLastEdit: Date.now(),
-                    timeCreate: Date.now(),
-                    body: state.articleBody,
-                    version: 0,
-                    navigation_id: null,
-                    tags: tagsArray,
-                    id: getRealArticleId(),
-                    sbts,
+                    blockHeight:-1,
+                    accountId,
+                    value:{
+                      ...buildArticle({
+                        title: state.title,
+                        body: state.articleBody,
+                        tags: tagsArray,
+                      },{
+                        author: accountId,
+                      })
+                    }
                   },
                   addressForArticles,
                   handleOpenArticle: () => {},
@@ -244,6 +244,7 @@ return (
                   handleShareButton: () => {},
                   baseActions,
                   switchShowPreview,
+                  isPreview: state.showPreview
                 }}
               />
             ) : (

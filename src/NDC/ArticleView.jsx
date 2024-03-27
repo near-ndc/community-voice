@@ -854,11 +854,13 @@ return (
                     isTest,
                     authorForWidget,
                     isReply: false,
-                    disabled: !loggedUserHaveSbt,
+                    loggedUserHaveSbt,
                     articleSbts,
                     baseActions,
                     sharedCommentId,
                     articleToRenderData,
+                    loadComments,
+                    setLoadingComments,
                   }}
                 />
               ))

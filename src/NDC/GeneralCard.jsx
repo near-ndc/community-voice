@@ -16,6 +16,7 @@ const {
   handleEditArticle,
   baseActions,
   switchShowPreview,
+  isPreview,
   loggedUserHaveSbt
 } = props;
 
@@ -92,12 +93,6 @@ const getShortUserName = () => {
 
 function toggleShowModal() {
   State.update({ showModal: !state.showModal });
-}
-
-function switchShowPreviewExists() {
-  const exists = typeof switchShowPreview === "function";
-
-  return exists;
 }
 
 //================================================END FUNCTIONS=====================================================
@@ -420,7 +415,7 @@ const renderArticleBody = () => {
 return (
   <CardContainer
     className={`bg-white rounded-3 p-3 m-3 ${
-      switchShowPreviewExists() ? "" : "col-lg-8 col-md-8 col-sm-12"
+      isPreview ? "" : "col-lg-8 col-md-8 col-sm-12"
     }`}
   >
     <Card>
@@ -466,7 +461,7 @@ return (
               authorForWidget,
                 reactedElementData: data,
                 widgets,
-                disabled: switchShowPreviewExists() || !loggedUserHaveSbt,
+                disabled: isPreview || !loggedUserHaveSbt,
                 articleSbts,
                 upVotes,
                 baseActions,
@@ -538,7 +533,7 @@ return (
                 isTest,
                 authorForWidget,
                 elementReactedId: id,
-                disabled: switchShowPreviewExists() || !loggedUserHaveSbt,
+                disabled: isPreview || !loggedUserHaveSbt,
                 baseActions,
                 sbtsNames: articleSbts,
               }}
@@ -562,7 +557,7 @@ return (
                   disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline w-25",
-                  onClick: switchShowPreviewExists()
+                  onClick: isPreview
                     ? () => {}
                     : toggleShowModal,
                 }}
@@ -598,7 +593,7 @@ return (
                     ),
                     className: `info w-25`,
                     onClick: () =>
-                      switchShowPreviewExists()
+                      isPreview
                         ? switchShowPreview()
                         : handleEditArticle(data),
                   }}
