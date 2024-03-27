@@ -53,12 +53,15 @@ State.init({
   // sliceContent: true,
 });
 
-const [comments, setComments] = useState([])
+const [comments, setComments] = useState(undefined)
+const [loadingComments, setLoadingComments] = useState(true)
+
 
 function loadComments() {
   const articleId = articleToRenderData.value.metadata.id
   getComments(articleId, getConfig(isTest)).then((newComments) => {
     setComments(newComments)
+    setLoadingComments(false)
   })
 }
 
@@ -510,9 +513,12 @@ const NoMargin = styled.div`margin: 0 0.75rem;`;
 const AccordionBody = styled.div`padding: 0;`;
 
 //Get basic original comments info
-const rootComments = comments.filter(
-  (comment) => comment.value.metadata.rootId === id
-);
+const rootComments = comments ? 
+  comments.filter(
+    (comment) => comment.value.metadata.rootId === id
+  )
+:
+  []
 
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
@@ -811,6 +817,8 @@ return (
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
                   baseActions,
+                  loadComments,
+                  setLoadingComments,
                 }}
               />
             )}
@@ -832,23 +840,29 @@ return (
                 },
               }}
             />
-            {articleComments.map((data) => (
+            {loadingComments ? 
               <Widget
-                src={widgets.views.editableWidgets.commentView}
-                props={{
-                  widgets,
-                  data,
-                  isTest,
-                  authorForWidget,
-                  isReply: false,
-                  disabled: !loggedUserHaveSbt,
-                  articleSbts,
-                  baseActions,
-                  sharedCommentId,
-                  articleToRenderData,
-                }}
+                src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
               />
-            ))}
+            :
+              articleComments.map((data) => (
+                <Widget
+                  src={widgets.views.editableWidgets.commentView}
+                  props={{
+                    widgets,
+                    data,
+                    isTest,
+                    authorForWidget,
+                    isReply: false,
+                    disabled: !loggedUserHaveSbt,
+                    articleSbts,
+                    baseActions,
+                    sharedCommentId,
+                    articleToRenderData,
+                  }}
+                />
+              ))
+            }
           </CommentSection>
         </div>
       </div>

@@ -17,6 +17,8 @@ const {
   replyingTo,
   baseActions,
   editionData,
+  loadComments,
+  setLoadingComments,
 } = props;
 
 const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location
@@ -277,10 +279,6 @@ const CallLibrary = styled.div`
     display: none;
   `;
 
-function stateUpdate(obj) {
-  State.update(obj);
-}
-
 State.init({
   theme,
   reply: "",
@@ -318,11 +316,17 @@ const renderSpinner = () => {
 };
 
 function onCommit() {
-  State.update({ showSpinner: false });
-  onCloseModal();
+  console.log("-----------------------------------------------------------")
+  setLoadingComments(true)
+  setTimeout(() => {
+    loadComments()
+    State.update({reply: "Reply here", showSpinner: false });
+    onCloseModal();
+  }, 3000);
 }
 
 function onCancel() {
+  setLoadingComments(false)
   State.update({ showSpinner: false });
 }
 
@@ -338,36 +342,32 @@ function handleSubmitButton() {
   }
 }
 
-function onClickAddComment() {
-  State.update({ showSpinner: true });
-}
 
 function addCommentListener() {
-    createComment({
-      config:getConfig(isTest),
-      author: context.accountId,
-      commentText: state.reply,
-      replyingTo: rootId,
-      articleId:article.value.metadata.id,
-      onCommit,
-      onCancel
-    });
+  State.update({showSpinner: true });
   
-  State.update({reply: "Reply here" });
+  createComment({
+    config:getConfig(isTest),
+    author: context.accountId,
+    commentText: state.reply,
+    replyingTo: rootId,
+    articleId:article.value.metadata.id,
+    onCommit,
+    onCancel:onCommit,
+  });
 }
 
 function editCommentListener() {
+  State.update({showSpinner: true });
   const comment = originalComment
   comment.value.commentData.text=state.reply
   
   editComment({
     config: getConfig(isTest),
     comment,
-    onCommit,
-    onCancel,
+    onCommit:onCancel,
+    onCancel:onCommit,
   });
-
-  State.update({ reply: "Reply here" });
 }
 
 return (
