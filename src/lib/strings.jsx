@@ -11,4 +11,8 @@ function isValidUrl(string) {
     }
 }
 
-return { camelCaseToUserReadable, isValidUrl };
+function arrayIncludesIgnoreCase(arr, value) {
+    return arr.some((item) => item.toLowerCase().includes(value.toLowerCase()));
+}
+
+return { camelCaseToUserReadable, isValidUrl, arrayIncludesIgnoreCase };
