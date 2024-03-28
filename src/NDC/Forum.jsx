@@ -21,24 +21,6 @@ let {
 
 const [searchInputValue, setSearchInputValue] = useState("");
 
-function loadArticles() {
-  const userFilters = { id: undefined };
-  getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles);
-  });
-}
-
-useEffect(() => {
-  loadArticles();
-  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
-    (isValid) => setCanLoggedUserCreateArticle(isValid)
-  );
-  const intervalId = setInterval(() => {
-    loadArticles();
-  }, 30000);
-  return () => clearInterval(intervalId);
-}, []);
-
 accountId = context.accountId;
 
 function getInitialFilter() {
@@ -80,15 +62,18 @@ const [showShareSearchModal, setShowShareSearchModal] = useState(false);
 const [sharingSearch, setSharingSearch] = useState(false);
 const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
+const [loadingArticles, setLoadingArticles] = useState(true)
 
-function loadArticles() {
+function loadArticles(category) {
   const userFilters = { category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
+    setLoadingArticles(false)
   })
 }
 
 useEffect(() => {
+  setLoadingArticles(true)
   loadArticles(category);
   const intervalId = setInterval(() => {
     loadArticles(category);
@@ -99,7 +84,7 @@ useEffect(() => {
 useEffect(() => {
   isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>{
     setLoggedUserHaveSbt(isValid)
-    setLoggedUserHaveSbt(isValid)
+    canLoggedUserCreateArticle(isValid)
   })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
@@ -192,29 +177,29 @@ function filterOnePostByArticleId(articleId, articles) {
 }
 
 if (filterBy.parameterName === "tag") {
-  articlesToRender = filterArticlesByTag(
+  setArticlesToRender(filterArticlesByTag(
     filterBy.parameterValue,
     articlesToRender
-  );
+  ));
 } else if (filterBy.parameterName === "author") {
-  articlesToRender = filterArticlesByAuthor(
+  setArticlesToRender(filterArticlesByAuthor(
     filterBy.parameterValue,
     articlesToRender
-  );
+  ));
 } else if (filterBy.parameterName === "getPost") {
-  articlesToRender = filterOnePostByBlockHeight(
+  setArticlesToRender(filterOnePostByBlockHeight(
     filterBy.parameterValue,
     articlesToRender
-  );
+  ));
 
   if (articlesToRender.length > 0) {
     State.update({ articleToRenderData: articlesToRender[0] });
   }
 } else if (filterBy.parameterName === "articleId") {
-  articlesToRender = filterOnePostByArticleId(
+  setArticlesToRender(filterOnePostByArticleId(
     filterBy.parameterValue,
     articlesToRender
-  );
+  ));
   if (articlesToRender.length > 0) {
     State.update({ articleToRenderData: articlesToRender[0] });
   }
@@ -457,7 +442,7 @@ const getCategoriesSelectorLabel = () => {
 
 //=================================================FUNCTIONS========================================================
 function onCommitDeletArticle() {
-  setArticlesToRender(undefined)
+  setArticlesToRender([])
   setTimeout(() => {
     loadArticles()
   }, 3000);
@@ -601,7 +586,6 @@ function getLink() {
   const baseUrl = `https://near.org/${widgets.thisForum}?${
     isTest && "isTest=true"
   }`
-  console.log(searchInputValue)
   if (sharingSearch) {
     const link = `${baseUrl}${
       filterBy.parameterName === "tag"
@@ -630,7 +614,7 @@ function handleOnCommitArticle(articleId) {
     })
   }, 3000);
 }
-
+let category2=category
 //===============================================END FUNCTIONS======================================================
 return (
   <AppContainer>
@@ -661,45 +645,49 @@ return (
             src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
             props={{
               label: getCategoriesSelectorLabel(),
-              value: category,
-              onChange: handleChangeCategory,
+              value: category2,
+              onChange: (e)=>{
+                category2=e
+                handleChangeCategory(e)
+                
+              },
               options: categories
             }}
           />
         </div>
       )}
     {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
-      articlesToRender?
-      <Widget
-        src={widgets.views.editableWidgets.showArticlesList}
-        props={{
-          isTest,
-          articlesToRender,
-          tabs,
-          widgets,
-          addressForArticles,
-          handleOpenArticle,
-          handleFilterArticles,
-          authorForWidget,
-          initialCreateState,
-          editArticleData: state.editArticleData,
-          handleEditArticle,
-          showCreateArticle: canLoggedUserCreateArticle,
-          loggedUserHaveSbt,
-          handleShareButton,
-          handleShareSearch,
-          canLoggedUserCreateArticles,
-          filterBy,
-          baseActions,
-          handleOnCommitArticle,
-          sharedSearchInputValue: sharedData.sharedSearch,
-          category
-        }}
-      />
+      loadingArticles?
+        <Widget
+          src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
+        />
       :
-      <Widget
-        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
-      />
+        <Widget
+          src={widgets.views.editableWidgets.showArticlesList}
+          props={{
+            isTest,
+            articlesToRender,
+            tabs,
+            widgets,
+            addressForArticles,
+            handleOpenArticle,
+            handleFilterArticles,
+            authorForWidget,
+            initialCreateState,
+            editArticleData: state.editArticleData,
+            handleEditArticle,
+            showCreateArticle: canLoggedUserCreateArticle,
+            loggedUserHaveSbt,
+            handleShareButton,
+            handleShareSearch,
+            canLoggedUserCreateArticles,
+            filterBy,
+            baseActions,
+            handleOnCommitArticle,
+            sharedSearchInputValue: sharedData.sharedSearch,
+            category
+          }}
+      />      
     )}
     {state.articleToRenderData.value.articleData.title &&
       state.displayedTabId == tabs.SHOW_ARTICLE.id && (

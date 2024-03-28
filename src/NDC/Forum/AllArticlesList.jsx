@@ -28,6 +28,8 @@ let {
   sharedData,
 } = props;
 
+if(!articlesToRender) return <></>
+
 const [searchInputValue, setSearchInputValue] = useState(
   sharedSearchInputValue ?? ""
 );
@@ -47,7 +49,6 @@ function filterArticlesBySearch(articles, searchInputValue) {
 const articlesFilteredBySearch = filterArticlesBySearch(articlesToRender, searchInputValue);
 
 const fiveDaysTimeLapse = 5 * 24 * 60 * 60 * 1000;
-
 const newestArticlesWithUpVotes = articlesFilteredBySearch
   .filter((article) => article.value.metadata.lastEditTimestamp > Date.now() - fiveDaysTimeLapse)
   // .sort((a, b) => b.timeLastEdit - a.timeLastEdit);
