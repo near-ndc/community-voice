@@ -1,4 +1,7 @@
 function getConfig(isTest,networkId) {
+    const componentsOwner = "cv.near";
+    const authorForWidget = "cv.near";
+    const configWidget = "home";
     return {
         isTest,
         networkId,
@@ -7,7 +10,10 @@ function getConfig(isTest,networkId) {
             upVote: "communityVoiceUpVote",
             reaction: "communityVoiceReaction",
             comment: "communityVoiceComment",
-        }
+        },
+        componentsOwner,
+        authorForWidget,
+        forumURL: `${authorForWidget}/widget/${configWidget}`
     }
 }
 

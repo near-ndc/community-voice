@@ -6,6 +6,10 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "cv.near/widget/lib.metadata"
 );
 
+const { extractMentions, getNotificationData } = VM.require(
+  "cv.near/widget/lib.notifications"
+);
+
 let config = {};
 
 const currentVersion = "v0.0.4";
@@ -238,6 +242,25 @@ function composeCommentData(comment, version, config) {
       }),
     },
   };
+
+  if(comment.metadata.isDelete) return data
+  
+  const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.text);
+
+  const articleIdSplitted = comment.metadata.articleId.split("/");
+  const articleAuthor = articleIdSplitted[1];
+
+  const dataToAdd = getNotificationData(
+    getConfig(),
+    mentions.length > 0 ? "mentionOnComment" : "comment",
+    mentions,
+    comment.metadata,
+    {author: articleAuthor}
+  );
+
+  data.post = dataToAdd.post;
+  data.index.notify = dataToAdd.index.notify;
+  
 
   return data;
 }

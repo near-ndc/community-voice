@@ -600,14 +600,6 @@ function getLink() {
     const link = `${baseUrl}&${sharedElement.key}=${sharedElement.value}`;
     return link;
   }
-  const url = Object.keys(paramsObj).reduce((acc, currKey, index, arr) => {
-    const currValue = paramsObj[currKey]
-    console.log(index, currKey, arr)
-    if(index === 0) acc += "?"
-    if(index !== 0) acc += "&"
-    return `${acc}${currKey}=${currValue}`
-  }, baseUrl)
-  return url
 }
 
 function handleOnCommitArticle(articleId) {

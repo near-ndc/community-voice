@@ -3,6 +3,10 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "cv.near/widget/lib.metadata"
 );
 
+const { getNotificationData } = VM.require(
+  "cv.near/widget/lib.notifications"
+);
+
 let config = {};
 const ID_PREFIX = "upVote"
 const currentVersion = "v0.0.3";
@@ -161,6 +165,22 @@ function composeData(upVote) {
       }),
     },
   };
+
+  if(upVote.metadata.isDelete) return data
+
+  const articleIdSplitted = upVote.metadata.articleId.split("/");
+  const articleAuthor = articleIdSplitted[1];
+  
+  const dataToAdd = getNotificationData(
+    getConfig(),
+    "upVote",
+    [],
+    upVote.metadata,
+    {author: articleAuthor}
+  );
+
+  data.post = dataToAdd.post;
+  data.index.notify = dataToAdd.index.notify;
 
   return data;
 }
