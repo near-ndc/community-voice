@@ -210,6 +210,7 @@ return (
         }}
       />
     </ShareSearchRow>
+    <h5>Previous articles will be loaded in the following days</h5>
     <NoMargin>
       {filterBy.parameterName === "tag" && (
         <div className="mt-3">
