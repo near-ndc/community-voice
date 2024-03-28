@@ -38,7 +38,7 @@ const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
 const [sharingSearch, setSharingSearch] = useState(false);
-const [linkCopied, setlinkCopied] = useState(false);
+const [linkCopied, setLinkCopied] = useState(false);
 const [searchInputValue, setSearchInputValue] = useState(undefined);
 
 function loadArticles() {
@@ -70,25 +70,25 @@ const tabs = {
 };
 
 function getInitialFilter() {
-  if (sharedData.SBH) {
+  if (sharedData.sharedBlockheight) {
     return {
       parameterName: "getPost",
-      parameterValue: sharedData.SBH,
+      parameterValue: sharedData.sharedBlockheight,
     };
-  } else if (sharedData.STG) {
+  } else if (sharedData.sharedTag) {
     return {
       parameterName: "tag",
-      parameterValue: sharedData.STG,
+      parameterValue: sharedData.sharedTag,
     };
   } else if (authorShared) {
     return {
       parameterName: "author",
       parameterValue: authorShared,
     };
-  } else if (sharedData.SAID) {
+  } else if (sharedData.sharedArticleId) {
     return {
       parameterName: "articleId",
-      parameterValue: sharedData.SAID,
+      parameterValue: sharedData.sharedArticleId,
     };
   } else {
     return {
@@ -98,7 +98,7 @@ function getInitialFilter() {
 }
 
 function getInitialTabId() {
-  if (sharedData.SBH || sharedData.SAID) {
+  if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
     return tabs.SHOW_ARTICLE.id;
   } else {
     return tabs.SHOW_ARTICLES_LIST.id;
@@ -112,7 +112,7 @@ State.init({
   authorsProfiles: [],
   sbtsNames: initSbtsNames,
   sbts: sharedData.STPC ? [sharedData.STPC] : initSbtsNames,
-  firstRender: !isNaN(sharedData.SBH) || typeof sharedData.SAID === "string",
+  firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
 });
 
 //=============================================END INITIALIZATION===================================================
@@ -149,36 +149,15 @@ const initialBodyAtCreation = state.editArticleData.value.articleData.body;
 //=================================================GET DATA=========================================================
 const finalArticles = state.articles;
 
-// function getArticlesToRender() {
-//   if (
-//     (sharedData.SBH || sharedData.SAID) &&
-//     finalArticles &&
-//     state.firstRender
-//   ) {
-//     let finalArticlesSbts = Object.keys(finalArticles);
-//     let allArticles = [];
-
-//     finalArticlesSbts.forEach((sbt) => {
-//       allArticles = [...allArticles, ...finalArticles[sbt]];
-//     });
-
-//     return allArticles;
-//   } else {
-//     return finalArticles[sbts[0]];
-//   }
-// }
-
-//const articlesToRender = getArticlesToRender() ?? [];
-
 function filterArticlesByTag(tag, articles) {
   return articles.filter((article) => {
-    return article.tags.includes(tag);
+    return article.value.articleData.tags.includes(tag);
   });
 }
 
 function filterArticlesByAuthor(author, articles) {
   return articles.filter((article) => {
-    return article.author === author;
+    return article.value.metadata.author === author;
   });
 }
 
@@ -611,21 +590,20 @@ function handleShareSearch(showShareSearchModal, newSearchInputValue) {
 }
 
 function getLink() {
+  const baseUrl = `https://near.org/${widgets.thisForum}?${
+    isTest && "isTest=true"
+  }`
   if (sharingSearch) {
-    const link = `https://near.social/${widgets.thisForum}?${
-      isTest && "isTest=t"
-    }${
+    const link = `${baseUrl}${
       state.filterBy.parameterName === "tag"
-        ? `&STG=${state.filterBy.parameterValue}`
+        ? `&st=${state.filterBy.parameterValue}`
         : ""
     }${
-      searchInputValue !== "" ? `&SSRCH=${searchInputValue}` : ""
+      searchInputValue !== "" ? `&ss=${searchInputValue}` : ""
     }`;
     return link;
   } else {
-    const link = `https://near.social/${widgets.thisForum}?${
-      isTest && "isTest=t&"
-    }${sharedElement.type}=${sharedElement.value}`;
+    const link = `${baseUrl}&${sharedElement.key}=${sharedElement.value}`;
     return link;
   }
 }

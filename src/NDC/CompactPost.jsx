@@ -176,7 +176,8 @@ const header = (
                 children: <i className="bi bi-share"></i>,
                 onClick: () =>
                   handleShareButton(true, {
-                    type: "SBH",
+                    key: "sb",
+                    type: "sharedBlockheight",
                     value: article.value.metadata.blockHeight,
                   }),
               }}

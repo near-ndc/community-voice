@@ -209,7 +209,7 @@ function composeData(article) {
       "mention",
       mentions,
       `https://near.social/${widgets.thisForum}?SAID=${article.id}${
-        isTest ? "&isTest=t" : ""
+        isTest ? "&isTest=true" : ""
       }`
     );
 

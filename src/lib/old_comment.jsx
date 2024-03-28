@@ -258,8 +258,8 @@ function composeCommentData(comment, replyingTo, articleId, isDelete) {
       mentions,
       `https://near.social/${
         widgets.thisForum
-      }?SAID=${articleId}&SCID=${comment.commentId}${
-        isTest ? "&isTest=t" : ""
+      }?SAID=${articleId}&sharedCommentId=${comment.commentId}${
+        isTest ? "&isTest=true" : ""
       }`
     );
 

@@ -5,21 +5,19 @@ const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 let {
   isTest,
   accountId,
-  SBH,
-  STG,
-  SAID,
-  SCID,
-  SSRCH,
-  STPC,
+  sb: sharedBlockheight,
+  st: sharedTag,
+  said: sharedArticleId,
+  scid: sharedCommentId,
+  ss: sharedSearch,
 } = props;
 
 const sharedData = {
-  SBH: SBH ? Number(SBH) : undefined,
-  STG,
-  SAID,
-  SCID,
-  SSRCH,
-  STPC,
+  sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
+  sharedTag,
+  sharedArticleId,
+  sharedCommentId,
+  sharedSearch,
 } 
 
 function createSbtOptions() {

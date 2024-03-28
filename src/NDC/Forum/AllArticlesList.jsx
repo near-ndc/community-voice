@@ -29,7 +29,7 @@ let {
 
 State.init({
   start: Date.now(),
-  searchInputValue: sharedData.SSRCH ?? "",
+  searchInputValue: sharedData.sharedSearch ?? "",
 });
 
 let finalArticlesWithUpVotes = articlesToRender.map((article) => {
