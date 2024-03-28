@@ -4,8 +4,6 @@ const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
 const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
   sbtWhiteList,
@@ -17,47 +15,63 @@ let {
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
-  sharedArticleId,
-  sharedCommentId,
-  sharedSearchInputValue,
-  topicShared,
+  sharedData,
 } = props;
 
-const splitedTopic = topicShared ? topicShared.split("-class") : undefined;
+const splitedTopic = sharedData.STPC ? sharedData.STPC.split("-class") : undefined;
 
 const topicSharedFirstPart = splitedTopic && splitedTopic[0];
 const topicSharedSecondPart = splitedTopic && splitedTopic[1];
 
 if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
-  topicShared = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
+  sharedData.STPC = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
 }
 
-sharedBlockHeight = Number(sharedBlockHeight);
-
-const initSbtsNames = topicShared ? [topicShared] : [sbtWhiteList[0]];
+const initSbtsNames = sharedData.STPC ? [sharedData.STPC] : [sbtWhiteList[0]];
 
 const sbtsNames = state.sbt;
+const [searchInputValue, setSearchInputValue] = useState("");
+
+function loadArticles() {
+  const userFilters = { id: undefined, sbt: undefined };
+  getArticles(getConfig(isTest), userFilters).then((newArticles) => {
+    setArticlesToRender(newArticles);
+  });
+}
+
+useEffect(() => {
+  loadArticles();
+  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
+    (isValid) => setCanLoggedUserCreateArticle(isValid)
+  );
+  const intervalId = setInterval(() => {
+    loadArticles();
+  }, 30000);
+  return () => clearInterval(intervalId);
+}, []);
+
+accountId = context.accountId;
 
 function getInitialFilter() {
-  if (sharedBlockHeight) {
+  if (sharedData.sharedBlockheight) {
     return {
       parameterName: "getPost",
-      parameterValue: sharedBlockHeight,
+      parameterValue: sharedData.sharedBlockheight,
     };
-  } else if (tagShared) {
+  } else if (sharedData.sharedTag) {
     return {
       parameterName: "tag",
-      parameterValue: tagShared,
+      parameterValue: sharedData.sharedTag,
     };
   } else if (authorShared) {
     return {
       parameterName: "author",
       parameterValue: authorShared,
     };
-  } else if (sharedArticleId) {
+  } else if (sharedData.sharedArticleId) {
     return {
       parameterName: "articleId",
-      parameterValue: sharedArticleId,
+      parameterValue: sharedData.sharedArticleId,
     };
   } else {
     return {
@@ -66,14 +80,17 @@ function getInitialFilter() {
   }
 }
 
-const [articlesToRender, setArticlesToRender] = useState(undefined)
+const [articlesToRender, setArticlesToRender] = useState([]);
+// loggedUserHaveSbt and canLoggedUserCreateArticle probably have the same behaviour. Check
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
-const [showShareModal, setShowShareModal] = useState(false)
-const [sharedElement, setSharedElement] = useState(undefined)
-const [showShareSearchModal, setShowShareSearchModal] = useState(false)
-const [sharingSearch, setSharingSearch] = useState(false)
-const [linkCopied, setlinkCopied] = useState(false)
-const [filterBy, setFilterBy] = useState(getInitialFilter())
+const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
+useState(false);
+const [showShareModal, setShowShareModal] = useState(false);
+const [sharedElement, setSharedElement] = useState(undefined);
+const [showShareSearchModal, setShowShareSearchModal] = useState(false);
+const [sharingSearch, setSharingSearch] = useState(false);
+const [linkCopied, setLinkCopied] = useState(false);
+const [filterBy, setFilterBy] = useState(getInitialFilter());
 
 function loadArticles() {
   const userFilters = {id: undefined, sbt: undefined}
@@ -106,7 +123,7 @@ const tabs = {
 };
 
 function getInitialTabId() {
-  if (sharedBlockHeight || sharedArticleId) {
+  if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
     return tabs.SHOW_ARTICLE.id;
   } else {
     return tabs.SHOW_ARTICLES_LIST.id;
@@ -119,8 +136,8 @@ State.init({
   // filterBy: getInitialFilter(),
   authorsProfiles: [],
   sbtsNames: initSbtsNames,
-  sbts: topicShared ? [topicShared] : initSbtsNames,
-  firstRender: !isNaN(sharedBlockHeight) || typeof sharedArticleId === "string",
+  sbts: sharedData.STPC ? [sharedData.STPC] : initSbtsNames,
+  firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
 });
 
 //=============================================END INITIALIZATION===================================================
@@ -156,27 +173,6 @@ const initialBodyAtCreation = state.editArticleData.value.articleData.body;
 
 //=================================================GET DATA=========================================================
 const finalArticles = state.articles;
-
-// function getArticlesToRender() {
-//   if (
-//     (sharedBlockHeight || sharedArticleId) &&
-//     finalArticles &&
-//     state.firstRender
-//   ) {
-//     let finalArticlesSbts = Object.keys(finalArticles);
-//     let allArticles = [];
-
-//     finalArticlesSbts.forEach((sbt) => {
-//       allArticles = [...allArticles, ...finalArticles[sbt]];
-//     });
-
-//     return allArticles;
-//   } else {
-//     return finalArticles[sbts[0]];
-//   }
-// }
-
-//const articlesToRender = getArticlesToRender() ?? [];
 
 function filterArticlesByTag(tag, articles) {
   return articles.filter((article) => {
@@ -620,27 +616,30 @@ function handleShareButton(showShareModal, sharedElement) {
   setSharedElement(sharedElement);
 }
 
-function handleShareSearch(showShareSearchModal, searchInputValue) {
+function handleShareSearch(showShareSearchModal, newSearchInputValue) {
   //showShareSearchModal is a boolean
   setShowShareSearchModal(showShareSearchModal);
   setSharingSearch(true);
-  State.update({ searchInputValue });
+  setSearchInputValue(newSearchInputValue ?? "");
 }
 
 function getLink() {
+  const baseUrl = `https://near.org/${widgets.thisForum}?${
+    isTest && "isTest=true"
+  }`
+  console.log(searchInputValue)
   if (sharingSearch) {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
+    const link = `${baseUrl}${
       filterBy.parameterName === "tag"
-        ? `tagShared=${filterBy.parameterValue}&`
+        ? `&st=${filterBy.parameterValue}`
         : ""
-    }topicShared=${sbts[0].replace(/\s+/g, "")}${
-      state.searchInputValue !== "" &&
-      `&sharedSearchInputValue=${state.searchInputValue}`
+    }${
+      searchInputValue !== "" ? `&ss=${searchInputValue}` : ""
     }`;
+    return link;
   } else {
-    return `https://near.social/${widgets.thisForum}?${isTest && "isTest=t&"}${
-      sharedElement.type
-    }=${sharedElement.value}`;
+    const link = `${baseUrl}&${sharedElement.key}=${sharedElement.value}`;
+    return link;
   }
 }
 
@@ -789,25 +788,6 @@ return (
           }}
         />
       )}
-      {/*state.displayedTabId === tabs.SHOW_KANBAN_VIEW.id && (
-        <Widget
-          src={widgets.views.editableWidgets.kanbanBoard}
-          props={{
-            isTest,
-            widgets,
-            kanbanColumns,
-            handleOpenArticle,
-            handleFilterArticles,
-            handleShareButton,
-            authorForWidget,
-            finalArticles: articlesToRender,
-            sbts,
-            kanbanRequiredTags,
-            kanbanExcludedTags,
-            baseActions,
-          }}
-        />
-        )*/}
     </SecondContainer>
   </AppContainer>
 );

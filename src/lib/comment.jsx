@@ -239,24 +239,6 @@ function composeCommentData(comment, version, config) {
     },
   };
 
-  // TODO handle notifications properly
-  // const mentions = comment.commentData.isDelete ? [] : extractMentions(comment.commentData.text);
-
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mentionOnComment",
-  //     mentions,
-  //     `https://near.social/${
-  //       widgets.thisForum
-  //     }?sharedArticleId=${articleId}&sharedCommentId=${comment.metadata.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
-
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
-
   return data;
 }
 

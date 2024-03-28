@@ -208,8 +208,8 @@ function composeData(article) {
     const dataToAdd = getNotificationData(
       "mention",
       mentions,
-      `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-        isTest ? "&isTest=t" : ""
+      `https://near.social/${widgets.thisForum}?SAID=${article.id}${
+        isTest ? "&isTest=true" : ""
       }`
     );
 

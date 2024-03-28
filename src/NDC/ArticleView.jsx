@@ -14,7 +14,7 @@ const {
   handleShareButton,
   baseActions,
   kanbanColumns,
-  sharedCommentId,
+  sharedData,
   allArticlesWithThisSBT,
   sbtWhiteList,
   loggedUserHaveSbt
@@ -557,8 +557,8 @@ let displayedContent = state.sliceContent
 
 return (
   <>
-    {sharedCommentId && (
-      <a href={`#${sharedCommentId}`}>
+    {sharedData.sharedCommentId && (
+      <a href={`#${sharedData.sharedCommentId}`}>
         Click to redirect to comment that mentioned you
       </a>
     )}
@@ -685,6 +685,7 @@ return (
                         children: <i className="bi bi-share"></i>,
                         onClick: () =>
                           handleShareButton(true, {
+                            key: "said",
                             type: "sharedArticleId",
                             value: articleToRenderData.value.metadata.id,
                           }),
@@ -765,7 +766,7 @@ return (
                         style={{ fontWeight: 500 }}
                       >
                         <a
-                          href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
+                          href={`https://near.org/${authorForWidget}/widget/${widgets.thisForum}?st=${hashtag}`}
                           target="_blank"
                         >
                           #{hashtag}

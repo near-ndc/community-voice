@@ -162,22 +162,6 @@ function composeData(upVote) {
     },
   };
 
-  // TODO handle notifications properly
-  // const mentions = extractMentions(article.body);
-
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mention",
-  //     mentions,
-  //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
-
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
-
   return data;
 }
 
