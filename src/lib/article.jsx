@@ -35,6 +35,12 @@ function setIsTest(value) {
   isTest = value;
 }
 
+function getArticlesVersions(config, articleId) {
+  setConfig(config);
+  return getArticlesHistoryNormalized(articleId)
+}
+
+
 function getArticles(config, filters) {
   setConfig(config);
   return getArticlesNormalized(filters);
@@ -251,6 +257,23 @@ function applyUserFilters(articles, filters) {
 
 function isActive(article) {
   return article.value.metadata && !article.value.metadata.isDelete;
+}
+
+function getArticlesHistoryNormalized(articleId) {
+  const articlesDataPromises = Object.keys(versions).map((version) => {
+    // const action = versions[version].action;
+    const action = getAction(version);
+    const articles = getArticlesIndexes(action, "main");
+
+    return articles;
+  });
+
+  return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
+    const articles = articlesVersionArray.flat();
+    const filteredArticles = applyUserFilters(articles, {id: articleId});
+
+    return filteredArticles;
+  });
 }
 
 function getArticlesNormalized(userFilters) {
@@ -572,6 +595,7 @@ function editArticle(
   }
 
   const newMetadata = updateMetadata(previousMetadata, currentVersion);
+
   const article = {
     articleData: newArticleData,
     metadata: newMetadata,
@@ -602,4 +626,5 @@ return {
   filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
+  getArticlesVersions,
 };

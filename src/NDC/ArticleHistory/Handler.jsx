@@ -1,6 +1,6 @@
 //NDC.ArticleHistory.Handler
-
 const addressForArticles = "wikiTest2Article";
+
 const {
   articleId,
   sbtWhiteList,
@@ -9,6 +9,7 @@ const {
   baseActions,
   kanbanColumns,
   widgets,
+  versions,
 } = props;
 
 State.init({
@@ -16,17 +17,17 @@ State.init({
   selectedBlockHeight: null,
 });
 
-const versions = state.versions ?? [];
+//TODO Need the function getArticlesVersions in the lib.articles
 
 if (props.count) props.count(versions.length);
 
-if (!state.selectedBlockHeight)
+if (!state.selectedBlockHeight && versions.length > 0)
   state.selectedBlockHeight = versions[0].blockHeight;
 
 const renderBlockChangesLink = (version) => {
   if (!version) return <>Loading...</>;
 
-  const timeLastEdit = new Date(version.timeLastEdit);
+  const timeLastEdit = new Date(version.value.metadata.lastEditTimestamp);
 
   return (
     <div>
@@ -49,21 +50,22 @@ const renderBlockChangesLink = (version) => {
 
 function renderWidgetCode(blockHeight) {
   const currentVersionDisplayed = versions.find(
-    (version) => version.blockHeight == blockHeight
+    (version) => version.blockHeight === blockHeight
   );
-  const index = versions.findIndex((el) => el.blockHeight == blockHeight);
+  const index = versions.findIndex((el) => el.blockHeight === blockHeight);
   const prevBlockHeightObject = versions[index + 1];
   return (
     <Widget
       style={{ minHeight: "200px" }}
       key={blockHeight}
-      src={`f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/NDC.ArticleHistory.Container`}
+      src={widgets.views.editableWidgets.articleHistoryFirstContainer}
       props={{
-        pathToCurrentArticle: `${blockHeight.lastEditor}/${addressForArticles}/main`,
+        widgets,
+        pathToCurrentArticle: `${currentVersionDisplayed.metadata.author}/${addressForArticles}/main`,
         currentBlockHeight: blockHeight,
         currentVersionData: currentVersionDisplayed,
         allVersionsData: versions,
-        pathToPrevArticle: `${prevBlockHeightObject.lastEditor}/${addressForArticles}/main`,
+        pathToPrevArticle: `${prevBlockHeightObject.metadata.author}/${addressForArticles}/main`,
         prevBlockHeight: prevBlockHeightObject.blockHeight,
       }}
     />
@@ -71,8 +73,8 @@ function renderWidgetCode(blockHeight) {
 }
 
 function blockHeightToWidgetRender(blockHeight, allArticles) {
-  const index = versions.findIndex((el) => el.blockHeight == blockHeight);
-  return <Markdown text={allArticles[index].body} />;
+  const index = versions.findIndex((el) => el.blockHeight === blockHeight);  
+  return <Markdown text={allArticles[index].value.articleData.body} />;
 }
 
 function articleHistoryHasndlerStateUpdate(obj) {
@@ -112,10 +114,6 @@ const TabsButton = styled.button`
     height: 3px;
     background: #0091FF;
   }
-`;
-
-const CallLibrary = styled.div`
-  display: block;
 `;
 
 return (
@@ -160,7 +158,7 @@ return (
                   selectedTab: "code",
                 })
               }
-              selected={state.selectedTab == "code"}
+              selected={state.selectedTab === "code"}
             >
               Code
             </TabsButton>
@@ -172,17 +170,17 @@ return (
                   selectedTab: "render",
                 })
               }
-              selected={state.selectedTab == "render"}
+              selected={state.selectedTab === "render"}
             >
               Render
             </TabsButton>
           </Tabs>
 
-          {state.selectedTab == "code" && (
+          {state.selectedTab === "code" && (
             <div>{renderWidgetCode(state.selectedBlockHeight)}</div>
           )}
 
-          {state.selectedTab == "render" && (
+          {state.selectedTab === "render" && (
             <div>
               {blockHeightToWidgetRender(state.selectedBlockHeight, versions)}
             </div>
