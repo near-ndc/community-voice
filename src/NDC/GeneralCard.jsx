@@ -468,6 +468,7 @@ return (
                 loadUpVotes,
                 loadingUpVotes,
                 setLoadingUpVotes,
+                setUpVotes,
               }}
           />
           <Widget
