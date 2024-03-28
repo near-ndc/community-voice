@@ -1,2 +1,2 @@
 // This is a file to test bos-loader. Do not modify nor delete
-return <div>Hello Community Voice</div>
+return <div>Hello Community Voice 1</div>
