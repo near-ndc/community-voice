@@ -44,7 +44,7 @@ return (
             </OverlayTrigger>
           </div>
           <div className="col-4 d-flex justify-content-end align-items-center">
-            {getDatastring(currentVersionData.timeLastEdit)}
+            {getDatastring(currentVersionData.value.metadata.lastEditTimestamp)}
           </div>
         </div>
       </small>
