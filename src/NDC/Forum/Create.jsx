@@ -1,5 +1,5 @@
 //NDC.Forum.Create
-const { createArticle, editArticle } = VM.require("cv.near/widget/lib.article")
+const { createArticle, editArticle, buildArticle } = VM.require("cv.near/widget/lib.article")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 
@@ -66,34 +66,7 @@ function getArticleData() {
   return args;
 }
 
-function onCommit() {
-}
-
-function onCancel() {
-}
-
-const handleCreate = () => {
-  const {title, body, tags} = getArticleData()
-
-  const articleData = { title, body, tags }
-  
-  const metadataHelper = {
-    author: context.accountId,
-  }
-  createArticle(getConfig(isTest), articleData, metadataHelper, onCommit, onCancel)
-}
-
-const handleEdit = () => {
-  const {title, body, tags} = getArticleData()
-
-  const articleData = { title, body, tags }
-
-  const articleMetadata = editArticleData.value.metadata 
-  
-  editArticle(getConfig(isTest), articleData, articleMetadata, onCommit, onCancel)
-}
-
-function onCommit(article) {
+function onCommit(articleId) {
   State.update({
     title: "",
     clearArticleId: true,
@@ -104,12 +77,12 @@ function onCommit(article) {
     initalBody: "",
     // showCreatedArticle: true,
     showPreview: false,
-    saving: false,
+    saving: true,
   });
 
-  if (!Array.isArray(article.tags)) article.tags = Object.keys(article.tags);
+  //if (!Array.isArray(article.tags)) article.tags = Object.keys(article.tags);
 
-  handleOnCommitArticle(article);
+  handleOnCommitArticle(articleId);
 }
 
 function onCancel() {
@@ -117,6 +90,27 @@ function onCancel() {
     createdArticle: undefined,
     saving: false,
   });
+}
+
+const handleCreate = () => {
+  const {title, body, tags} = getArticleData()
+
+  const articleData = { title, body, tags, id}
+  
+  const metadataHelper = {
+    author: context.accountId,
+  }
+  createArticle(getConfig(isTest), articleData, metadataHelper, ()=>onCommit(id), onCancel)
+}
+
+const handleEdit = () => {
+  const {title, body, tags, id} = getArticleData()
+
+  const articleData = { title, body, tags }
+
+  const articleMetadata = editArticleData.value.metadata 
+  
+  editArticle(getConfig(isTest), articleData, articleMetadata, ()=>onCommit(id), onCancel)
 }
 
 function getInitialMarkdownBody() {
@@ -207,6 +201,14 @@ Array.isArray(tagsArray) &&
     initialTagsObject[tag] = true;
   });
 
+if(state.saving){
+  return (
+    <Widget
+      src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
+    />
+  )
+}
+
 return (
   <div>
     <GeneralContainer className="pt-2 row card-group">
@@ -220,16 +222,17 @@ return (
                   widgets,
                   isTest,
                   data: {
-                    title: state.title,
-                    author: accountId,
-                    lastEditor: accountId,
-                    timeLastEdit: Date.now(),
-                    timeCreate: Date.now(),
-                    body: state.articleBody,
-                    version: 0,
-                    navigation_id: null,
-                    tags: tagsArray,
-                    id: getRealArticleId(),
+                    blockHeight:-1,
+                    accountId,
+                    value:{
+                      ...buildArticle({
+                        title: state.title,
+                        body: state.articleBody,
+                        tags: tagsArray,
+                      },{
+                        author: accountId,
+                      })
+                    }
                   },
                   addressForArticles,
                   handleOpenArticle: () => {},
@@ -238,6 +241,7 @@ return (
                   handleShareButton: () => {},
                   baseActions,
                   switchShowPreview,
+                  isPreview: state.showPreview
                 }}
               />
             ) : (

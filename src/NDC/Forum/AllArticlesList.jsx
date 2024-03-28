@@ -19,26 +19,16 @@ let {
   showCreateArticle,
   handleShareButton,
   handleShareSearch,
-  canLoggedUserCreateArticles,
+  loggedUserHaveSbt,
   filterBy,
   baseActions,
   handleOnCommitArticle,
-  sharedSearchInputValue,
+  sharedData,
 } = props;
 
 const [searchInputValue, setSearchInputValue] = useState(
   sharedSearchInputValue
 );
-
-// let finalArticlesWithUpVotes = articlesToRender.map((article) => {
-//   if (state[`upVotes-${article.metadata.id}`]) {
-//     const key = Object.keys(state[`upVotes-${article.metadata.id}`])[0];
-//     const articleUpVotes = state[`upVotes-${article.id}`][key];
-//     article.upVotes = articleUpVotes;
-
-//     return article;
-//   }
-// });
 
 function filterArticlesBySearch(articles, searchInputValue) {
   if(!searchInputValue || searchInputValue === "") return articles
@@ -137,7 +127,7 @@ function handleSearch(e) {
 //================================================END FUNCTIONS=====================================================
 return (
   <>
-    {showCreateArticle ? (
+    {loggedUserHaveSbt ? (
       <>
         <AcordionContainer className="accordion" id="accordionExample">
           <NoMargin className="accordion-item">
@@ -173,7 +163,7 @@ return (
                     handleFilterArticles,
                     handleEditArticle,
                     initialBody: "",
-                    canLoggedUserCreateArticles,
+                    canLoggedUserCreateArticles: loggedUserHaveSbt,
                     baseActions,
                     handleOnCommitArticle,
                   }}
@@ -270,6 +260,7 @@ return (
                     handleShareButton,
                     handleEditArticle,
                     baseActions,
+                    loggedUserHaveSbt
                   }}
                 />
               </div>

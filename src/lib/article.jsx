@@ -402,23 +402,6 @@ function extractMentions(text) {
   return [...accountIds];
 }
 
-// function handleNotifications(article) {
-//     const mentions = extractMentions(article.body);
-
-//     if (mentions.length > 0) {
-//       const dataToAdd = getNotificationData(
-//         "mention",
-//         mentions,
-//         `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-//           isTest ? "&isTest=t" : ""
-//         }`
-//       );
-
-//       data.post = dataToAdd.post;
-//       data.index.notify = dataToAdd.index.notify;
-//     }
-// }
-
 function composeData(article) {
   let data = {
     index: {
@@ -430,22 +413,6 @@ function composeData(article) {
       }),
     },
   };
-
-  // TODO handle notifications properly
-  // const mentions = extractMentions(article.body);
-
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mention",
-  //     mentions,
-  //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
-
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
 
   return data;
 }
@@ -476,6 +443,19 @@ function executeSaveArticle(article, onCommit, onCancel) {
   });
 }
 
+function buildArticle(articleData, userMetadataHelper){
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "article",
+    versionKey: currentVersion,
+  };
+  const metadata = generateMetadata(metadataHelper);
+  return {
+    articleData,
+    metadata,
+  };
+}
+
 function createArticle(
   config,
   articleData,
@@ -484,21 +464,12 @@ function createArticle(
   onCancel
 ) {
   setConfig(config);
-  const errors = validateNewArticle(articleData, author);
+  const errors = validateNewArticle(articleData);
   if (errors && errors.length) {
     return { error: true, data: errors };
   }
 
-  const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "article",
-    versionKey: currentVersion,
-  };
-  const metadata = generateMetadata(metadataHelper);
-  const article = {
-    articleData,
-    metadata,
-  };
+  const article = buildArticle(articleData,userMetadataHelper)
   const result = executeSaveArticle(article, onCommit, onCancel);
   return { error: false, data: result };
 }
@@ -538,6 +509,7 @@ function deleteArticle(config, articleId, onCommit, onCancel) {
 return {
   createArticle,
   getArticles,
+  buildArticle,
   editArticle,
   deleteArticle,
   getArticlesIndexes,

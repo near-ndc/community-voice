@@ -27,12 +27,13 @@ const emojiArray = [
 ];
 
 const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userEmoji: undefined})
-const [show, setShow] = useState(false)
-const [loading, setLoading] = useState(false)
+const [showEmojiList, setShowEmojiList] = useState(false)
+const [loading, setLoading] = useState(true)
 
 function loadReactions() {
   getReactions( getConfig(isTest), elementReactedId, context.accountId).then((reactions) => {
     setReactionsData(reactions)
+    setLoading(false)
   })
 }
 
@@ -47,35 +48,41 @@ useEffect(() => {
 
 function handleOnMouseEnter() {
   if (!disabled) {
-    setShow(true)
+    setShowEmojiList(true)
   }
 }
 
 function handleOnMouseLeave() {
-  setShow(false)
+  setShowEmojiList(false)
 }
 
-function onPushEnd() {
+function onCommit() {
+  setLoading(true)
+  setTimeout(() => {
+    loadReactions()
+  }, 3000);
+}
+
+function onCancel() {
   setLoading(false)
-  setShow(false)
 }
 
 function reactListener(emojiToWrite) {
   if (loading || disabled) {
     return;
   }
+  setLoading(true)
 
   // decide to put unique emoji or white heart (unreaction emoji)
   // const emojiToWrite =
   //   emojiMessage === initialEmoji ? emojiArray[0] : emojiMessage;
 
-    const author = context.accountId
-    const result = createReaction(getConfig(isTest), emojiToWrite, elementReactedId, author, onPushEnd, onPushEnd)
-    if(result.error) {
-        console.error(result.data)
-    }
+  const author = context.accountId
+  const result = createReaction(getConfig(isTest), emojiToWrite, elementReactedId, author, onCommit, onCancel)
+  if(result.error) {
+      console.error(result.data)
+  }
 
-  setLoading(true)
 }
 
 // =============== CSS Styles ===============
@@ -201,7 +208,7 @@ const Overlay = () => {
     <EmojiListWrapper
       onMouseEnter={handleOnMouseEnter}
       onMouseLeave={handleOnMouseLeave}
-      show={show}
+      show={showEmojiList}
     >
       {emojiArray &&
         emojiArray.map((item) => {
@@ -262,19 +269,25 @@ return (
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             >
-              {loading && <Spinner />}
-              {reactionsData.reactionsStatistics &&
-                reactionsData.reactionsStatistics.map((item) =>
+              {loading ? 
+                <Spinner /> 
+              :
+                reactionsData.reactionsStatistics &&
+                  reactionsData.reactionsStatistics.map((item) =>
                   renderReaction(item, true)
-                )}
+                  )
+              }
             </SmallReactButton>
           ) : (
             <Button
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             >
-              {loading && <Spinner />}
-              {initialEmoji}
+              {loading ? 
+                <Spinner />
+              :
+                initialEmoji
+              }
             </Button>
           )}
         </>

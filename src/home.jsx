@@ -2,15 +2,22 @@
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
+  sb: sharedBlockheight,
+  st: sharedTag,
+  said: sharedArticleId,
+  scid: sharedCommentId,
+  ss: sharedSearch,
+} = props;
+
+const sharedData = {
+  sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
+  sharedTag,
   sharedArticleId,
   sharedCommentId,
-  sharedSearchInputValue,
-  topicShared,
-} = props;
+  sharedSearch,
+} 
 
 const componentsOwner = "cv.near";
 const authorForWidget = "cv.near";
@@ -101,8 +108,6 @@ return (
       <Widget
         src={widgets.views.editableWidgets.ndcForum}
         props={{
-          sharedBlockHeight,
-          tagShared,
           isTest,
           accountId,
           authorForWidget,
@@ -112,10 +117,7 @@ return (
           kanbanColumns,
           kanbanRequiredLabels,
           kanbanExcludedLabels,
-          sharedArticleId,
-          sharedCommentId,
-          sharedSearchInputValue,
-          topicShared,
+          sharedData
         }}
       />
     }

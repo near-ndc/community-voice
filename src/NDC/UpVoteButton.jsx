@@ -10,11 +10,15 @@ const {
   disabled,
   upVotes: articleUpVotes,
   baseActions,
+  loadUpVotes,
+  loadingUpVotes,
+  setLoadingUpVotes,
+  setUpVotes,
 } = props;
 
 const data = reactedElementData;
 
-let userVote = articleUpVotes.find((vote) => vote.accountId === context.accountId);
+let userVote = articleUpVotes? articleUpVotes.find((vote) => vote.accountId === context.accountId) : undefined;
 
 function getUpVoteButtonClass() {
   if (userVote) {
@@ -24,14 +28,16 @@ function getUpVoteButtonClass() {
   }
 }
 
-function stateUpdate(obj) {
-  State.update(obj);
+function onCommitUpVotes() {
+  setLoadingUpVotes(true)
+  setUpVotes([])
+  setTimeout(() => {
+    loadUpVotes()
+  }, 3000);
 }
 
-function onCommit() {
-}
-
-function onCancel() {
+function onCancelUpVotes() {
+  setLoadingUpVotes(false)
 }
 
 function handleUpVote() {
@@ -40,16 +46,16 @@ function handleUpVote() {
       getConfig(isTest),
       userVote.value.metadata.articleId,
       userVote.value.metadata.id,
-      onCommit,
-      onCancel
+      onCommitUpVotes,
+      onCancelUpVotes
     )
   :
     createUpVote(
       getConfig(isTest),
       data.value.metadata.id,
       data.value.metadata.author,
-      onCommit,
-      onCancel
+      onCommitUpVotes,
+      onCancelUpVotes
     )
 }
 
@@ -65,30 +71,52 @@ const CallLibrary = styled.div`
     display: none;
   `;
 
+
+const SpinnerContainer = styled.div`
+    height: 1.3rem;
+    width: 1.3rem;
+    marginTop: 2px;
+  `;  
+
 return (
   <>
-    <div title={disabled && "You don't own this SBT"}>
-      <Widget
-        src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
-        props={{
-          children: (
-            <div className="d-flex">
-              <span>{`+${articleUpVotes.length}`}</span>
-              <IconContainer>
-                <Icon
-                  className={`bi bi-fast-forward-fill ${
-                    !disabled && "text-success"
-                  }`}
-                ></Icon>
-              </IconContainer>
-            </div>
-          ),
-          disabled,
-          className: `${getUpVoteButtonClass()}`,
-          size: "sm",
-          onClick: handleUpVote,
-        }}
-      />
+    <div title={(disabled || !canLoggedUserVote) && "You can't vote since you don't have any SBT"}>
+      {loadingUpVotes ? 
+        <Widget
+          src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
+          props={{
+            children: 
+              <div className="d-flex">
+                <SpinnerContainer className="spinner-border text-secondary" role="status">
+                  <span className="sr-only" title="Loading..."></span>
+                </SpinnerContainer>
+              </div>,
+            size: "sm",
+          }}
+        />
+      :
+        <Widget
+          src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
+          props={{
+            children: (
+              <div className="d-flex">
+                <span>{`+${articleUpVotes.length}`}</span>
+                <IconContainer>
+                  <Icon
+                    className={`bi bi-fast-forward-fill ${
+                      (!disabled) && "text-success"
+                    }`}
+                  ></Icon>
+                </IconContainer>
+              </div>
+            ),
+            disabled: disabled,
+            className: `${getUpVoteButtonClass()}`,
+            size: "sm",
+            onClick: handleUpVote,
+          }}
+        />
+      }
     </div>
   </>
 );
