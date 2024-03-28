@@ -288,7 +288,15 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
   return article;
 }
 
-function normalizeFromV0_0_4ToV0_0_5(article) {
+// function normalizeFromV0_0_4ToV0_0_5(article) {
+//   const category = article.value.articleData.category
+//   if(!category){
+//     article.value.articleData.category = "uncategorized"
+//   }
+//   return article;
+// }
+
+function normalizeFromV0_0_4ToV0_0_5(article) { // change to normalizeFromV0_0_5ToV0_0_6 
   return article;
 }
 
