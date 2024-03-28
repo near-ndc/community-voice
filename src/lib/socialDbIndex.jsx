@@ -1,4 +1,9 @@
-function getFromIndex(action, key) {
+const DEFAULT_ORDER = "desc"
+
+function getFromIndex(action, key, order) {
+    if(!order){
+        order = DEFAULT_ORDER
+    } 
     const indexUrl = "https://api.near.social/index"
     return asyncFetch(indexUrl, {
         method: "POST",
@@ -7,7 +12,7 @@ function getFromIndex(action, key) {
             action,
             key,
             options: {
-                order: "desc"
+                order
             }
         })
     }).then((response) => response.body)
