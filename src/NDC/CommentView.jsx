@@ -12,7 +12,7 @@ const {
   canLoggedUserCreateComment,
   articleSbts,
   baseActions,
-  sharedCommentId,
+  sharedData,
   articleToRenderData,
 } = props;
 
@@ -38,7 +38,7 @@ const CommentCard = styled.div`
     gap: 12px;
     border-radius: "10px"};
     background: ${
-      sharedCommentId === data.value.metadata.id
+      sharedData.sharedCommentId === data.value.metadata.id
         ? "rgba(194, 205, 255, 0.8)"
         : "#fff"
     };
@@ -499,7 +499,7 @@ return (
                 style={{ fontWeight: 500 }}
               >
                 <a
-                  href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
+                  href={`https://near.org/${authorForWidget}/widget/${widgets.thisForum}?st=${hashtag}`}
                   target="_blank"
                 >
                   #{hashtag}
@@ -593,7 +593,7 @@ return (
                   canLoggedUserCreateComment,
                   articleSbts,
                   baseActions,
-                  sharedCommentId,
+                  sharedData,
                   articleToRenderData,
                 }}
               />

@@ -1,5 +1,4 @@
 const accountId = props.accountId;
-console.log(1, props.tooltip)
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
 const maxNameLength = props.maxNameLength;
