@@ -27,7 +27,7 @@ let {
 } = props;
 
 const [searchInputValue, setSearchInputValue] = useState(
-  sharedSearchInputValue
+  sharedSearchInputValue ?? ""
 );
 
 function filterArticlesBySearch(articles, searchInputValue) {
