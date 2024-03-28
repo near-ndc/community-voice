@@ -19,15 +19,6 @@ let {
   sharedData,
 } = props;
 
-const splitedTopic = sharedData.STPC ? sharedData.STPC.split("-class") : undefined;
-
-const topicSharedFirstPart = splitedTopic && splitedTopic[0];
-const topicSharedSecondPart = splitedTopic && splitedTopic[1];
-
-if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
-  sharedData.STPC = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
-}
-
 const [searchInputValue, setSearchInputValue] = useState("");
 
 function loadArticles() {
@@ -701,7 +692,7 @@ return (
           filterBy,
           baseActions,
           handleOnCommitArticle,
-          sharedSearchInputValue,
+          sharedSearchInputValue: sharedData.sharedSearch,
           category
         }}
       />
