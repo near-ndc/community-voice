@@ -15,8 +15,6 @@ const {
   baseActions,
   kanbanColumns,
   sharedData,
-  allArticlesWithThisSBT,
-  sbtWhiteList,
   loggedUserHaveSbt
 } = props;
 
@@ -35,9 +33,6 @@ if (
 articleToRenderData.value.articleData.tags = articleToRenderData.value.articleData.tags.filter(
   (tag) => tag !== undefined && tag !== null
 );
-
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-const articleSbts = articleToRenderData.sbts ?? [];
 
 const tabs = [
   {
@@ -589,9 +584,7 @@ return (
                 src={widgets.views.editableWidgets.articleHistory}
                 props={{
                   articleId: articleToRenderData.value.metadata.id,
-                  sbtWhiteList,
                   isTest,
-                  sbts: articleSbts,
                   baseActions,
                   kanbanColumns,
                   widgets,
@@ -665,8 +658,9 @@ return (
                         authorForWidget,
                         reactedElementData: articleToRenderData,
                         widgets,
-                        disabled: !loggedUserHaveSbt,
-                        articleSbts,
+                        disabled:
+                          !context.accountId ||
+                          !loggedUserHaveSbt,
                         upVotes,
                         baseActions,
                         loadUpVotes,
@@ -699,8 +693,9 @@ return (
                       isTest,
                       authorForWidget,
                       elementReactedId: id,
-                      disabled: !loggedUserHaveSbt,
-                      sbtsNames: articleSbts,
+                      disabled:
+                        !context.accountId ||
+                        !loggedUserHaveSbt,
                       baseActions,
                     }}
                   />
@@ -834,7 +829,9 @@ return (
                     <i className="bi bi-plus-lg"></i>
                   </div>
                 ),
-                disabled: !loggedUserHaveSbt,
+                disabled:
+                  !context.accountId ||
+                  !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
@@ -905,16 +902,6 @@ return (
                     {articleToRenderData.version}
                   </DescriptionInfoSpan>
                 </div>
-                {articleSbts.length > 0 && (
-                  <div>
-                    <DescriptionSubtitle>
-                      SBT requiered to interact:
-                    </DescriptionSubtitle>
-                    {articleSbts.map((sbt) => {
-                      return <DescriptionInfoSpan>{sbt}</DescriptionInfoSpan>;
-                    })}
-                  </div>
-                )}
               </DeclarationCard>
             )}
           </div>

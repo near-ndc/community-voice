@@ -49,8 +49,6 @@ useEffect(() => {
     }, 30000)
 }, [])
 
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-const articleSbts = articleToRenderData.sbts ?? data.sbts ?? [];
 
 function stateUpdate(obj) {
   State.update(obj);
@@ -537,7 +535,6 @@ return (
                 elementReactedId: id,
                 disabled: isPreview || !loggedUserHaveSbt,
                 baseActions,
-                sbtsNames: articleSbts,
               }}
             />
           </ButtonsLowerSection>

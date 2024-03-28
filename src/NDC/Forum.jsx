@@ -1,17 +1,15 @@
 // NDC.Forum
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
-const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
+const { isValidUser } = VM.require("cv.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
   isTest,
   accountId,
-  sbtWhiteList,
   authorForWidget,
   widgets,
   brand,
   baseActions,
-  createSbtOptions,
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
@@ -27,13 +25,10 @@ if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
   sharedData.STPC = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
 }
 
-const initSbtsNames = sharedData.STPC ? [sharedData.STPC] : [sbtWhiteList[0]];
-
-const sbtsNames = state.sbt;
 const [searchInputValue, setSearchInputValue] = useState("");
 
 function loadArticles() {
-  const userFilters = { id: undefined, sbt: undefined };
+  const userFilters = { id: undefined };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles);
   });
@@ -135,8 +130,6 @@ State.init({
   articleToRenderData: {},
   // filterBy: getInitialFilter(),
   authorsProfiles: [],
-  sbtsNames: initSbtsNames,
-  sbts: sharedData.STPC ? [sharedData.STPC] : initSbtsNames,
   firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
 });
 
@@ -164,8 +157,6 @@ const navigationPills = [
 const navigationButtons = [
   // { id: tabs.ARTICLE_WORKSHOP.id, title: "+Create article" },
 ];
-
-const sbts = state.sbts;
 
 const initialBodyAtCreation = state.editArticleData.value.articleData.body;
 
@@ -446,27 +437,7 @@ const renderDeleteModal = () => {
   );
 };
 
-const renderSelectorLabel = () => {
-  return (
-    <>
-      <span>Post & Filter Topics by SBT</span>
 
-      <SmallButton>
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip>
-              <p className="m-0">Topics for Community SBT Holders.</p>
-              <p className="m-0">Anyone can post to Public.</p>
-            </Tooltip>
-          }
-        >
-          <i className="bi bi-info-circle"></i>
-        </OverlayTrigger>
-      </SmallButton>
-    </>
-  );
-};
 //==============================================END COMPONENTS======================================================
 
 //=================================================FUNCTIONS========================================================
@@ -515,7 +486,6 @@ const initialCreateState = {
     ? getValidEditArticleDataTags()
     : {},
   libsCalls: { comment: {}, article: {}, emojis: {}, upVotes: {} },
-  sbts: [sbtWhiteList[0]],
 };
 
 function handleOpenArticle(articleToRenderData) {
@@ -600,20 +570,9 @@ function handlePillNavigation(navegateTo) {
   State.update({ displayedTabId: navegateTo, editArticleData: undefined });
 }
 
-function handleSbtSelection(selectedSbt) {
-  State.update({
-    sbts: [selectedSbt],
-  });
-}
-
 function handleShareButton(showShareModal, sharedElement) {
-  //showShareModal is a boolean
-  //sharedElement is and object like the example: {
-  //   type: string,
-  //   value: number||string,
-  // }
-  setShowShareModal(showShareModal);
-  setSharedElement(sharedElement);
+  setShowShareModal(showShareModal)
+  setSharedElement(sharedElement)
 }
 
 function handleShareSearch(showShareSearchModal, newSearchInputValue) {
@@ -641,6 +600,14 @@ function getLink() {
     const link = `${baseUrl}&${sharedElement.key}=${sharedElement.value}`;
     return link;
   }
+  const url = Object.keys(paramsObj).reduce((acc, currKey, index, arr) => {
+    const currValue = paramsObj[currKey]
+    console.log(index, currKey, arr)
+    if(index === 0) acc += "?"
+    if(index !== 0) acc += "&"
+    return `${acc}${currKey}=${currValue}`
+  }, baseUrl)
+  return url
 }
 
 function handleOnCommitArticle(articleId) {
@@ -711,9 +678,8 @@ return (
           initialCreateState,
           editArticleData: state.editArticleData,
           handleEditArticle,
+          showCreateArticle: canLoggedUserCreateArticle,
           loggedUserHaveSbt,
-          sbtWhiteList,
-          sbts,
           handleShareButton,
           handleShareSearch,
           canLoggedUserCreateArticles,

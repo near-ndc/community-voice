@@ -84,81 +84,8 @@ function getArticleNormalized(articleIndex, action) {
   });
 }
 
-function processArticles(articles) {
-  return Promise.all(
-    articles
-      .map((article) => {
-        return article.author;
-      })
-      .filter((author, index, authorArray) => {
-        const firstIndex = authorArray.findIndex((author2) => {
-          return author === author2;
-        });
-        return firstIndex === index;
-      })
-      .map((author) => {
-        return getUserSBTs(author).then((userSbts) => {
-          return [author, userSbts];
-        });
-      })
-  ).then((uniqueAuthorsSBTs) => {
-    let articlesBySBT = {};
-    articles
-      .filter((article) => {
-        const articleSbt = article.sbts[0];
-        if (articleSbt === "public") return true;
-
-        const author = article.author;
-        const [sbtName, sbtClass] = articleSbt.split(" - class ");
-
-        const authorSbtPair = uniqueAuthorsSBTs.find(
-          ([author2, _]) => author === author2
-        );
-        if (!authorSbtPair) return false;
-
-        const authorSbts = authorSbtPair[1];
-        const sbtPair = authorSbts.find(
-          ([sbtName2, _]) => sbtName === sbtName2
-        );
-        if (!sbtPair) return false;
-
-        const sbtPairClasses = sbtPair[1].map((sbt) => sbt.metadata.class);
-        return sbtPairClasses.includes(parseInt(sbtClass));
-      })
-      .forEach((article, index, arr) => {
-        const articleSbt = article.sbts[0];
-        if (!articlesBySBT[articleSbt]) {
-          articlesBySBT[articleSbt] = [];
-        }
-        articlesBySBT[articleSbt].push(article);
-      });
-    return articlesBySBT;
-  });
-}
-
 function normalizeArticleData(articleData) {
   return normalizeObjectWithMetadata(articleData, versions);
-}
-
-function processArticlesData(articlesData) {
-  const validArticlesData = filterInvalidArticlesIndexes(articlesData);
-
-  const validLatestEdits = getLatestEdits(validArticlesData);
-
-  const normalizedArticleData = validLatestEdits.map(normalizeArticleData);
-
-  const articlesPromises = Promise.all(articlesIndexesPromises).then(
-    (articles) => {
-      const nonFakeAuthorsArticles = articles.filter((article, index) => {
-        const articleIndex = validLatestEdits[index];
-        return article.author === articleIndex.accountId;
-      });
-
-      return processArticles(nonFakeAuthorsArticles, validLatestEdits);
-    }
-  );
-
-  return articlesPromises;
 }
 
 function getArticleBlackListByBlockHeight() {
@@ -225,15 +152,10 @@ function getLatestEdits(articles) {
 }
 
 function applyUserFilters(articles, filters) {
-  const { id, sbt, authors, tags } = filters;
+  const { id, authors, tags } = filters;
   if (id) {
     articles = articles.filter((article) => {
       return article.value.metadata.id === id;
-    });
-  }
-  if (sbt) {
-    articles = articles.filter((article) => {
-      return article.value.metadata.sbt === sbt;
     });
   }
   if(authors && authors.length > 0) {
@@ -372,7 +294,6 @@ const versions = {
 };
 
 function validateArticleData(article) {
-  // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
   const errArrMessage = [];
@@ -447,11 +368,6 @@ function validateMetadata(metadata) {
       )
   );
 
-  const sbtWhiteList = getSBTWhiteList(getConfig());
-
-  if (!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
-    errArrMessage.push(`Invalid SBT: ${article.sbt}`);
-  }
   return errArrMessage;
 }
 

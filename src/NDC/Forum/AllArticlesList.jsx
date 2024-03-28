@@ -16,8 +16,7 @@ let {
   initialCreateState,
   editArticleData,
   handleEditArticle,
-  sbtWhiteList,
-  sbts,
+  showCreateArticle,
   handleShareButton,
   handleShareSearch,
   loggedUserHaveSbt,
@@ -165,7 +164,6 @@ return (
                     handleEditArticle,
                     initialBody: "",
                     canLoggedUserCreateArticles: loggedUserHaveSbt,
-                    sbts,
                     baseActions,
                     handleOnCommitArticle,
                   }}
@@ -260,7 +258,6 @@ return (
                     handleFilterArticles,
                     authorForWidget,
                     handleShareButton,
-                    sbtWhiteList,
                     handleEditArticle,
                     baseActions,
                     loggedUserHaveSbt
@@ -272,8 +269,8 @@ return (
         ) : (
           <h5>{`No articles ${
             searchInputValue !== ""
-              ? `haver been found searching for ${searchInputValue}`
-              : "uploaded using this SBT yet"
+              ? `have been found searching for ${searchInputValue}`
+              : "uploaded yet"
           }`}</h5>
         )}
       </ArticlesListContainer>

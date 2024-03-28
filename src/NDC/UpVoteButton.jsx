@@ -8,7 +8,6 @@ const {
   reactedElementData,
   widgets,
   disabled,
-  articleSbts,
   upVotes: articleUpVotes,
   baseActions,
   loadUpVotes,
