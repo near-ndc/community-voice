@@ -12,11 +12,10 @@ let {
   ss: sharedSearch,
 } = props;
 
-const categories = getCategories()
-const [category, setCategory] = useState(categories[0].value)
+State.init({categories:getCategories(),category:getCategories().value})
 
 const handleChangeCategory = (category) => {
-  setCategory(category)
+  State.update({category})
 }
 
 const sharedData = {
@@ -127,8 +126,8 @@ return (
         kanbanRequiredLabels,
         kanbanExcludedLabels,
         handleChangeCategory,
-        categories,
-        category,
+        categories:state.categories,
+        category:state.category,
         sharedData,
       }}
     />
