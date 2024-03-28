@@ -1,5 +1,4 @@
 const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("cv.near/widget/lib.article")
-const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
 
@@ -19,7 +18,7 @@ function onCancel() {
 }
 
 function loadArticles() {
-    const userFilters = {id: "article/rodrigos.near/1710843635815", sbt: undefined, authors: ["rodrigos.near"], tags: ["tag1"]}
+    const userFilters = {id: "article/rodrigos.near/1710843635815", authors: ["rodrigos.near"], tags: ["tag1"]}
     getArticles(config, userFilters).then((newArticles) => {
         setArticles(newArticles)
     })
@@ -34,8 +33,6 @@ useEffect(() => {
 }, [])
 
 function failNewArticle() {
-    const sbtWhiteList = getSBTWhiteList(config)
-
     const failedArticleData = {
         title: undefined,
         body: "Test",
@@ -53,8 +50,6 @@ function failNewArticle() {
 }
 
 function newArticle() {
-    const sbtWhiteList = getSBTWhiteList(config)
-
     const articleData = {
         title: "Test title",
         body: "Test body",

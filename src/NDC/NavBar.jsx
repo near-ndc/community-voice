@@ -13,7 +13,6 @@ const {
   filterParameter,
   handleBackButton,
   tabs,
-  sbtsNames,
   widgets,
 } = props;
 

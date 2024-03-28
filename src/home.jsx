@@ -1,23 +1,24 @@
-// SayALot
-const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+// Community voice
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
-  sharedArticleId,
-  sharedCommentId,
-  sharedSearchInputValue,
-  topicShared,
+  sb: sharedBlockheight,
+  st: sharedTag,
+  said: sharedArticleId,
+  scid: sharedCommentId,
+  ss: sharedSearch,
 } = props;
 
-function createSbtOptions() {
-  return getSBTWhiteList(getConfig(isTest));
-}
+const sharedData = {
+  sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
+  sharedTag,
+  sharedArticleId,
+  sharedCommentId,
+  sharedSearch,
+} 
 
-const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
 const componentsOwner = "cv.near";
 const authorForWidget = "cv.near";
 const configWidget = "home";
@@ -103,33 +104,22 @@ const kanbanExcludedTags = [];
 
 return (
   <>
-    {sbtWhiteList ? (
+    {
       <Widget
         src={widgets.views.editableWidgets.ndcForum}
         props={{
-          sharedBlockHeight,
-          tagShared,
           isTest,
           accountId,
-          sbtWhiteList,
           authorForWidget,
           widgets,
           brand,
           baseActions,
-          createSbtOptions,
           kanbanColumns,
           kanbanRequiredLabels,
           kanbanExcludedLabels,
-          sharedArticleId,
-          sharedCommentId,
-          sharedSearchInputValue,
-          topicShared,
+          sharedData
         }}
       />
-    ) : (
-      <Widget
-        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
-      />
-    )}
+    }
   </>
 );

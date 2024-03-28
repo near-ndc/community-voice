@@ -11,7 +11,6 @@ const {
   authorForWidget,
   kanbanRequiredTags,
   kanbanExcludedTags,
-  sbts,
   baseActions,
 } = props;
 

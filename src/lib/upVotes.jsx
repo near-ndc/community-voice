@@ -172,6 +172,7 @@ function composeData(upVote) {
   const articleAuthor = articleIdSplitted[1];
   
   const dataToAdd = getNotificationData(
+    getConfig(),
     "upVote",
     [],
     upVote.metadata,

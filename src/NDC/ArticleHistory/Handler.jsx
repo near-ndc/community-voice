@@ -3,9 +3,7 @@
 const addressForArticles = "wikiTest2Article";
 const {
   articleId,
-  sbtWhiteList,
   isTest,
-  sbts,
   baseActions,
   kanbanColumns,
   widgets,

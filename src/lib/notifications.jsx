@@ -1,6 +1,4 @@
 //lib.notifications
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
-
 function extractMentions(text) {
   const mentionRegex =
     /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
@@ -33,32 +31,30 @@ function joinPeoplesName(usersToNotify) {
   }, "");
 }
 
-function getNotificationData(notificationType, usersToNotify, metadata, extraParams) {
+function getNotificationData(config, notificationType, usersToNotify, metadata, extraParams) {
   const { author } = extraParams;
-
-  const config = getConfig();
 
   const baseURL = `https://near.org/${config.forumURL}?${config.isTest ? "isTest=true" : ""}`
 
   const notificationTypeText = {
     mention: {
       text: `I have mentioned ${joinPeoplesName(usersToNotify)} in this post: `,
-      url: `${baseURL}&SAID=${metadata.id}`
+      url: `${baseURL}&said=${metadata.id}`
     },
     mentionOnComment: {
       text: `I have mentioned ${joinPeoplesName(usersToNotify)} on my comment on this post: `,
-      url: `${baseURL}&SAID=${metadata.articleId}&SCID=${metadata.id}`
+      url: `${baseURL}&said=${metadata.articleId}&scid=${metadata.id}`
     },
     upVote: {
       text: "I have upVoted this post: ",
-      url: `${baseURL}SAID=${metadata.articleId}`
+      url: `${baseURL}said=${metadata.articleId}`
     },
     // emoji: {
     //   text: "I have reacted to this post: ",
     //   url: ``},
     comment: {
       text: "I have commented this post: ",
-      url: `${baseURL}SAID=${metadata.articleId}&SCID=${metadata.id}`
+      url: `${baseURL}said=${metadata.articleId}&scid=${metadata.id}`
     },
   };
 

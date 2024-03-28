@@ -39,14 +39,6 @@ function doesUpVoteIdHavePropperStructure(upVoteData) {
 }
 
 function isResponseStructureWrong(res) {
-  // const resExample = [{
-  //   accountId: "ayelen.near",
-  //   blockHeight: 106745180,
-  //   value: {
-  //     upVoteId: "uv-ayelen.near-1701189001307",
-  //     sbt: "fractal.i-am-human.near - class 1",
-  //   },
-  // }];
 
   if (Array.isArray(res) && res.length === 0) {
     console.log("res is an empty array");
