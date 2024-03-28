@@ -17,6 +17,7 @@ const {
   sharedData,
   allArticlesWithThisSBT,
   sbtWhiteList,
+  loggedUserHaveSbt
 } = props;
 
 const accountId = articleToRenderData.value.metadata.author;
@@ -52,12 +53,15 @@ State.init({
   // sliceContent: true,
 });
 
-const [comments, setComments] = useState([])
+const [comments, setComments] = useState(undefined)
+const [loadingComments, setLoadingComments] = useState(true)
+
 
 function loadComments() {
   const articleId = articleToRenderData.value.metadata.id
   getComments(articleId, getConfig(isTest)).then((newComments) => {
     setComments(newComments)
+    setLoadingComments(false)
   })
 }
 
@@ -68,12 +72,14 @@ useEffect(() => {
   }, 30000)
 }, [])
 
-const [upVotes, setUpVotes] = useState([])
+const [upVotes, setUpVotes] = useState(undefined)
+const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 
 function loadUpVotes() {
-    getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      setUpVotes(newVotes)
-    })
+  getUpVotes(getConfig(isTest),id).then((newVotes) => {
+    setUpVotes(newVotes)
+    setLoadingUpVotes(false)
+  })
 }
 
 useEffect(() => {
@@ -82,7 +88,6 @@ useEffect(() => {
         loadUpVotes()
     }, 30000)
 }, [])
-const canLoggedUserCreateComment = true;
 
 const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
 
@@ -508,9 +513,12 @@ const NoMargin = styled.div`margin: 0 0.75rem;`;
 const AccordionBody = styled.div`padding: 0;`;
 
 //Get basic original comments info
-const rootComments = comments.filter(
-  (comment) => comment.value.metadata.rootId === id
-);
+const rootComments = comments ? 
+  comments.filter(
+    (comment) => comment.value.metadata.rootId === id
+  )
+:
+  []
 
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
@@ -657,13 +665,13 @@ return (
                         authorForWidget,
                         reactedElementData: articleToRenderData,
                         widgets,
-                        disabled:
-                          !context.accountId ||
-                          (articleSbts.length > 0 &&
-                            !canLoggedUserCreateComment),
+                        disabled: !loggedUserHaveSbt,
                         articleSbts,
                         upVotes,
                         baseActions,
+                        loadUpVotes,
+                        loadingUpVotes,
+                        setLoadingUpVotes,
                       }}
                     />
                     <Widget
@@ -691,9 +699,7 @@ return (
                       isTest,
                       authorForWidget,
                       elementReactedId: id,
-                      disabled:
-                        !context.accountId ||
-                        (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                      disabled: !loggedUserHaveSbt,
                       sbtsNames: articleSbts,
                       baseActions,
                     }}
@@ -812,6 +818,8 @@ return (
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
                   baseActions,
+                  loadComments,
+                  setLoadingComments,
                 }}
               />
             )}
@@ -826,32 +834,38 @@ return (
                     <i className="bi bi-plus-lg"></i>
                   </div>
                 ),
-                disabled:
-                  !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                disabled: !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
                 },
               }}
             />
-            {articleComments.map((data) => (
+            {loadingComments ? 
               <Widget
-                src={widgets.views.editableWidgets.commentView}
-                props={{
-                  widgets,
-                  data,
-                  isTest,
-                  authorForWidget,
-                  isReply: false,
-                  canLoggedUserCreateComment: canLoggedUserCreateComment,
-                  articleSbts,
-                  baseActions,
-                  sharedData,
-                  articleToRenderData,
-                }}
+                src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
               />
-            ))}
+            :
+              articleComments.map((data) => (
+                <Widget
+                  src={widgets.views.editableWidgets.commentView}
+                  props={{
+                    widgets,
+                    data,
+                    isTest,
+                    authorForWidget,
+                    isReply: false,
+                    loggedUserHaveSbt,
+                    articleSbts,
+                    baseActions,
+                    sharedCommentId,
+                    articleToRenderData,
+                    loadComments,
+                    setLoadingComments,
+                  }}
+                />
+              ))
+            }
           </CommentSection>
         </div>
       </div>

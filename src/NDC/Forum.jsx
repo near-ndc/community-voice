@@ -52,14 +52,6 @@ useEffect(() => {
 
 accountId = context.accountId;
 
-const tabs = {
-  SHOW_ARTICLES_LIST: { id: 0 },
-  SHOW_ARTICLE: { id: 1 },
-  ARTICLE_WORKSHOP: { id: 2 },
-  SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
-  SHOW_KANBAN_VIEW: { id: 4 },
-};
-
 function getInitialFilter() {
   if (sharedData.sharedBlockheight) {
     return {
@@ -89,8 +81,10 @@ function getInitialFilter() {
 }
 
 const [articlesToRender, setArticlesToRender] = useState([]);
+// loggedUserHaveSbt and canLoggedUserCreateArticle probably have the same behaviour. Check
+const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-  useState(false);
+useState(false);
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
@@ -99,24 +93,34 @@ const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 
 function loadArticles() {
-  const userFilters = { id: undefined, sbt: undefined };
+  const userFilters = {id: undefined, sbt: undefined}
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles);
-  });
+    setArticlesToRender(newArticles)
+  })
 }
 
 useEffect(() => {
-  loadArticles();
-  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
-    (isValid) => setCanLoggedUserCreateArticle(isValid)
-  );
+  loadArticles()
   const intervalId = setInterval(() => {
-    loadArticles();
-  }, 30000);
-  return () => clearInterval(intervalId);
-}, []);
+    loadArticles()
+  }, 30000)
+  return () => clearInterval(intervalId)
+}, [])
+
+useEffect(() => {
+  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setLoggedUserHaveSbt(isValid))
+  //TODO change isValidUser name to getIsValidUser
+}, [context.accountId])
 
 accountId = context.accountId;
+
+const tabs = {
+  SHOW_ARTICLES_LIST: { id: 0 },
+  SHOW_ARTICLE: { id: 1 },
+  ARTICLE_WORKSHOP: { id: 2 },
+  SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
+  //SHOW_KANBAN_VIEW: { id: 4 },
+};
 
 function getInitialTabId() {
   if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
@@ -467,6 +471,10 @@ const renderSelectorLabel = () => {
 
 //=================================================FUNCTIONS========================================================
 function onCommitDeletArticle() {
+  setArticlesToRender(undefined)
+  setTimeout(() => {
+    loadArticles()
+  }, 3000);
   setFilterBy({ parameterName: "", parameterValue: {} });
   State.update({
     showDeleteModal: false,
@@ -551,6 +559,7 @@ function handleFilterArticles(filter) {
 }
 
 function handleBackButton() {
+  loadArticles()
   if (props.editArticleData) {
     setFilterBy({
       parameterName: "",
@@ -584,6 +593,7 @@ function handleGoHomeButton() {
     articleToRenderData: {},
     editArticleData: undefined,
   });
+  loadArticles()
 }
 
 function handlePillNavigation(navegateTo) {
@@ -633,11 +643,18 @@ function getLink() {
   }
 }
 
-function handleOnCommitArticle(articleToRenderData) {
-  State.update({
-    articleToRenderData,
-    displayedTabId: tabs.SHOW_ARTICLE.id,
-  });
+function handleOnCommitArticle(articleId) {
+  setTimeout(() => {
+    const userFilters = {id: articleId, sbt: undefined}
+    getArticles(getConfig(isTest), userFilters).then((newArticles) => {
+      if(newArticles[0]){
+        State.update({
+          displayedTabId: tabs.SHOW_ARTICLE.id,
+          articleToRenderData: newArticles[0]
+        });
+      }
+    })
+  }, 3000);
 }
 
 //===============================================END FUNCTIONS======================================================
@@ -678,58 +695,63 @@ return (
         />
       </div>
     )} */}
-      {articlesToRender &&
-        state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
-          <Widget
-            src={widgets.views.editableWidgets.showArticlesList}
-            props={{
-              isTest,
-              articlesToRender,
-              tabs,
-              widgets,
-              addressForArticles,
-              handleOpenArticle,
-              handleFilterArticles,
-              authorForWidget,
-              initialCreateState,
-              editArticleData: state.editArticleData,
-              handleEditArticle,
-              showCreateArticle: canLoggedUserCreateArticle,
-              sbtWhiteList,
-              sbts,
-              handleShareButton,
-              handleShareSearch,
-              canLoggedUserCreateArticles,
-              filterBy,
-              baseActions,
-              handleOnCommitArticle,
-              sharedSearchInputValue,
-            }}
-          />
-        )}
-      {state.articleToRenderData.value.articleData.title &&
-        state.displayedTabId == tabs.SHOW_ARTICLE.id && (
-          <Widget
-            src={widgets.views.editableWidgets.articleView}
-            props={{
-              isTest,
-              widgets,
-              handleFilterArticles,
-              articleToRenderData: state.articleToRenderData,
-              authorForWidget,
-              handleEditArticle,
-              handleShareButton,
-              handleDeleteArticle,
-              baseActions,
-              kanbanColumns,
-              sharedCommentId,
-            }}
-          />
-        )}
-
-      {state.displayedTabId == tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id && (
+    {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+      articlesToRender?
+      <Widget
+        src={widgets.views.editableWidgets.showArticlesList}
+        props={{
+          isTest,
+          articlesToRender,
+          tabs,
+          widgets,
+          addressForArticles,
+          handleOpenArticle,
+          handleFilterArticles,
+          authorForWidget,
+          initialCreateState,
+          editArticleData: state.editArticleData,
+          handleEditArticle,
+          loggedUserHaveSbt,
+          sbtWhiteList,
+          sbts,
+          handleShareButton,
+          handleShareSearch,
+          canLoggedUserCreateArticles,
+          filterBy: state.filterBy,
+          baseActions,
+          handleOnCommitArticle,
+          sharedSearchInputValue,
+        }}
+      />
+      :
+      <Widget
+        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
+      />
+    )}
+    {state.articleToRenderData.value.articleData.title &&
+      state.displayedTabId == tabs.SHOW_ARTICLE.id && (
         <Widget
-          src={widgets.views.editableWidgets.showArticlesListSortedByAuthors}
+        src={widgets.views.editableWidgets.articleView}
+        props={{
+          isTest,
+          widgets,
+          handleFilterArticles,
+          articleToRenderData: state.articleToRenderData,
+          authorForWidget,
+          handleEditArticle,
+          handleShareButton,
+          handleDeleteArticle,
+          baseActions,
+          kanbanColumns,
+          sharedCommentId,
+          loggedUserHaveSbt
+        }}
+      />
+    )}
+
+  {state.displayedTabId == tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id && (
+    <Widget
+      src={widgets.views.editableWidgets.showArticlesListSortedByAuthors}
           props={{
             isTest,
             finalArticles: articlesToRender,
@@ -759,6 +781,9 @@ return (
             sbts,
             canLoggedUserCreateArticles,
             baseActions,
+            kanbanColumns,
+            sharedCommentId,
+            loggedUserHaveSbt,
             handleOnCommitArticle,
           }}
         />

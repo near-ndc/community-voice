@@ -8,12 +8,14 @@ const {
   isTest,
   authorForWidget,
   isReply,
+  loggedUserHaveSbt,
   orginalCommentData,
-  canLoggedUserCreateComment,
   articleSbts,
   baseActions,
   sharedData,
   articleToRenderData,
+  loadComments,
+  setLoadingComments,
 } = props;
 
 State.init({
@@ -366,6 +368,10 @@ function onCommitDeleteComment() {
   State.update({
     showDeleteModal: false,
   });
+  setLoadingComments(true)
+  setTimeout(() => {
+    loadComments()
+  }, 3000);
 }
 
 function closeDeleteCommentModal() {
@@ -375,11 +381,8 @@ function closeDeleteCommentModal() {
 }
 
 function deleteCommentListener() {
-  //To test without commiting use the next line and comment the rest
-  // onCommit();
   State.update({ saving: true });
-  // const comment = data.value.comment;
-
+  
   deleteComment({
     config: getConfig(isTest),
     commentId: data.value.metadata.id,
@@ -421,7 +424,7 @@ function handleEditComment() {
 }
 
 function handleReplyListener() {
-  if (!canLoggedUserCreateComment) {
+  if (!loggedUserHaveSbt) {
     return;
   }
 
@@ -534,6 +537,8 @@ return (
                 baseActions,
                 editionData: state.editionData,
                 rootCommentId: state.rootId,
+                loadComments,
+                setLoadingComments,
               }}
             />
           )}
@@ -550,7 +555,7 @@ return (
                       <i className="bi bi bi-reply"></i>
                     </div>
                   ),
-                  disabled: !canLoggedUserCreateComment,
+                  disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline",
                   onClick: handleReplyListener,
@@ -566,7 +571,7 @@ return (
             isTest,
             authorForWidget,
             elementReactedId: data.value.metadata.id,
-            disabled: !canLoggedUserCreateComment,
+            disabled: !loggedUserHaveSbt,
             baseActions,
             sbtsNames: articleSbts,
           }}
@@ -590,7 +595,7 @@ return (
                   isTest,
                   authorForWidget,
                   isReply: true,
-                  canLoggedUserCreateComment,
+                  loggedUserHaveSbt,
                   articleSbts,
                   baseActions,
                   sharedData,

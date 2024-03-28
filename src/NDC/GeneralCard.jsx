@@ -16,6 +16,8 @@ const {
   handleEditArticle,
   baseActions,
   switchShowPreview,
+  isPreview,
+  loggedUserHaveSbt
 } = props;
 
 if (!Array.isArray(data.value.articleData.tags) && typeof data.value.articleData.tags === "object") {
@@ -30,12 +32,14 @@ const title = data.value.articleData.title;
 const content = data.value.articleData.body;
 const timeLastEdit = data.value.metadata.lastEditTimestamp;
 const id = data.value.metadata.id ?? `${data.author}-${data.metadata.createdTiemestamp}`;
-const [upVotes, setUpVotes] = useState([])
+const [upVotes, setUpVotes] = useState(undefined)
+const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 
 function loadUpVotes() {
-    getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      setUpVotes(newVotes)
-    })
+  getUpVotes(getConfig(isTest),id).then((newVotes) => {
+    setUpVotes(newVotes)
+    setLoadingUpVotes(false)
+  })
 }
 
 useEffect(() => {
@@ -61,7 +65,6 @@ State.init({
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
-const canLoggedUserCreateComment = true
 
 //=================================================END CONSTS=======================================================
 
@@ -90,12 +93,6 @@ const getShortUserName = () => {
 
 function toggleShowModal() {
   State.update({ showModal: !state.showModal });
-}
-
-function switchShowPreviewExists() {
-  const exists = typeof switchShowPreview === "function";
-
-  return exists;
 }
 
 //================================================END FUNCTIONS=====================================================
@@ -418,7 +415,7 @@ const renderArticleBody = () => {
 return (
   <CardContainer
     className={`bg-white rounded-3 p-3 m-3 ${
-      switchShowPreviewExists() ? "" : "col-lg-8 col-md-8 col-sm-12"
+      isPreview ? "" : "col-lg-8 col-md-8 col-sm-12"
     }`}
   >
     <Card>
@@ -462,16 +459,17 @@ return (
             props={{
               isTest,
               authorForWidget,
-              reactedElementData: data,
-              widgets,
-              disabled:
-                switchShowPreviewExists() ||
-                !context.accountId ||
-                (articleSbts.length > 0 && !canLoggedUserCreateComment),
-              articleSbts,
-              upVotes,
-              baseActions,
-            }}
+                reactedElementData: data,
+                widgets,
+                disabled: isPreview || !loggedUserHaveSbt,
+                articleSbts,
+                upVotes,
+                baseActions,
+                loadUpVotes,
+                loadingUpVotes,
+                setLoadingUpVotes,
+                setUpVotes,
+              }}
           />
           <Widget
             src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
@@ -537,10 +535,7 @@ return (
                 isTest,
                 authorForWidget,
                 elementReactedId: id,
-                disabled:
-                  switchShowPreviewExists() ||
-                  !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                disabled: isPreview || !loggedUserHaveSbt,
                 baseActions,
                 sbtsNames: articleSbts,
               }}
@@ -561,12 +556,10 @@ return (
                       <i className="bi bi-chat-square-text-fill"></i>
                     </div>
                   ),
-                  disabled:
-                    !context.accountId ||
-                    (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                  disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline w-25",
-                  onClick: switchShowPreviewExists()
+                  onClick: isPreview
                     ? () => {}
                     : toggleShowModal,
                 }}
@@ -602,7 +595,7 @@ return (
                     ),
                     className: `info w-25`,
                     onClick: () =>
-                      switchShowPreviewExists()
+                      isPreview
                         ? switchShowPreview()
                         : handleEditArticle(data),
                   }}
