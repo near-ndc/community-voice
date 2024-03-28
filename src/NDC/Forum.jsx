@@ -2,6 +2,7 @@
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
 const { isValidUser, getUserSBTs } = VM.require("cv.near/widget/lib.SBT");
+
 //===============================================INITIALIZATION=====================================================
 let {
   sharedBlockHeight,
@@ -21,14 +22,10 @@ let {
   sharedCommentId,
   sharedSearchInputValue,
   topicShared,
+  handleChangeCategory,
+  categories,
+  category,
 } = props;
-
-const categories = [
-  {title:"a",value:"aa"},
-  {title:"b",value:"bb"},
-  {title:"c",value:"cc"},
-  {title:"d",value:"dd"},
-]
 
 const splitedTopic = topicShared ? topicShared.split("-class") : undefined;
 
@@ -75,21 +72,16 @@ function getInitialFilter() {
 
 const [articlesToRender, setArticlesToRender] = useState([]);
 const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-  useState(true);
+  useState(false);
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
 const [sharingSearch, setSharingSearch] = useState(false);
 const [linkCopied, setlinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
-const [category, setCategory] = useState(categories[0])
-
-const handleChangeCategory = (category) => {
-  setCategory(category)
-}
 
 function loadArticles() {
-  const userFilters = { id: undefined, category: category };
+  const userFilters = { category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles);
   });
@@ -97,9 +89,9 @@ function loadArticles() {
 
 useEffect(() => {
   loadArticles(category);
-  // isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
-  //   (isValid) => setCanLoggedUserCreateArticle(isValid)
-  // );
+  isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
+    (isValid) => setCanLoggedUserCreateArticle(isValid)
+  );
   const intervalId = setInterval(() => {
     loadArticles(category);
   }, 30000);

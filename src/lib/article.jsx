@@ -225,15 +225,15 @@ function getLatestEdits(articles) {
 }
 
 function applyUserFilters(articles, filters) {
-  const { id, sbt, authors, tags } = filters;
+  const { id, category, authors, tags } = filters;
   if (id) {
     articles = articles.filter((article) => {
       return article.value.metadata.id === id;
     });
   }
-  if (sbt) {
+  if (category && category !== "all_categories") {
     articles = articles.filter((article) => {
-      return article.value.metadata.sbt === sbt;
+      return article.value.articleData.category === category;
     });
   }
   if(authors && authors.length > 0) {

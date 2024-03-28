@@ -1,6 +1,7 @@
 // SayALot
 const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getCategories } = VM.require("cv.near/widget/lib.categories");
 
 let {
   sharedBlockHeight,
@@ -12,6 +13,13 @@ let {
   sharedSearchInputValue,
   topicShared,
 } = props;
+
+const categories = getCategories()
+const [category, setCategory] = useState(categories[0].value)
+
+const handleChangeCategory = (category) => {
+  setCategory(category)
+}
 
 function createSbtOptions() {
   return getSBTWhiteList(getConfig(isTest));
@@ -103,7 +111,7 @@ const kanbanExcludedTags = [];
 
 return (
   <>
-    {sbtWhiteList ? (
+    {categories ? (
       <Widget
         src={widgets.views.editableWidgets.ndcForum}
         props={{
@@ -124,6 +132,9 @@ return (
           sharedCommentId,
           sharedSearchInputValue,
           topicShared,
+          handleChangeCategory,
+          categories,
+          category
         }}
       />
     ) : (
