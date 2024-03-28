@@ -1,5 +1,6 @@
 // Community voice
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getCategories } = VM.require("cv.near/widget/lib.categories");
 
 let {
   isTest,
@@ -10,6 +11,13 @@ let {
   scid: sharedCommentId,
   ss: sharedSearch,
 } = props;
+
+const categories = getCategories()
+const [category, setCategory] = useState(categories[0].value)
+
+const handleChangeCategory = (category) => {
+  setCategory(category)
+}
 
 const sharedData = {
   sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
@@ -45,6 +53,8 @@ const widgets = {
       kanbanBoard: `${componentsOwner}/widget/NDC.KanbanBoard`,
       compactPost: `${componentsOwner}/widget/NDC.CompactPost`,
       articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
+      articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
+      articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
     },
     standardWidgets: {
       fasterTextInput: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput`,
@@ -103,23 +113,24 @@ const kanbanRequiredTags = [];
 const kanbanExcludedTags = [];
 
 return (
-  <>
-    {
-      <Widget
-        src={widgets.views.editableWidgets.ndcForum}
-        props={{
-          isTest,
-          accountId,
-          authorForWidget,
-          widgets,
-          brand,
-          baseActions,
-          kanbanColumns,
-          kanbanRequiredLabels,
-          kanbanExcludedLabels,
-          sharedData
-        }}
-      />
-    }
+  <> 
+    <Widget
+      src={widgets.views.editableWidgets.ndcForum}
+      props={{
+        isTest,
+        accountId,
+        authorForWidget,
+        widgets,
+        brand,
+        baseActions,
+        kanbanColumns,
+        kanbanRequiredLabels,
+        kanbanExcludedLabels,
+        handleChangeCategory,
+        categories,
+        category,
+        sharedData,
+      }}
+    />
   </>
 );

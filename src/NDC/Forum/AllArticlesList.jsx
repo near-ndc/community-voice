@@ -23,6 +23,8 @@ let {
   filterBy,
   baseActions,
   handleOnCommitArticle,
+  sharedSearchInputValue,
+  category,
   sharedData,
 } = props;
 
@@ -166,6 +168,7 @@ return (
                     canLoggedUserCreateArticles: loggedUserHaveSbt,
                     baseActions,
                     handleOnCommitArticle,
+                    category
                   }}
                 />
               </AccordionBody>

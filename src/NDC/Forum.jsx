@@ -13,17 +13,11 @@ let {
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
+  handleChangeCategory,
+  categories,
+  category,
   sharedData,
 } = props;
-
-const splitedTopic = sharedData.STPC ? sharedData.STPC.split("-class") : undefined;
-
-const topicSharedFirstPart = splitedTopic && splitedTopic[0];
-const topicSharedSecondPart = splitedTopic && splitedTopic[1];
-
-if (topicSharedFirstPart !== "public" && topicSharedFirstPart !== undefined) {
-  sharedData.STPC = `${topicSharedFirstPart} - class ${topicSharedSecondPart}`;
-}
 
 const [searchInputValue, setSearchInputValue] = useState("");
 
@@ -88,22 +82,25 @@ const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 
 function loadArticles() {
-  const userFilters = {id: undefined, sbt: undefined}
+  const userFilters = { category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
   })
 }
 
 useEffect(() => {
-  loadArticles()
+  loadArticles(category);
   const intervalId = setInterval(() => {
-    loadArticles()
-  }, 30000)
-  return () => clearInterval(intervalId)
-}, [])
+    loadArticles(category);
+  }, 30000);
+  return () => clearInterval(intervalId);
+}, [category]);
 
 useEffect(() => {
-  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>setLoggedUserHaveSbt(isValid))
+  isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>{
+    setLoggedUserHaveSbt(isValid)
+    setLoggedUserHaveSbt(isValid)
+  })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
 
@@ -128,7 +125,6 @@ function getInitialTabId() {
 State.init({
   displayedTabId: getInitialTabId(),
   articleToRenderData: {},
-  // filterBy: getInitialFilter(),
   authorsProfiles: [],
   firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
 });
@@ -437,7 +433,26 @@ const renderDeleteModal = () => {
   );
 };
 
+const getCategoriesSelectorLabel = () => {
+  return (
+    <>
+      <span>Post & Filter by Categories</span>
 
+      <SmallButton>
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip>
+              <p className="m-0">Topics for Community SBT Holders.</p>
+            </Tooltip>
+          }
+        >
+          <i className="bi bi-info-circle"></i>
+        </OverlayTrigger>
+      </SmallButton>
+    </>
+  );
+};
 //==============================================END COMPONENTS======================================================
 
 //=================================================FUNCTIONS========================================================
@@ -640,20 +655,19 @@ return (
           widgets,
         }}
       />
-      {/* {(state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id ||
-      state.displayedTabId == tabs.SHOW_KANBAN_VIEW.id) && (
-      <div className="my-3 col-lg-8 col-md-8 col-sm-12">
-        <Widget
-          src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
-          props={{
-            label: renderSelectorLabel(),
-            value: sbts[0],
-            onChange: handleSbtSelection,
-            options: createSbtOptions(),
-          }}
-        />
-      </div>
-    )} */}
+      {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+        <div className="my-3 col-lg-8 col-md-8 col-sm-12">
+          <Widget
+            src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
+            props={{
+              label: getCategoriesSelectorLabel(),
+              value: category,
+              onChange: handleChangeCategory,
+              options: categories
+            }}
+          />
+        </div>
+      )}
     {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
       articlesToRender?
       <Widget
@@ -675,10 +689,11 @@ return (
           handleShareButton,
           handleShareSearch,
           canLoggedUserCreateArticles,
-          filterBy: state.filterBy,
+          filterBy,
           baseActions,
           handleOnCommitArticle,
-          sharedSearchInputValue,
+          sharedSearchInputValue: sharedData.sharedSearch,
+          category
         }}
       />
       :
@@ -743,6 +758,7 @@ return (
             sharedCommentId,
             loggedUserHaveSbt,
             handleOnCommitArticle,
+            category
           }}
         />
       )}

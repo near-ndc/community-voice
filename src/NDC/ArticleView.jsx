@@ -1,7 +1,9 @@
 // NDC.ArticleView
-const { getComments } = VM.require("cv.near/widget/lib.comment")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
-const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
+const { getComments } = VM.require("cv.near/widget/lib.comment");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes");
+const { getArticlesVersions } = VM.require("cv.near/widget/lib.article");
+
 
 const {
   widgets,
@@ -50,7 +52,18 @@ State.init({
 
 const [comments, setComments] = useState(undefined)
 const [loadingComments, setLoadingComments] = useState(true)
+const [versions, setVersions] = useState([]);
 
+if(versions.length === 0) {
+  try {
+    const versionsPromise = getArticlesVersions(getConfig(isTest), articleToRenderData.value.metadata.id);
+    versionsPromise.then((newVersions) => {
+      setVersions(newVersions)
+    })
+  } catch (err) {
+    return console.error("Error in article history handler: ", err)
+  }
+}
 
 function loadComments() {
   const articleId = articleToRenderData.value.metadata.id
@@ -588,6 +601,7 @@ return (
                   baseActions,
                   kanbanColumns,
                   widgets,
+                  versions,
                 }}
               />
             </div>
@@ -899,7 +913,7 @@ return (
                 <div>
                   <DescriptionSubtitle>Edit versions:</DescriptionSubtitle>
                   <DescriptionInfoSpan>
-                    {articleToRenderData.version}
+                    { versions.length ?? 0 }
                   </DescriptionInfoSpan>
                 </div>
               </DeclarationCard>
