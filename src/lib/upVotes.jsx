@@ -3,6 +3,10 @@ const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "cv.near/widget/lib.metadata"
 );
 
+const { getNotificationData } = VM.require(
+  "cv.near/widget/lib.notifications"
+);
+
 let config = {};
 const ID_PREFIX = "upVote"
 const currentVersion = "v0.0.3";
@@ -162,21 +166,21 @@ function composeData(upVote) {
     },
   };
 
-  // TODO handle notifications properly
-  // const mentions = extractMentions(article.body);
+  if(upVote.metadata.isDelete) return data
 
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mention",
-  //     mentions,
-  //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
+  const articleIdSplitted = upVote.metadata.articleId.split("/");
+  const articleAuthor = articleIdSplitted[1];
+  
+  const dataToAdd = getNotificationData(
+    getConfig(),
+    "upVote",
+    [],
+    upVote.metadata,
+    {author: articleAuthor}
+  );
 
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
+  data.post = dataToAdd.post;
+  data.index.notify = dataToAdd.index.notify;
 
   return data;
 }

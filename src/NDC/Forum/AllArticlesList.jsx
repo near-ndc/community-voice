@@ -17,31 +17,20 @@ let {
   editArticleData,
   handleEditArticle,
   showCreateArticle,
-  sbtWhiteList,
-  sbts,
   handleShareButton,
   handleShareSearch,
-  canLoggedUserCreateArticles,
+  loggedUserHaveSbt,
   filterBy,
   baseActions,
   handleOnCommitArticle,
   sharedSearchInputValue,
-  category
+  category,
+  sharedData,
 } = props;
 
 const [searchInputValue, setSearchInputValue] = useState(
-  sharedSearchInputValue
+  sharedSearchInputValue ?? ""
 );
-
-// let finalArticlesWithUpVotes = articlesToRender.map((article) => {
-//   if (state[`upVotes-${article.metadata.id}`]) {
-//     const key = Object.keys(state[`upVotes-${article.metadata.id}`])[0];
-//     const articleUpVotes = state[`upVotes-${article.id}`][key];
-//     article.upVotes = articleUpVotes;
-
-//     return article;
-//   }
-// });
 
 function filterArticlesBySearch(articles, searchInputValue) {
   if(!searchInputValue || searchInputValue === "") return articles
@@ -140,7 +129,7 @@ function handleSearch(e) {
 //================================================END FUNCTIONS=====================================================
 return (
   <>
-    {showCreateArticle ? (
+    {loggedUserHaveSbt ? (
       <>
         <AcordionContainer className="accordion" id="accordionExample">
           <NoMargin className="accordion-item">
@@ -176,8 +165,7 @@ return (
                     handleFilterArticles,
                     handleEditArticle,
                     initialBody: "",
-                    canLoggedUserCreateArticles,
-                    sbts,
+                    canLoggedUserCreateArticles: loggedUserHaveSbt,
                     baseActions,
                     handleOnCommitArticle,
                     category
@@ -273,9 +261,9 @@ return (
                     handleFilterArticles,
                     authorForWidget,
                     handleShareButton,
-                    sbtWhiteList,
                     handleEditArticle,
                     baseActions,
+                    loggedUserHaveSbt
                   }}
                 />
               </div>
@@ -284,8 +272,8 @@ return (
         ) : (
           <h5>{`No articles ${
             searchInputValue !== ""
-              ? `haver been found searching for ${searchInputValue}`
-              : "uploaded using this SBT yet"
+              ? `have been found searching for ${searchInputValue}`
+              : "uploaded yet"
           }`}</h5>
         )}
       </ArticlesListContainer>

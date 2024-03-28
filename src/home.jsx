@@ -1,17 +1,15 @@
-// SayALot
-const { getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+// Community voice
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getCategories } = VM.require("cv.near/widget/lib.categories");
 
 let {
-  sharedBlockHeight,
-  tagShared,
   isTest,
   accountId,
-  sharedArticleId,
-  sharedCommentId,
-  sharedSearchInputValue,
-  topicShared,
+  sb: sharedBlockheight,
+  st: sharedTag,
+  said: sharedArticleId,
+  scid: sharedCommentId,
+  ss: sharedSearch,
 } = props;
 
 const categories = getCategories()
@@ -21,11 +19,14 @@ const handleChangeCategory = (category) => {
   setCategory(category)
 }
 
-function createSbtOptions() {
-  return getSBTWhiteList(getConfig(isTest));
-}
+const sharedData = {
+  sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
+  sharedTag,
+  sharedArticleId,
+  sharedCommentId,
+  sharedSearch,
+} 
 
-const sbtWhiteList = getSBTWhiteList(getConfig(isTest)).map((sbt) => sbt.value)
 const componentsOwner = "cv.near";
 const authorForWidget = "cv.near";
 const configWidget = "home";
@@ -52,6 +53,8 @@ const widgets = {
       kanbanBoard: `${componentsOwner}/widget/NDC.KanbanBoard`,
       compactPost: `${componentsOwner}/widget/NDC.CompactPost`,
       articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
+      articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
+      articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
     },
     standardWidgets: {
       fasterTextInput: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput`,
@@ -110,37 +113,24 @@ const kanbanRequiredTags = [];
 const kanbanExcludedTags = [];
 
 return (
-  <>
-    {categories ? (
-      <Widget
-        src={widgets.views.editableWidgets.ndcForum}
-        props={{
-          sharedBlockHeight,
-          tagShared,
-          isTest,
-          accountId,
-          sbtWhiteList,
-          authorForWidget,
-          widgets,
-          brand,
-          baseActions,
-          createSbtOptions,
-          kanbanColumns,
-          kanbanRequiredLabels,
-          kanbanExcludedLabels,
-          sharedArticleId,
-          sharedCommentId,
-          sharedSearchInputValue,
-          topicShared,
-          handleChangeCategory,
-          categories,
-          category
-        }}
-      />
-    ) : (
-      <Widget
-        src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
-      />
-    )}
+  <> 
+    <Widget
+      src={widgets.views.editableWidgets.ndcForum}
+      props={{
+        isTest,
+        accountId,
+        authorForWidget,
+        widgets,
+        brand,
+        baseActions,
+        kanbanColumns,
+        kanbanRequiredLabels,
+        kanbanExcludedLabels,
+        handleChangeCategory,
+        categories,
+        category,
+        sharedData,
+      }}
+    />
   </>
 );

@@ -1,18 +1,18 @@
-const { getUserSBTs, getSBTWhiteList } = VM.require(
-  "cv.near/widget/lib.SBT"
-);
+const { getUserSBTs, getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
   "cv.near/widget/lib.metadata"
 );
 const { normalizeObjectWithMetadata } = VM.require(
   "cv.near/widget/lib.normalization"
 );
-const { camelCaseToUserReadable } = VM.require(
-  "cv.near/widget/lib.strings"
+const { camelCaseToUserReadable } = VM.require("cv.near/widget/lib.strings");
+
+const { extractMentions, getNotificationData } = VM.require(
+  "cv.near/widget/lib.notifications"
 );
 
-
-const currentVersion = "v0.0.4"
+const currentVersion = "v0.0.4";
 
 let config = {};
 
@@ -34,6 +34,12 @@ function getAction(version) {
 function setIsTest(value) {
   isTest = value;
 }
+
+function getArticlesVersions(config, articleId) {
+  setConfig(config);
+  return getArticlesHistoryNormalized(articleId)
+}
+
 
 function getArticles(config, filters) {
   setConfig(config);
@@ -84,81 +90,8 @@ function getArticleNormalized(articleIndex, action) {
   });
 }
 
-function processArticles(articles) {
-  return Promise.all(
-    articles
-      .map((article) => {
-        return article.author;
-      })
-      .filter((author, index, authorArray) => {
-        const firstIndex = authorArray.findIndex((author2) => {
-          return author === author2;
-        });
-        return firstIndex === index;
-      })
-      .map((author) => {
-        return getUserSBTs(author).then((userSbts) => {
-          return [author, userSbts];
-        });
-      })
-  ).then((uniqueAuthorsSBTs) => {
-    let articlesBySBT = {};
-    articles
-      .filter((article) => {
-        const articleSbt = article.sbts[0];
-        if (articleSbt === "public") return true;
-
-        const author = article.author;
-        const [sbtName, sbtClass] = articleSbt.split(" - class ");
-
-        const authorSbtPair = uniqueAuthorsSBTs.find(
-          ([author2, _]) => author === author2
-        );
-        if (!authorSbtPair) return false;
-
-        const authorSbts = authorSbtPair[1];
-        const sbtPair = authorSbts.find(
-          ([sbtName2, _]) => sbtName === sbtName2
-        );
-        if (!sbtPair) return false;
-
-        const sbtPairClasses = sbtPair[1].map((sbt) => sbt.metadata.class);
-        return sbtPairClasses.includes(parseInt(sbtClass));
-      })
-      .forEach((article, index, arr) => {
-        const articleSbt = article.sbts[0];
-        if (!articlesBySBT[articleSbt]) {
-          articlesBySBT[articleSbt] = [];
-        }
-        articlesBySBT[articleSbt].push(article);
-      });
-    return articlesBySBT;
-  });
-}
-
 function normalizeArticleData(articleData) {
   return normalizeObjectWithMetadata(articleData, versions);
-}
-
-function processArticlesData(articlesData) {
-  const validArticlesData = filterInvalidArticlesIndexes(articlesData);
-
-  const validLatestEdits = getLatestEdits(validArticlesData);
-
-  const normalizedArticleData = validLatestEdits.map(normalizeArticleData);
-
-  const articlesPromises = Promise.all(articlesIndexesPromises).then(
-    (articles) => {
-      const nonFakeAuthorsArticles = articles.filter((article, index) => {
-        const articleIndex = validLatestEdits[index];
-        return article.author === articleIndex.accountId;
-      });
-
-      return processArticles(nonFakeAuthorsArticles, validLatestEdits);
-    }
-  );
-
-  return articlesPromises;
 }
 
 function getArticleBlackListByBlockHeight() {
@@ -241,7 +174,7 @@ function applyUserFilters(articles, filters) {
       return authors.includes(article.value.metadata.author);
     });
   }
-  if(tags && tags.length > 0) {
+  if (tags && tags.length > 0) {
     articles = articles.filter((article) => {
       return tags.some((tag) => article.value.articleData.tags.includes(tag));
     });
@@ -251,6 +184,23 @@ function applyUserFilters(articles, filters) {
 
 function isActive(article) {
   return article.value.metadata && !article.value.metadata.isDelete;
+}
+
+function getArticlesHistoryNormalized(articleId) {
+  const articlesDataPromises = Object.keys(versions).map((version) => {
+    // const action = versions[version].action;
+    const action = getAction(version);
+    const articles = getArticlesIndexes(action, "main");
+
+    return articles;
+  });
+
+  return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
+    const articles = articlesVersionArray.flat();
+    const filteredArticles = applyUserFilters(articles, {id: articleId});
+
+    return filteredArticles;
+  });
 }
 
 function getArticlesNormalized(userFilters) {
@@ -372,7 +322,6 @@ const versions = {
 };
 
 function validateArticleData(article) {
-  // ADD SBT VALIDATION
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
   const errArrMessage = [];
@@ -447,11 +396,6 @@ function validateMetadata(metadata) {
       )
   );
 
-  const sbtWhiteList = getSBTWhiteList(getConfig());
-
-  if (!sbtWhiteList.map((sbt) => sbt.value).includes(article.sbt)) {
-    errArrMessage.push(`Invalid SBT: ${article.sbt}`);
-  }
   return errArrMessage;
 }
 
@@ -468,41 +412,6 @@ function validateEditArticle(articleData, previousMetadata) {
   return errorArray;
 }
 
-function extractMentions(text) {
-  const mentionRegex =
-    /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
-  mentionRegex.lastIndex = 0;
-  const accountIds = new Set();
-  for (const match of text.matchAll(mentionRegex)) {
-    if (
-      !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
-      !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
-      match[1].length >= 2 &&
-      match[1].length <= 64
-    ) {
-      accountIds.add(match[1].toLowerCase());
-    }
-  }
-  return [...accountIds];
-}
-
-// function handleNotifications(article) {
-//     const mentions = extractMentions(article.body);
-
-//     if (mentions.length > 0) {
-//       const dataToAdd = getNotificationData(
-//         "mention",
-//         mentions,
-//         `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-//           isTest ? "&isTest=t" : ""
-//         }`
-//       );
-
-//       data.post = dataToAdd.post;
-//       data.index.notify = dataToAdd.index.notify;
-//     }
-// }
-
 function composeData(article) {
   let data = {
     index: {
@@ -515,21 +424,21 @@ function composeData(article) {
     },
   };
 
-  // TODO handle notifications properly
-  // const mentions = extractMentions(article.body);
+  if(article.metadata.isDelete) return data
 
-  // if (mentions.length > 0) {
-  //   const dataToAdd = getNotificationData(
-  //     "mention",
-  //     mentions,
-  //     `https://near.social/${widgets.thisForum}?sharedArticleId=${article.id}${
-  //       isTest ? "&isTest=t" : ""
-  //     }`
-  //   );
+  const mentions = extractMentions(article.articleData.body);
 
-  //   data.post = dataToAdd.post;
-  //   data.index.notify = dataToAdd.index.notify;
-  // }
+  if (mentions.length > 0) {
+    const dataToAdd = getNotificationData(
+      getConfig(),
+      "mention",
+      mentions,
+      article.metadata
+    );
+
+    data.post = dataToAdd.post;
+    data.index.notify = dataToAdd.index.notify;
+  }
 
   return data;
 }
@@ -560,6 +469,19 @@ function executeSaveArticle(article, onCommit, onCancel) {
   });
 }
 
+function buildArticle(articleData, userMetadataHelper){
+  const metadataHelper = {
+    ...userMetadataHelper,
+    idPrefix: "article",
+    versionKey: currentVersion,
+  };
+  const metadata = generateMetadata(metadataHelper);
+  return {
+    articleData,
+    metadata,
+  };
+}
+
 function createArticle(
   config,
   articleData,
@@ -568,21 +490,12 @@ function createArticle(
   onCancel
 ) {
   setConfig(config);
-  const errors = validateNewArticle(articleData, author);
+  const errors = validateNewArticle(articleData);
   if (errors && errors.length) {
     return { error: true, data: errors };
   }
 
-  const metadataHelper = {
-    ...userMetadataHelper,
-    idPrefix: "article",
-    versionKey: currentVersion,
-  };
-  const metadata = generateMetadata(metadataHelper);
-  const article = {
-    articleData,
-    metadata,
-  };
+  const article = buildArticle(articleData,userMetadataHelper)
   const result = executeSaveArticle(article, onCommit, onCancel);
   return { error: false, data: result };
 }
@@ -601,6 +514,7 @@ function editArticle(
   }
 
   const newMetadata = updateMetadata(previousMetadata, currentVersion);
+
   const article = {
     articleData: newArticleData,
     metadata: newMetadata,
@@ -622,6 +536,7 @@ function deleteArticle(config, articleId, onCommit, onCancel) {
 return {
   createArticle,
   getArticles,
+  buildArticle,
   editArticle,
   deleteArticle,
   getArticlesIndexes,
@@ -630,4 +545,5 @@ return {
   filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
+  getArticlesVersions,
 };

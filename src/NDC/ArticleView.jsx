@@ -1,7 +1,9 @@
 // NDC.ArticleView
-const { getComments } = VM.require("cv.near/widget/lib.comment")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
-const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
+const { getComments } = VM.require("cv.near/widget/lib.comment");
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes");
+const { getArticlesVersions } = VM.require("cv.near/widget/lib.article");
+
 
 const {
   widgets,
@@ -14,9 +16,8 @@ const {
   handleShareButton,
   baseActions,
   kanbanColumns,
-  sharedCommentId,
-  allArticlesWithThisSBT,
-  sbtWhiteList,
+  sharedData,
+  loggedUserHaveSbt
 } = props;
 
 const accountId = articleToRenderData.value.metadata.author;
@@ -35,9 +36,6 @@ articleToRenderData.value.articleData.tags = articleToRenderData.value.articleDa
   (tag) => tag !== undefined && tag !== null
 );
 
-//For the moment we'll allways have only 1 sbt in the array. If this change remember to do the propper work in lib.SBT and here.
-const articleSbts = articleToRenderData.sbts ?? [];
-
 const tabs = [
   {
     id: "generalInfo",
@@ -52,12 +50,26 @@ State.init({
   // sliceContent: true,
 });
 
-const [comments, setComments] = useState([])
+const [comments, setComments] = useState(undefined)
+const [loadingComments, setLoadingComments] = useState(true)
+const [versions, setVersions] = useState([]);
+
+if(versions.length === 0) {
+  try {
+    const versionsPromise = getArticlesVersions(getConfig(isTest), articleToRenderData.value.metadata.id);
+    versionsPromise.then((newVersions) => {
+      setVersions(newVersions)
+    })
+  } catch (err) {
+    return console.error("Error in article history handler: ", err)
+  }
+}
 
 function loadComments() {
   const articleId = articleToRenderData.value.metadata.id
   getComments(articleId, getConfig(isTest)).then((newComments) => {
     setComments(newComments)
+    setLoadingComments(false)
   })
 }
 
@@ -68,12 +80,14 @@ useEffect(() => {
   }, 30000)
 }, [])
 
-const [upVotes, setUpVotes] = useState([])
+const [upVotes, setUpVotes] = useState(undefined)
+const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 
 function loadUpVotes() {
-    getUpVotes(getConfig(isTest),id).then((newVotes) => {
-      setUpVotes(newVotes)
-    })
+  getUpVotes(getConfig(isTest),id).then((newVotes) => {
+    setUpVotes(newVotes)
+    setLoadingUpVotes(false)
+  })
 }
 
 useEffect(() => {
@@ -82,7 +96,6 @@ useEffect(() => {
         loadUpVotes()
     }, 30000)
 }, [])
-const canLoggedUserCreateComment = true;
 
 const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
 
@@ -508,9 +521,12 @@ const NoMargin = styled.div`margin: 0 0.75rem;`;
 const AccordionBody = styled.div`padding: 0;`;
 
 //Get basic original comments info
-const rootComments = comments.filter(
-  (comment) => comment.value.metadata.rootId === id
-);
+const rootComments = comments ? 
+  comments.filter(
+    (comment) => comment.value.metadata.rootId === id
+  )
+:
+  []
 
 //Append answers to original comments
 const articleComments = rootComments.map((rootComment) => {
@@ -549,8 +565,8 @@ let displayedContent = state.sliceContent
 
 return (
   <>
-    {sharedCommentId && (
-      <a href={`#${sharedCommentId}`}>
+    {sharedData.sharedCommentId && (
+      <a href={`#${sharedData.sharedCommentId}`}>
         Click to redirect to comment that mentioned you
       </a>
     )}
@@ -581,12 +597,11 @@ return (
                 src={widgets.views.editableWidgets.articleHistory}
                 props={{
                   articleId: articleToRenderData.value.metadata.id,
-                  sbtWhiteList,
                   isTest,
-                  sbts: articleSbts,
                   baseActions,
                   kanbanColumns,
                   widgets,
+                  versions,
                 }}
               />
             </div>
@@ -659,11 +674,12 @@ return (
                         widgets,
                         disabled:
                           !context.accountId ||
-                          (articleSbts.length > 0 &&
-                            !canLoggedUserCreateComment),
-                        articleSbts,
+                          !loggedUserHaveSbt,
                         upVotes,
                         baseActions,
+                        loadUpVotes,
+                        loadingUpVotes,
+                        setLoadingUpVotes,
                       }}
                     />
                     <Widget
@@ -677,6 +693,7 @@ return (
                         children: <i className="bi bi-share"></i>,
                         onClick: () =>
                           handleShareButton(true, {
+                            key: "said",
                             type: "sharedArticleId",
                             value: articleToRenderData.value.metadata.id,
                           }),
@@ -692,8 +709,7 @@ return (
                       elementReactedId: id,
                       disabled:
                         !context.accountId ||
-                        (articleSbts.length > 0 && !canLoggedUserCreateComment),
-                      sbtsNames: articleSbts,
+                        !loggedUserHaveSbt,
                       baseActions,
                     }}
                   />
@@ -759,7 +775,7 @@ return (
                         style={{ fontWeight: 500 }}
                       >
                         <a
-                          href={`https://near.social/${authorForWidget}/widget/${widgets.thisForum}?tagShared=${hashtag}`}
+                          href={`https://near.org/${authorForWidget}/widget/${widgets.thisForum}?st=${hashtag}`}
                           target="_blank"
                         >
                           #{hashtag}
@@ -811,6 +827,8 @@ return (
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
                   baseActions,
+                  loadComments,
+                  setLoadingComments,
                 }}
               />
             )}
@@ -827,30 +845,38 @@ return (
                 ),
                 disabled:
                   !context.accountId ||
-                  (articleSbts.length > 0 && !canLoggedUserCreateComment),
+                  !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
                 },
               }}
             />
-            {articleComments.map((data) => (
+            {loadingComments ? 
               <Widget
-                src={widgets.views.editableWidgets.commentView}
-                props={{
-                  widgets,
-                  data,
-                  isTest,
-                  authorForWidget,
-                  isReply: false,
-                  canLoggedUserCreateComment: canLoggedUserCreateComment,
-                  articleSbts,
-                  baseActions,
-                  sharedCommentId,
-                  articleToRenderData,
-                }}
+                src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
               />
-            ))}
+            :
+              articleComments.map((data) => (
+                <Widget
+                  src={widgets.views.editableWidgets.commentView}
+                  props={{
+                    widgets,
+                    data,
+                    isTest,
+                    authorForWidget,
+                    isReply: false,
+                    loggedUserHaveSbt,
+                    articleSbts,
+                    baseActions,
+                    sharedCommentId,
+                    articleToRenderData,
+                    loadComments,
+                    setLoadingComments,
+                  }}
+                />
+              ))
+            }
           </CommentSection>
         </div>
       </div>
@@ -887,19 +913,9 @@ return (
                 <div>
                   <DescriptionSubtitle>Edit versions:</DescriptionSubtitle>
                   <DescriptionInfoSpan>
-                    {articleToRenderData.version}
+                    { versions.length ?? 0 }
                   </DescriptionInfoSpan>
                 </div>
-                {articleSbts.length > 0 && (
-                  <div>
-                    <DescriptionSubtitle>
-                      SBT requiered to interact:
-                    </DescriptionSubtitle>
-                    {articleSbts.map((sbt) => {
-                      return <DescriptionInfoSpan>{sbt}</DescriptionInfoSpan>;
-                    })}
-                  </div>
-                )}
               </DeclarationCard>
             )}
           </div>
