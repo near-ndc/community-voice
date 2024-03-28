@@ -4,9 +4,15 @@
   "description": "This project uses [bos-loader](https://github.com/near/bos-loader)v0.10.0 to keep track of the widgets required to implement Community Voice on BOS.",
   "main": "index.js",
   "scripts": {
-    "start": "bos-loader silkking.near --path ./src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bos-loader cv.near --path ./src",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "node deploy.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "near-api-js": "^3.0.4",
+    "path": "^0.12.7"
+  }
 }
