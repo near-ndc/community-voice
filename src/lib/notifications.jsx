@@ -38,7 +38,7 @@ function getNotificationData(notificationType, usersToNotify, metadata, extraPar
 
   const config = getConfig();
 
-  const baseURL = `https://near.social/${config.forumURL}?${config.isTest ? "isTest=true" : ""}`
+  const baseURL = `https://near.org/${config.forumURL}?${config.isTest ? "isTest=true" : ""}`
 
   const notificationTypeText = {
     mention: {
