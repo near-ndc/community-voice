@@ -66,6 +66,7 @@ const [loadingArticles, setLoadingArticles] = useState(true)
 
 function loadArticles(category) {
   const userFilters = { category: category };
+  console.log("Reloading categories", category)
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
     setLoadingArticles(false)
@@ -84,7 +85,7 @@ useEffect(() => {
 useEffect(() => {
   isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>{
     setLoggedUserHaveSbt(isValid)
-    canLoggedUserCreateArticle(isValid)
+    setCanLoggedUserCreateArticle(isValid)
   })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
@@ -605,7 +606,7 @@ function handleOnCommitArticle(articleId) {
   setTimeout(() => {
     const userFilters = {id: articleId, sbt: undefined}
     getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-      if(newArticles[0]){
+      if(newArticles && newArticles.length > 0){
         State.update({
           displayedTabId: tabs.SHOW_ARTICLE.id,
           articleToRenderData: newArticles[0]

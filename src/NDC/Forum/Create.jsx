@@ -95,14 +95,14 @@ function onCancel() {
 }
 
 const handleCreate = () => {
-  const {title, body, tags, id, category} = getArticleData()
+  const {title, body, tags, category} = getArticleData()
 
   const articleData = { title, body, tags, category}
   
   const metadataHelper = {
     author: context.accountId,
   }
-  createArticle(getConfig(isTest), articleData, metadataHelper, ()=>onCommit(id), onCancel)
+  createArticle(getConfig(isTest), articleData, metadataHelper, (id) => onCommit(id), onCancel)
 }
 
 const handleEdit = () => {

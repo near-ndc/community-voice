@@ -12,7 +12,7 @@ const { extractMentions, getNotificationData } = VM.require(
   "cv.near/widget/lib.notifications"
 );
 
-const currentVersion = "v0.0.4";
+const currentVersion = "v0.0.5";
 
 let config = {};
 
@@ -203,20 +203,42 @@ function getArticlesHistoryNormalized(articleId) {
   });
 }
 
+function normalizeArticle(article) {
+  const versionsKeys = Object.keys(versions);
+  const versionIndex = article.versionIndex
+  
+  for (let i = versionIndex; i < versionsKeys.length; i++) {
+    const version = versions[versionsKeys[i]];
+    article = version.normalizationFunction(article);
+  }
+  delete article.versionIndex
+  
+  return article;
+}
+
 function getArticlesNormalized(userFilters) {
-  const articlesDataPromises = Object.keys(versions).map((version) => {
+  const articlesDataPromises = Object.keys(versions).map((version, versionIndex) => {
     // const action = versions[version].action;
     const action = getAction(version);
-    const articles = getArticlesIndexes(action, "main");
+    const articles = getArticlesIndexes(action, "main").then((articles) => {
+      return articles.map((article) => {
+        article.versionIndex = versionIndex
+        return article
+      });
+    });
 
     return articles;
   });
 
   return Promise.all(articlesDataPromises).then((articlesVersionArray) => {
     const articles = articlesVersionArray.flat();
-    const latestActiveEdits = getLatestEdits(articles);
+    const normalizedArticles = articles.map((article) =>
+      normalizeArticle(article)
+    );
+    const latestActiveEdits = getLatestEdits(normalizedArticles);
     const activeArticles = latestActiveEdits.filter(isActive);
     const filteredArticles = applyUserFilters(activeArticles, userFilters);
+
 
     return filteredArticles;
   });
@@ -288,15 +310,13 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
   return article;
 }
 
-// function normalizeFromV0_0_4ToV0_0_5(article) {
-//   const category = article.value.articleData.category
-//   if(!category){
-//     article.value.articleData.category = "uncategorized"
-//   }
-//   return article;
-// }
+function normalizeFromV0_0_4ToV0_0_5(article) {
+  if(!isActive(article)) return article
+  article.value.articleData.category = "uncategorized"
+  return article;
+}
 
-function normalizeFromV0_0_4ToV0_0_5(article) { // change to normalizeFromV0_0_5ToV0_0_6 
+function normalizeFromV0_0_5ToV0_0_6(article) { // change to normalizeFromV0_0_5ToV0_0_6 
   return article;
 }
 
@@ -325,7 +345,12 @@ const versions = {
   "v0.0.4": {
     normalizationFunction: normalizeFromV0_0_4ToV0_0_5,
     actionSuffix: `_v0.0.4`,
-    validBlockHeightRange: [0, Infinity],
+    validBlockHeightRange: [0, 115688831],
+  },
+  "v0.0.5": {
+    normalizationFunction: normalizeFromV0_0_5ToV0_0_6,
+    actionSuffix: `_v0.0.5`,
+    validBlockHeightRange: [115688831, Infinity],
   },
 };
 
@@ -504,7 +529,7 @@ function createArticle(
   }
 
   const article = buildArticle(articleData,userMetadataHelper)
-  const result = executeSaveArticle(article, onCommit, onCancel);
+  const result = executeSaveArticle(article, () => onCommit(article.metadata.id), onCancel);
   return { error: false, data: result };
 }
 
