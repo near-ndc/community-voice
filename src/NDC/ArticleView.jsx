@@ -672,9 +672,7 @@ return (
                         authorForWidget,
                         reactedElementData: articleToRenderData,
                         widgets,
-                        disabled:
-                          !context.accountId ||
-                          !loggedUserHaveSbt,
+                        disabled: !loggedUserHaveSbt,
                         upVotes,
                         baseActions,
                         loadUpVotes,
@@ -707,9 +705,7 @@ return (
                       isTest,
                       authorForWidget,
                       elementReactedId: id,
-                      disabled:
-                        !context.accountId ||
-                        !loggedUserHaveSbt,
+                      disabled: !loggedUserHaveSbt,
                       baseActions,
                     }}
                   />
@@ -843,9 +839,7 @@ return (
                     <i className="bi bi-plus-lg"></i>
                   </div>
                 ),
-                disabled:
-                  !context.accountId ||
-                  !loggedUserHaveSbt,
+                disabled: !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });

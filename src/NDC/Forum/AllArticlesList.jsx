@@ -166,7 +166,6 @@ return (
                     handleFilterArticles,
                     handleEditArticle,
                     initialBody: "",
-                    canLoggedUserCreateArticles: loggedUserHaveSbt,
                     baseActions,
                     handleOnCommitArticle,
                     category

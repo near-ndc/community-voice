@@ -80,7 +80,7 @@ const SpinnerContainer = styled.div`
 
 return (
   <>
-    <div title={(disabled || !canLoggedUserVote) && "You can't vote since you don't have any SBT"}>
+    <div title={(disabled) && "You can't vote since you don't have any SBT"}>
       {loadingUpVotes ? 
         <Widget
           src={widgets.views.standardWidgets.newStyledComponents.Input.Button}

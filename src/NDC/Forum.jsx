@@ -52,10 +52,7 @@ function getInitialFilter() {
 }
 
 const [articlesToRender, setArticlesToRender] = useState([]);
-// loggedUserHaveSbt and canLoggedUserCreateArticle probably have the same behaviour. Check
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-useState(false);
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
@@ -66,7 +63,6 @@ const [loadingArticles, setLoadingArticles] = useState(true)
 
 function loadArticles(category) {
   const userFilters = { category: category };
-  console.log("Reloading categories", category)
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
     setArticlesToRender(newArticles)
     setLoadingArticles(false)
@@ -85,7 +81,6 @@ useEffect(() => {
 useEffect(() => {
   isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>{
     setLoggedUserHaveSbt(isValid)
-    setCanLoggedUserCreateArticle(isValid)
   })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
@@ -677,11 +672,10 @@ return (
             initialCreateState,
             editArticleData: state.editArticleData,
             handleEditArticle,
-            showCreateArticle: canLoggedUserCreateArticle,
+            showCreateArticle: loggedUserHaveSbt,
             loggedUserHaveSbt,
             handleShareButton,
             handleShareSearch,
-            canLoggedUserCreateArticles,
             filterBy,
             baseActions,
             handleOnCommitArticle,
@@ -741,7 +735,6 @@ return (
             handleEditArticle,
             sbtWhiteList,
             sbts,
-            canLoggedUserCreateArticles,
             baseActions,
             kanbanColumns,
             sharedCommentId,
