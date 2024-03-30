@@ -63,7 +63,7 @@ const [filterBy, setFilterBy] = useState(getInitialFilter());
 const [loadingArticles, setLoadingArticles] = useState(true)
 
 const handleChangeCategory = (category) => {
-  setCategory({category})
+  setCategory(category)
 }
 
 function loadArticles(category) {
