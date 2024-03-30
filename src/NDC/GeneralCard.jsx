@@ -14,11 +14,9 @@ const {
   data,
   handleOpenArticle,
   handleFilterArticles,
-  addressForArticles,
   authorForWidget,
   handleShareButton,
   handleEditArticle,
-  baseActions,
   switchShowPreview,
   isPreview,
   loggedUserHaveSbt
@@ -426,13 +424,10 @@ return (
           src={widgets.views.editableWidgets.addComment}
           props={{
             widgets,
+            isTest,
             article: data,
             isReplying: false,
-            isTest,
-            username: data.author,
-            id,
             onCloseModal: toggleShowModal,
-            baseActions,
           }}
         />
       )}
@@ -442,18 +437,6 @@ return (
             src={widgets.views.standardWidgets.profileOverlayTrigger}
             props={{ accountId, children: inner }}
           />
-          {
-            //   <HeaderContent>
-            //   <HeaderContentText
-            //     onClick={() => {
-            //       handleOpenArticle(data);
-            //     }}
-            //   >
-            //     <NominationName>{getUserName()}</NominationName>
-            //     <NominationUser>{getShortUserName()}</NominationUser>
-            //   </HeaderContentText>
-            // </HeaderContent>
-          }
         </div>
         <HeaderButtonsContainer>
           <Widget
@@ -461,17 +444,14 @@ return (
             props={{
               isTest,
               authorForWidget,
-                reactedElementData: data,
-                widgets,
-                disabled: isPreview || !loggedUserHaveSbt,
-                articleSbts,
-                upVotes,
-                baseActions,
-                loadUpVotes,
-                loadingUpVotes,
-                setLoadingUpVotes,
-                setUpVotes,
-              }}
+              reactedElementData: data,
+              widgets,
+              disabled: isPreview || !loggedUserHaveSbt,
+              upVotes,
+              loadUpVotes,
+              loadingUpVotes,
+              setLoadingUpVotes,
+            }}
           />
           <Widget
             src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
@@ -538,7 +518,6 @@ return (
                 authorForWidget,
                 elementReactedId: id,
                 disabled: isPreview || !loggedUserHaveSbt,
-                baseActions,
               }}
             />
           </ButtonsLowerSection>

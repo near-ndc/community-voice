@@ -8,19 +8,15 @@ if(!createArticle || !editArticle || !buildArticle || !getConfig){
 
 const {
   isTest,
-  addressForArticles,
   authorForWidget,
-  stateUpdate,
+  widgets,
   initialBody,
   initialCreateState,
   editArticleData,
-  widgets,
   handleFilterArticles,
-  handleEditArticle,
-  handlerStateUpdate,
-  baseActions,
   handleOnCommitArticle,
-  category
+  category,
+  loggedUserHaveSbt
 } = props;
 
 const errTextNoBody = "ERROR: no article Body",
@@ -238,14 +234,14 @@ return (
                       })
                     }
                   },
-                  addressForArticles,
                   handleOpenArticle: () => {},
                   handleFilterArticles: () => {},
                   authorForWidget,
                   handleShareButton: () => {},
-                  baseActions,
+                  handleEditArticle: () => {},
                   switchShowPreview,
-                  isPreview: state.showPreview
+                  isPreview: state.showPreview,
+                  loggedUserHaveSbt
                 }}
               />
             ) : (

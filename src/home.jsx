@@ -1,4 +1,9 @@
 // Community voice
+const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+
+if(!getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
 
 let {
   isTest,
@@ -41,8 +46,6 @@ const widgets = {
       upVoteButton: `${componentsOwner}/widget/NDC.UpVoteButton`,
       profileShortInlineBlock: `${componentsOwner}/widget/Profile.ShortInlineBlock`,
       tagsEditor: `${componentsOwner}/widget/TagsEditor`,
-      kanbanBoard: `${componentsOwner}/widget/NDC.KanbanBoard`,
-      compactPost: `${componentsOwner}/widget/NDC.CompactPost`,
       articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
       articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
       articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
@@ -91,18 +94,6 @@ const brand = {
   logoRemHeight: 4,
 };
 
-const baseActions = {
-  commentBaseAction: "sayALotComment",
-  articlesBaseAction: "sayALotArticle",
-  upVoteBaseAction: "sayALotUpVote",
-  reactionBaseAction: "sayALotReaction",
-};
-
-const kanbanColumns = ["Open", "Claimed", "In Work", "Closed"];
-
-const kanbanRequiredTags = [];
-const kanbanExcludedTags = [];
-
 return (
   <> 
     <Widget
@@ -113,10 +104,6 @@ return (
         authorForWidget,
         widgets,
         brand,
-        baseActions,
-        kanbanColumns,
-        kanbanRequiredLabels,
-        kanbanExcludedLabels,
         sharedData,
       }}
     />

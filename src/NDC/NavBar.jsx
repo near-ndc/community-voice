@@ -1,14 +1,12 @@
 // NDC.NavBar
 
 const {
+  isTest,
   handleGoHomeButton,
   handlePillNavigation,
   brand,
   pills,
-  navigationButtons,
-  isTest,
   displayedTabId,
-  writersWhiteList,
   handleFilterArticles,
   filterParameter,
   handleBackButton,

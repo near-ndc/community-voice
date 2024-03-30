@@ -9,26 +9,21 @@ if(!arrayIncludesIgnoreCase){
 
 let {
   isTest,
-  stateUpdate,
   articlesToRender,
-  tabs,
   widgets,
-  addressForArticles,
-  handleFilterArticles,
   handleOpenArticle,
+  handleFilterArticles,
   authorForWidget,
   initialCreateState,
   editArticleData,
   handleEditArticle,
+  loggedUserHaveSbt,
   handleShareButton,
   handleShareSearch,
-  loggedUserHaveSbt,
   filterBy,
-  baseActions,
   handleOnCommitArticle,
   sharedSearchInputValue,
   category,
-  sharedData,
 } = props;
 
 if(!articlesToRender) return <></>
@@ -160,18 +155,15 @@ return (
                   src={widgets.views.editableWidgets.create}
                   props={{
                     isTest,
-                    addressForArticles,
                     authorForWidget,
-                    stateUpdate,
                     widgets,
+                    initialBody: "",
                     initialCreateState,
                     editArticleData,
                     handleFilterArticles,
-                    handleEditArticle,
-                    initialBody: "",
-                    baseActions,
                     handleOnCommitArticle,
-                    category
+                    category,
+                    loggedUserHaveSbt
                   }}
                 />
               </AccordionBody>
@@ -258,15 +250,11 @@ return (
                     widgets,
                     isTest,
                     data: article,
-                    displayOverlay: true,
-                    renderReactions: true,
-                    addressForArticles,
                     handleOpenArticle,
                     handleFilterArticles,
                     authorForWidget,
                     handleShareButton,
                     handleEditArticle,
-                    baseActions,
                     loggedUserHaveSbt
                   }}
                 />

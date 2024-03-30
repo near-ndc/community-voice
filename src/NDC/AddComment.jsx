@@ -12,17 +12,14 @@ const {
   widgets,
   isTest,
   article,
-  onCloseModal,
-  originalComment,
   isReplying,
-  username,
-  placement,
-  rootCommentId,
-  replyingTo,
-  baseActions,
-  editionData,
+  onCloseModal,
   loadComments,
   setLoadingComments,
+  originalComment,
+  rootCommentId,
+  replyingTo,
+  editionData,
 } = props;
 
 const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location

@@ -13,11 +13,9 @@ const {
   widgets,
   disabled,
   upVotes: articleUpVotes,
-  baseActions,
   loadUpVotes,
   loadingUpVotes,
   setLoadingUpVotes,
-  setUpVotes,
 } = props;
 
 const data = reactedElementData;
@@ -34,7 +32,6 @@ function getUpVoteButtonClass() {
 
 function onCommitUpVotes() {
   setLoadingUpVotes(true)
-  setUpVotes([])
   setTimeout(() => {
     loadUpVotes()
   }, 3000);

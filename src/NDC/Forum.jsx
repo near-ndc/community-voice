@@ -15,10 +15,6 @@ let {
   authorForWidget,
   widgets,
   brand,
-  baseActions,
-  kanbanColumns,
-  kanbanRequiredTags,
-  kanbanExcludedTags,
   sharedData,
 } = props;
 
@@ -138,10 +134,6 @@ const navigationPills = [
   { id: tabs.SHOW_ARTICLES_LIST.id, title: "Articles" },
   { id: tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id, title: "Authors" },
   // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
-];
-
-const navigationButtons = [
-  // { id: tabs.ARTICLE_WORKSHOP.id, title: "+Create article" },
 ];
 
 const initialBodyAtCreation = state.editArticleData.value.articleData.body;
@@ -633,13 +625,11 @@ return (
           handlePillNavigation,
           brand,
           pills: navigationPills,
-          navigationButtons,
           displayedTabId: state.displayedTabId,
           handleFilterArticles,
           filterParameter: filterBy.parameterName,
           handleBackButton,
           tabs,
-          sbtsNames,
           widgets,
         }}
       />
@@ -667,9 +657,7 @@ return (
           props={{
             isTest,
             articlesToRender,
-            tabs,
             widgets,
-            addressForArticles,
             handleOpenArticle,
             handleFilterArticles,
             authorForWidget,
@@ -680,7 +668,6 @@ return (
             handleShareButton,
             handleShareSearch,
             filterBy,
-            baseActions,
             handleOnCommitArticle,
             sharedSearchInputValue: sharedData.sharedSearch,
             category
@@ -700,8 +687,6 @@ return (
           handleEditArticle,
           handleShareButton,
           handleDeleteArticle,
-          baseActions,
-          kanbanColumns,
           sharedCommentId,
           loggedUserHaveSbt
         }}
@@ -714,9 +699,7 @@ return (
           props={{
             isTest,
             finalArticles: articlesToRender,
-            tabs,
             widgets,
-            handleOpenArticle,
             handleFilterArticles,
             authorForWidget,
           }}
@@ -728,22 +711,15 @@ return (
           src={widgets.views.editableWidgets.create}
           props={{
             isTest,
-            addressForArticles,
             authorForWidget,
             widgets,
             initialBody: initialBodyAtCreation,
             initialCreateState,
             editArticleData: state.editArticleData,
             handleFilterArticles,
-            handleEditArticle,
-            sbtWhiteList,
-            sbts,
-            baseActions,
-            kanbanColumns,
-            sharedCommentId,
-            loggedUserHaveSbt,
             handleOnCommitArticle,
-            category
+            category,
+            loggedUserHaveSbt
           }}
         />
       )}

@@ -10,17 +10,15 @@ if(!getComments || !getConfig || !getUpVotes || !getArticlesVersions){
 }
 
 const {
-  widgets,
   isTest,
+  widgets,
   handleFilterArticles,
   articleToRenderData,
   authorForWidget,
   handleEditArticle,
-  handleDeleteArticle,
   handleShareButton,
-  baseActions,
-  kanbanColumns,
-  sharedData,
+  handleDeleteArticle,
+  sharedCommentId,
   loggedUserHaveSbt
 } = props;
 
@@ -569,8 +567,8 @@ let displayedContent = state.sliceContent
 
 return (
   <>
-    {sharedData.sharedCommentId && (
-      <a href={`#${sharedData.sharedCommentId}`}>
+    {sharedCommentId && (
+      <a href={`#${sharedCommentId}`}>
         Click to redirect to comment that mentioned you
       </a>
     )}
@@ -602,8 +600,6 @@ return (
                 props={{
                   articleId: articleToRenderData.value.metadata.id,
                   isTest,
-                  baseActions,
-                  kanbanColumns,
                   widgets,
                   versions,
                 }}
@@ -678,7 +674,6 @@ return (
                         widgets,
                         disabled: !loggedUserHaveSbt,
                         upVotes,
-                        baseActions,
                         loadUpVotes,
                         loadingUpVotes,
                         setLoadingUpVotes,
@@ -705,12 +700,11 @@ return (
                   <Widget
                     src={widgets.views.editableWidgets.reactions}
                     props={{
-                      widgets,
                       isTest,
+                      widgets,
                       authorForWidget,
                       elementReactedId: id,
                       disabled: !loggedUserHaveSbt,
-                      baseActions,
                     }}
                   />
                   {context.accountId == accountId && (
@@ -820,13 +814,12 @@ return (
               <Widget
                 src={widgets.views.editableWidgets.addComment}
                 props={{
-                  article: articleToRenderData,
                   widgets,
                   isTest,
+                  article: articleToRenderData,
                   isReplying: false,
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
-                  baseActions,
                   loadComments,
                   setLoadingComments,
                 }}
@@ -865,8 +858,6 @@ return (
                     authorForWidget,
                     isReply: false,
                     loggedUserHaveSbt,
-                    articleSbts,
-                    baseActions,
                     sharedCommentId,
                     articleToRenderData,
                     loadComments,
