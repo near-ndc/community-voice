@@ -2,6 +2,10 @@
 const { createUpVote, deleteUpVote } = VM.require("cv.near/widget/lib.upVotes")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
+if(!createUpVote || !deleteUpVote || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   isTest,
   authorForWidget,

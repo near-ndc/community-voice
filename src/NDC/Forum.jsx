@@ -2,6 +2,12 @@
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
 const { isValidUser } = VM.require("cv.near/widget/lib.SBT");
+const { getCategories } = VM.require("cv.near/widget/lib.categories");
+
+if(!getConfig || !getArticles || !deleteArticle || !isValidUser || !getCategories){
+  return <div className="spinner-border" role="status"></div>
+}
+
 //===============================================INITIALIZATION=====================================================
 let {
   isTest,
@@ -13,9 +19,6 @@ let {
   kanbanColumns,
   kanbanRequiredTags,
   kanbanExcludedTags,
-  handleChangeCategory,
-  categories,
-  category,
   sharedData,
 } = props;
 
@@ -51,6 +54,8 @@ function getInitialFilter() {
   }
 }
 
+const [categories] = useState(getCategories())
+const [category, setCategory] = useState(getCategories()[0].value)
 const [articlesToRender, setArticlesToRender] = useState([]);
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false);
@@ -61,10 +66,14 @@ const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 const [loadingArticles, setLoadingArticles] = useState(true)
 
+const handleChangeCategory = (category) => {
+  setCategory({category})
+}
+
 function loadArticles(category) {
   const userFilters = { category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles)
+    setArticlesToRender(newArticles || [])
     setLoadingArticles(false)
   })
 }
@@ -117,7 +126,7 @@ State.init({
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
 if (profile === null) {
-  return "Loading";
+  return <div className="spinner-border" role="status"></div>;
 }
 
 let authorProfile = {};
@@ -610,7 +619,6 @@ function handleOnCommitArticle(articleId) {
     })
   }, 3000);
 }
-let category2=category
 //===============================================END FUNCTIONS======================================================
 return (
   <AppContainer>
@@ -641,12 +649,8 @@ return (
             src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
             props={{
               label: getCategoriesSelectorLabel(),
-              value: category2,
-              onChange: (e)=>{
-                category2=e
-                handleChangeCategory(e)
-                
-              },
+              value: category,
+              onChange: handleChangeCategory,
               options: categories
             }}
           />
@@ -672,7 +676,6 @@ return (
             initialCreateState,
             editArticleData: state.editArticleData,
             handleEditArticle,
-            showCreateArticle: loggedUserHaveSbt,
             loggedUserHaveSbt,
             handleShareButton,
             handleShareSearch,

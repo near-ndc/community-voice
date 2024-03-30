@@ -5,6 +5,10 @@ const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes");
 const { getArticlesVersions } = VM.require("cv.near/widget/lib.article");
 
 
+if(!getComments || !getConfig || !getUpVotes || !getArticlesVersions){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   widgets,
   isTest,

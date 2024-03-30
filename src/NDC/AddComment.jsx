@@ -4,6 +4,10 @@ const { createComment, editComment } = VM.require(
 );
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
+if(!createComment || !editComment || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   widgets,
   isTest,

@@ -2,6 +2,10 @@
 const { getReactions, createReaction } = VM.require("cv.near/widget/lib.reactions")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
 
+if(!getReactions || !createReaction || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   isTest,
   authorForWidget,

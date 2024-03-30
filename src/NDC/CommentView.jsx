@@ -2,6 +2,10 @@
 const { deleteComment } = VM.require("cv.near/widget/lib.comment");
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
+if(!deleteComment || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   widgets,
   data,

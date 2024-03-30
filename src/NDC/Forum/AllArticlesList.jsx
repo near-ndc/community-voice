@@ -1,6 +1,10 @@
 // NDC.Forum.AllArticlesList
 const { arrayIncludesIgnoreCase } = VM.require("cv.near/widget/lib.strings")
 
+if(!arrayIncludesIgnoreCase){
+  return <div className="spinner-border" role="status"></div>
+}
+
 //===============================================INITIALIZATION=====================================================
 
 let {
@@ -16,7 +20,6 @@ let {
   initialCreateState,
   editArticleData,
   handleEditArticle,
-  showCreateArticle,
   handleShareButton,
   handleShareSearch,
   loggedUserHaveSbt,

@@ -2,6 +2,10 @@
 const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 
+if(!getUpVotes || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 //===============================================INITIALIZATION=====================================================
 
 const {

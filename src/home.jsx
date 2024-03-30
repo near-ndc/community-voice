@@ -1,6 +1,4 @@
 // Community voice
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
-const { getCategories } = VM.require("cv.near/widget/lib.categories");
 
 let {
   isTest,
@@ -11,12 +9,6 @@ let {
   scid: sharedCommentId,
   ss: sharedSearch,
 } = props;
-
-State.init({categories:getCategories(),category:getCategories().value})
-
-const handleChangeCategory = (category) => {
-  State.update({category})
-}
 
 const sharedData = {
   sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
@@ -125,9 +117,6 @@ return (
         kanbanColumns,
         kanbanRequiredLabels,
         kanbanExcludedLabels,
-        handleChangeCategory,
-        categories:state.categories,
-        category:state.category,
         sharedData,
       }}
     />
