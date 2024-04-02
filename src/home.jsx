@@ -113,6 +113,7 @@ const kanbanExcludedTags = [];
 
 return (
   <> 
+    {"${REPL_ACCOUNT}" === "communityvoice.ndctools.near" && <h1 style={{color: "red", textAlign: "center"}}>This is a dev environment</h1>}
     <Widget
       src={widgets.views.editableWidgets.ndcForum}
       props={{
