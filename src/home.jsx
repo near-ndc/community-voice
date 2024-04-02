@@ -1,7 +1,8 @@
 // Community voice
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+const { getCategories } = VM.require("communityvoice.ndctools.near/widget/lib.categories");
 
-if(!getConfig){
+if(!getConfig || !getCategories){
   return <div className="spinner-border" role="status"></div>
 }
 
@@ -23,8 +24,8 @@ const sharedData = {
   sharedSearch,
 } 
 
-const componentsOwner = "cv.near";
-const authorForWidget = "cv.near";
+const componentsOwner = "communityvoice.ndctools.near";
+const authorForWidget = "communityvoice.ndctools.near";
 const configWidget = "home";
 
 const widgets = {
@@ -77,12 +78,12 @@ const widgets = {
   },
 
   libs: {
-    libSBT: `cv.near/widget/lib.SBT`,
-    libComment: `cv.near/widget/lib.comment`,
-    libArticle: `cv.near/widget/lib.article`,
-    libReactions: `cv.near/widget/lib.reactions`,
-    libUpVotes: `cv.near/widget/lib.upVotes`,
-    libNotifications: `cv.near/widget/lib.notifications`,
+    libSBT: `communityvoice.ndctools.near/widget/lib.SBT`,
+    libComment: `communityvoice.ndctools.near/widget/lib.comment`,
+    libArticle: `communityvoice.ndctools.near/widget/lib.article`,
+    libReactions: `communityvoice.ndctools.near/widget/lib.reactions`,
+    libUpVotes: `communityvoice.ndctools.near/widget/lib.upVotes`,
+    libNotifications: `communityvoice.ndctools.near/widget/lib.notifications`,
   },
 };
 

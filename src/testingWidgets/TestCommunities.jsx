@@ -1,5 +1,5 @@
-const { setIsTest, createCommunity, getCommunities, editCommunity, deleteCommunity } = VM.require("cv.near/widget/lib.Communities")
-const { parseError } = VM.require("cv.near/widget/lib.errorParser")
+const { setIsTest, createCommunity, getCommunities, editCommunity, deleteCommunity } = VM.require("communityvoice.ndctools.near/widget/lib.Communities")
+const { parseError } = VM.require("communityvoice.ndctools.near/widget/lib.errorParser")
 
 const [communities, setCommunities] = useState([])
 const [errors, setErrors] = useState([])

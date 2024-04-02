@@ -1,6 +1,6 @@
 //NDC.Forum.Create
-const { createArticle, editArticle, buildArticle } = VM.require("cv.near/widget/lib.article")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
+const { createArticle, editArticle, buildArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
 if(!createArticle || !editArticle || !buildArticle || !getConfig){
   return <div className="spinner-border" role="status"></div>

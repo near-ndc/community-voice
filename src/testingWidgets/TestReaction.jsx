@@ -1,5 +1,5 @@
-const { getReactions, createReaction } = VM.require("cv.near/widget/lib.reactions")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
+const { getReactions, createReaction } = VM.require("communityvoice.ndctools.near/widget/lib.reactions")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
 const [reactions, setReactions] = useState({reactionsStatistics: [], userReaction: undefined})
 

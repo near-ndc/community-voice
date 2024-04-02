@@ -1,6 +1,6 @@
-const { functionsToTest } = VM.require("cv.near/widget/lib.comment");
+const { functionsToTest } = VM.require("communityvoice.ndctools.near/widget/lib.comment");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
-  "cv.near/widget/tests.lib.tester"
+  "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
 
 //=======================================================================Start consts=======================================================================

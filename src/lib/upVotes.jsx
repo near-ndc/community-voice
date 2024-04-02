@@ -1,10 +1,10 @@
-const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex");
+const { getFromIndex } = VM.require("communityvoice.ndctools.near/widget/lib.socialDbIndex");
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "cv.near/widget/lib.metadata"
+  "communityvoice.ndctools.near/widget/lib.metadata"
 );
 
 const { getNotificationData } = VM.require(
-  "cv.near/widget/lib.notifications"
+  "communityvoice.ndctools.near/widget/lib.notifications"
 );
 
 let config = {};

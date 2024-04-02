@@ -1,5 +1,5 @@
 // NDC.Forum.AllArticlesList
-const { arrayIncludesIgnoreCase } = VM.require("cv.near/widget/lib.strings")
+const { arrayIncludesIgnoreCase } = VM.require("communityvoice.ndctools.near/widget/lib.strings")
 
 if(!arrayIncludesIgnoreCase){
   return <div className="spinner-border" role="status"></div>

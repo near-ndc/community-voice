@@ -1,5 +1,5 @@
-const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("cv.near/widget/lib.article")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
+const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
 
 const [articles, setArticles] = useState([])

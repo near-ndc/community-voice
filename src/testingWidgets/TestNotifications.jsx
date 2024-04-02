@@ -1,4 +1,4 @@
-const {functionsToTest} = VM.require("cv.near/widget/lib.notifications");
+const {functionsToTest} = VM.require("communityvoice.ndctools.near/widget/lib.notifications");
 
 const arr1 = ["Martín"];
 const arr2 = ["Martín", "silkking.near"];

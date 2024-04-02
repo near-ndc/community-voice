@@ -1,5 +1,5 @@
-const { camelCaseToUserReadable, isValidUrl } = VM.require("cv.near/widget/lib.strings");
-const { generateMetadata, updateMetadata } = VM.require("cv.near/widget/lib.metadata");
+const { camelCaseToUserReadable, isValidUrl } = VM.require("communityvoice.ndctools.near/widget/lib.strings");
+const { generateMetadata, updateMetadata } = VM.require("communityvoice.ndctools.near/widget/lib.metadata");
 
 const baseAction = "cv_communities";
 const testAction = `test_${baseAction}`
