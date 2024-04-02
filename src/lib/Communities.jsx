@@ -1,5 +1,5 @@
-const { camelCaseToUserReadable, isValidUrl } = VM.require("cv.near/widget/lib.strings");
-const { generateMetadata, updateMetadata } = VM.require("cv.near/widget/lib.metadata");
+const { camelCaseToUserReadable, isValidUrl } = VM.require("communityvoice.ndctools.near/widget/lib.strings");
+const { generateMetadata, updateMetadata } = VM.require("communityvoice.ndctools.near/widget/lib.metadata");
 
 const baseAction = "cv_communities";
 const testAction = `test_${baseAction}`
@@ -65,7 +65,6 @@ function validateCommunityData(communityData) {
     if (!isTypeOk) {
         errArrMessage.push("Type should be between 0 and 2")
     }
-    console.log("Finished validating")
     return errArrMessage
 }
 
@@ -105,7 +104,6 @@ function composeDeleteData(communityData) {
 
 function executeSaveCommunity(communityData, metadata, onCommit, onCancel) {
     const newData = composeData(communityData, metadata);
-    console.log(1)
     Social.set(newData, {
         force: true,
         onCommit,
@@ -143,8 +141,7 @@ function createCommunity(communityData, ownerId, onCommit, onCancel) {
         return { error: true, data: ["There is already a community with this id"] }
     }
 
-
-    communityData.id = `${ownerId}-${Date.now()}`
+    communityData.id = `cd/${ownerId}/${Date.now()}`
     const metadata = generateMetadata()
     executeSaveCommunity(communityData, metadata, onCommit, onCancel)
 
