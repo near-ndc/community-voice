@@ -1,8 +1,8 @@
 // NDC.AddComment
 const { createComment, editComment } = VM.require(
-  "cv.near/widget/lib.comment"
+  "communityvoice.ndctools.near/widget/lib.comment"
 );
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 
 const {
   widgets,

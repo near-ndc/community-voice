@@ -1,7 +1,7 @@
 // NDC.Forum
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
-const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
-const { isValidUser } = VM.require("cv.near/widget/lib.SBT");
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+const { getArticles, deleteArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article");
+const { isValidUser } = VM.require("communityvoice.ndctools.near/widget/lib.SBT");
 //===============================================INITIALIZATION=====================================================
 let {
   isTest,

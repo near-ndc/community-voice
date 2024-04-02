@@ -1,8 +1,8 @@
 // NDC.ArticleView
-const { getComments } = VM.require("cv.near/widget/lib.comment");
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
-const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes");
-const { getArticlesVersions } = VM.require("cv.near/widget/lib.article");
+const { getComments } = VM.require("communityvoice.ndctools.near/widget/lib.comment");
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+const { getUpVotes } = VM.require("communityvoice.ndctools.near/widget/lib.upVotes");
+const { getArticlesVersions } = VM.require("communityvoice.ndctools.near/widget/lib.article");
 
 
 const {

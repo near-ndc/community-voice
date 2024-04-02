@@ -1,15 +1,15 @@
-const { getUserSBTs, getSBTWhiteList } = VM.require("cv.near/widget/lib.SBT");
+const { getUserSBTs, getSBTWhiteList } = VM.require("communityvoice.ndctools.near/widget/lib.SBT");
 
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "cv.near/widget/lib.metadata"
+  "communityvoice.ndctools.near/widget/lib.metadata"
 );
 const { normalizeObjectWithMetadata } = VM.require(
-  "cv.near/widget/lib.normalization"
+  "communityvoice.ndctools.near/widget/lib.normalization"
 );
-const { camelCaseToUserReadable } = VM.require("cv.near/widget/lib.strings");
+const { camelCaseToUserReadable } = VM.require("communityvoice.ndctools.near/widget/lib.strings");
 
 const { extractMentions, getNotificationData } = VM.require(
-  "cv.near/widget/lib.notifications"
+  "communityvoice.ndctools.near/widget/lib.notifications"
 );
 
 const currentVersion = "v0.0.5";

@@ -1,6 +1,6 @@
 // NDC.GeneralCard
-const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getUpVotes } = VM.require("communityvoice.ndctools.near/widget/lib.upVotes")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 
 //===============================================INITIALIZATION=====================================================
 

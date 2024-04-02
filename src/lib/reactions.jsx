@@ -1,8 +1,8 @@
-const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex")
+const { getFromIndex } = VM.require("communityvoice.ndctools.near/widget/lib.socialDbIndex")
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-    "cv.near/widget/lib.metadata"
+    "communityvoice.ndctools.near/widget/lib.metadata"
 );
-const { normalizeId } = VM.require("cv.near/widget/lib.normalization")
+const { normalizeId } = VM.require("communityvoice.ndctools.near/widget/lib.normalization")
 
 let config = {}
 const ID_PREFIX = "reaction"
