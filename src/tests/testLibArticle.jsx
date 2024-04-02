@@ -7,9 +7,9 @@ const {
   filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
-} = VM.require("cv.near/widget/lib.article");
+} = VM.require("communityvoice.ndctools.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
-  "cv.near/widget/tests.lib.tester"
+  "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
 
 const isTest = false;

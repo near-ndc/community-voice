@@ -1,8 +1,15 @@
 // NDC.Forum
+<<<<<<< HEAD
 const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("cv.near/widget/lib.article");
 const { isValidUser } = VM.require("cv.near/widget/lib.SBT");
 const { getCategories } = VM.require("cv.near/widget/lib.categories");
+=======
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+const { getArticles, deleteArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article");
+const { isValidUser } = VM.require("communityvoice.ndctools.near/widget/lib.SBT");
+const { getCategories } = VM.require("communityvoice.ndctools.near/widget/lib.categories");
+>>>>>>> 20296f1c7a8d1c74d9185f32abf808416937a37c
 
 if(!getConfig || !getArticles || !deleteArticle || !isValidUser || !getCategories){
   return <div className="spinner-border" role="status"></div>

@@ -1,9 +1,9 @@
 const { getSBTWhiteList, isValidUser, getUserSBTs } = VM.require(
-  "cv.near/widget/lib.SBT"
+  "communityvoice.ndctools.near/widget/lib.SBT"
 );
 
 const { displayTestsResults } = VM.require(
-  "cv.near/widget/tests.lib.tester"
+  "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
 
 function testGetSBTWhiteListWorking() {

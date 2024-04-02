@@ -1,5 +1,5 @@
-const { getUserSBTs } = VM.require("cv.near/widget/lib.SBT")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice")
+const { getUserSBTs } = VM.require("communityvoice.ndctools.near/widget/lib.SBT")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
 const [userSbts, setSbts] = useState([])
 

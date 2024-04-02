@@ -1,6 +1,10 @@
 // NDC.GeneralCard
-const { getUpVotes } = VM.require("cv.near/widget/lib.upVotes")
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { getUpVotes } = VM.require("communityvoice.ndctools.near/widget/lib.upVotes")
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+
+if(!getUpVotes || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
 
 if(!getUpVotes || !getConfig){
   return <div className="spinner-border" role="status"></div>

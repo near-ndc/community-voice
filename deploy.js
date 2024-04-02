@@ -3,8 +3,8 @@ const { readdirSync, readFileSync, writeFileSync } = require("fs");
 const { keyStores, connect, Contract } = require("near-api-js");
 const { homedir } = require("os");
 
-// const ACCOUNT = "communityvoice.ndctools.near"
-const ACCOUNT = "silkking.near"
+const ACCOUNT = "communityvoice.ndctools.near"
+// const ACCOUNT = "silkking.near"
 
 function getAllFilesNames(addedPath = "") {
     const pathToSearch = path.join("./src", addedPath)
@@ -29,6 +29,7 @@ function getAllFilesNames(addedPath = "") {
 async function getContract() {
     const CREDENTIALS_DIR = ".near-credentials";
     const credentialsPath = path.join(homedir(), CREDENTIALS_DIR);
+    console.log("credentialsPath", credentialsPath )
     const myKeyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath);
 
     const connectionConfig = {
@@ -59,7 +60,7 @@ async function getContract() {
 function getWidgetsJsons(files) {
     return files.map(file => {
         const fileContent = readFileSync(path.join("./src", file), "utf-8").toString()
-        console.log(fileContent)
+        
         const widgetName = file.replace(".jsx", "").split("/").join(".")
         return {
             [ACCOUNT]: {
@@ -73,28 +74,36 @@ function getWidgetsJsons(files) {
     })
 }
 
+function sleep(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 async function run() {
     const indexesToDeploy = []
     const indexesWithError = []
     const files = getAllFilesNames()
     
     const widgetJsons = getWidgetsJsons(files)
-    console.log(1, widgetJsons[0] )
     
     const socialContract = await getContract()
-    for(let i = 0; i < widgetJsons.length; i++) {
+    for(let i = 29; i < widgetJsons.length; i++) {
         if(indexesToDeploy.length > 0 && !indexesToDeploy.includes(i)) continue
-        console.log("Deploying widget with index", i)
         const json = widgetJsons[i]
+        const widgetName = Object.keys(json[ACCOUNT].widget)[0]
+        console.log("Deploying widget with index", i, widgetName)
         try {
             await socialContract.set({
                 data: json 
             },
             "300000000000000", 
-            "1" + "0".repeat(23))  
+            "1" + "0".repeat(21))  
+            console.log("Deployed", widgetName)
         } catch(err) {
             console.log("Error deploying widget with index", i)
+            console.log(err)
             indexesWithError.push(i)
+        } finally {
+            await sleep(1521)
         }
     }
     console.log("Indexes with error", indexesWithError)

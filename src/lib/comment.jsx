@@ -1,13 +1,13 @@
-const { getFromIndex } = VM.require("cv.near/widget/lib.socialDbIndex");
+const { getFromIndex } = VM.require("communityvoice.ndctools.near/widget/lib.socialDbIndex");
 const { normalize, normalizeId } = VM.require(
-  "cv.near/widget/lib.normalization"
+  "communityvoice.ndctools.near/widget/lib.normalization"
 );
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
-  "cv.near/widget/lib.metadata"
+  "communityvoice.ndctools.near/widget/lib.metadata"
 );
 
 const { extractMentions, getNotificationData } = VM.require(
-  "cv.near/widget/lib.notifications"
+  "communityvoice.ndctools.near/widget/lib.notifications"
 );
 
 let config = {};

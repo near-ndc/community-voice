@@ -1,6 +1,6 @@
 function getConfig(isTest,networkId) {
-    const componentsOwner = "cv.near";
-    const authorForWidget = "cv.near";
+    const componentsOwner = "communityvoice.ndctools.near";
+    const authorForWidget = "communityvoice.ndctools.near";
     const configWidget = "home";
     return {
         isTest,

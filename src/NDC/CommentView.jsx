@@ -1,6 +1,10 @@
 // NDC.CommentView
-const { deleteComment } = VM.require("cv.near/widget/lib.comment");
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
+const { deleteComment } = VM.require("communityvoice.ndctools.near/widget/lib.comment");
+const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
+
+if(!deleteComment || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
 
 if(!deleteComment || !getConfig){
   return <div className="spinner-border" role="status"></div>
