@@ -1,14 +1,8 @@
 // Community voice
-<<<<<<< HEAD
-const { getConfig } = VM.require("cv.near/widget/config.CommunityVoice");
-
-if(!getConfig){
-=======
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 const { getCategories } = VM.require("communityvoice.ndctools.near/widget/lib.categories");
 
 if(!getConfig || !getCategories){
->>>>>>> 20296f1c7a8d1c74d9185f32abf808416937a37c
   return <div className="spinner-border" role="status"></div>
 }
 
