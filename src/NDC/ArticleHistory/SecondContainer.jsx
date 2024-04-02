@@ -14,7 +14,7 @@ if (!pathToCurrentArticle || !pathToPrevArticle || !currentBlockHeight)
 
 const currentCode = currentVersionData.value.articleData.body;
 
-if (currentCode === null) return "Loading";
+if (currentCode === null) return <div className="spinner-border" role="status"></div>;
 
 const prevCode = prevBlockHeight
   ? allVersionsData.find(
@@ -22,7 +22,7 @@ const prevCode = prevBlockHeight
     ).body
   : undefined;
 
-if (prevCode === null) return "Loading";
+if (prevCode === null) return <div className="spinner-border" role="status"></div>;
 
 return (
   <Widget

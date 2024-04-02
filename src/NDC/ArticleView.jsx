@@ -5,18 +5,20 @@ const { getUpVotes } = VM.require("communityvoice.ndctools.near/widget/lib.upVot
 const { getArticlesVersions } = VM.require("communityvoice.ndctools.near/widget/lib.article");
 
 
+if(!getComments || !getConfig || !getUpVotes || !getArticlesVersions){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
-  widgets,
   isTest,
+  widgets,
   handleFilterArticles,
   articleToRenderData,
   authorForWidget,
   handleEditArticle,
-  handleDeleteArticle,
   handleShareButton,
-  baseActions,
-  kanbanColumns,
-  sharedData,
+  handleDeleteArticle,
+  sharedCommentId,
   loggedUserHaveSbt
 } = props;
 
@@ -565,8 +567,8 @@ let displayedContent = state.sliceContent
 
 return (
   <>
-    {sharedData.sharedCommentId && (
-      <a href={`#${sharedData.sharedCommentId}`}>
+    {sharedCommentId && (
+      <a href={`#${sharedCommentId}`}>
         Click to redirect to comment that mentioned you
       </a>
     )}
@@ -598,8 +600,6 @@ return (
                 props={{
                   articleId: articleToRenderData.value.metadata.id,
                   isTest,
-                  baseActions,
-                  kanbanColumns,
                   widgets,
                   versions,
                 }}
@@ -672,11 +672,8 @@ return (
                         authorForWidget,
                         reactedElementData: articleToRenderData,
                         widgets,
-                        disabled:
-                          !context.accountId ||
-                          !loggedUserHaveSbt,
+                        disabled: !loggedUserHaveSbt,
                         upVotes,
-                        baseActions,
                         loadUpVotes,
                         loadingUpVotes,
                         setLoadingUpVotes,
@@ -703,14 +700,11 @@ return (
                   <Widget
                     src={widgets.views.editableWidgets.reactions}
                     props={{
-                      widgets,
                       isTest,
+                      widgets,
                       authorForWidget,
                       elementReactedId: id,
-                      disabled:
-                        !context.accountId ||
-                        !loggedUserHaveSbt,
-                      baseActions,
+                      disabled: !loggedUserHaveSbt,
                     }}
                   />
                   {context.accountId == accountId && (
@@ -820,13 +814,12 @@ return (
               <Widget
                 src={widgets.views.editableWidgets.addComment}
                 props={{
-                  article: articleToRenderData,
                   widgets,
                   isTest,
+                  article: articleToRenderData,
                   isReplying: false,
                   username: accountId,
                   onCloseModal: () => State.update({ showModal: false }),
-                  baseActions,
                   loadComments,
                   setLoadingComments,
                 }}
@@ -843,9 +836,7 @@ return (
                     <i className="bi bi-plus-lg"></i>
                   </div>
                 ),
-                disabled:
-                  !context.accountId ||
-                  !loggedUserHaveSbt,
+                disabled: !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
                 onClick: () => {
                   State.update({ showModal: true });
@@ -867,8 +858,6 @@ return (
                     authorForWidget,
                     isReply: false,
                     loggedUserHaveSbt,
-                    articleSbts,
-                    baseActions,
                     sharedCommentId,
                     articleToRenderData,
                     loadComments,

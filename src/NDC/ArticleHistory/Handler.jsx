@@ -4,8 +4,6 @@ const addressForArticles = "wikiTest2Article";
 const {
   articleId,
   isTest,
-  baseActions,
-  kanbanColumns,
   widgets,
   versions,
 } = props;

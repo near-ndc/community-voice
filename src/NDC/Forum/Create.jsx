@@ -2,23 +2,21 @@
 const { createArticle, editArticle, buildArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article")
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
+if(!createArticle || !editArticle || !buildArticle || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
 
 const {
   isTest,
-  addressForArticles,
   authorForWidget,
-  stateUpdate,
+  widgets,
   initialBody,
   initialCreateState,
   editArticleData,
-  widgets,
   handleFilterArticles,
-  handleEditArticle,
-  handlerStateUpdate,
-  canLoggedUserCreateArticles,
-  baseActions,
   handleOnCommitArticle,
-  category
+  category,
+  loggedUserHaveSbt
 } = props;
 
 const errTextNoBody = "ERROR: no article Body",
@@ -236,14 +234,14 @@ return (
                       })
                     }
                   },
-                  addressForArticles,
                   handleOpenArticle: () => {},
                   handleFilterArticles: () => {},
                   authorForWidget,
                   handleShareButton: () => {},
-                  baseActions,
+                  handleEditArticle: () => {},
                   switchShowPreview,
-                  isPreview: state.showPreview
+                  isPreview: state.showPreview,
+                  loggedUserHaveSbt
                 }}
               />
             ) : (

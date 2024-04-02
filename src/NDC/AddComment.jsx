@@ -4,21 +4,22 @@ const { createComment, editComment } = VM.require(
 );
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 
+if(!createComment || !editComment || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   widgets,
   isTest,
   article,
-  onCloseModal,
-  originalComment,
   isReplying,
-  username,
-  placement,
-  rootCommentId,
-  replyingTo,
-  baseActions,
-  editionData,
+  onCloseModal,
   loadComments,
   setLoadingComments,
+  originalComment,
+  rootCommentId,
+  replyingTo,
+  editionData,
 } = props;
 
 const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location

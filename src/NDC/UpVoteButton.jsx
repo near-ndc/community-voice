@@ -2,6 +2,10 @@
 const { createUpVote, deleteUpVote } = VM.require("communityvoice.ndctools.near/widget/lib.upVotes")
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
+if(!createUpVote || !deleteUpVote || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   isTest,
   authorForWidget,
@@ -9,11 +13,9 @@ const {
   widgets,
   disabled,
   upVotes: articleUpVotes,
-  baseActions,
   loadUpVotes,
   loadingUpVotes,
   setLoadingUpVotes,
-  setUpVotes,
 } = props;
 
 const data = reactedElementData;
@@ -30,7 +32,6 @@ function getUpVoteButtonClass() {
 
 function onCommitUpVotes() {
   setLoadingUpVotes(true)
-  setUpVotes([])
   setTimeout(() => {
     loadUpVotes()
   }, 3000);
@@ -80,7 +81,7 @@ const SpinnerContainer = styled.div`
 
 return (
   <>
-    <div title={(disabled || !canLoggedUserVote) && "You can't vote since you don't have any SBT"}>
+    <div title={(disabled) && "You can't vote since you don't have any SBT"}>
       {loadingUpVotes ? 
         <Widget
           src={widgets.views.standardWidgets.newStyledComponents.Input.Button}
