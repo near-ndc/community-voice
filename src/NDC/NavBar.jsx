@@ -1,14 +1,12 @@
 // NDC.NavBar
 
 const {
+  isTest,
   handleGoHomeButton,
   handlePillNavigation,
   brand,
   pills,
-  navigationButtons,
-  isTest,
   displayedTabId,
-  writersWhiteList,
   handleFilterArticles,
   filterParameter,
   handleBackButton,
@@ -41,8 +39,6 @@ function stateUpdate(obj) {
   */
 
 const loggedUserAccountId = context.accountId;
-
-// const canLoggedUserCreateArticle = state.canLoggedUserCreateArticle;
 
 const logoRemWidth = brand.logoRemWidth
   ? brand.logoRemWidth + "rem"
@@ -236,32 +232,8 @@ return (
                   </li>
                 );
               })}
-            {/*navigationButtons &&
-              loggedUserAccountId &&
-              canLoggedUserCreateArticle &&
-              navigationButtons.map((button, i) => {
-                return !(button.id + "") || !button.title ? (
-                  <p className="text-danger border">Button passed wrong</p>
-                ) : (
-                  <div className="d-block d-md-none">
-                    {renderButton(button, i)}
-                  </div>
-                );
-              })*/}
           </ul>
         </div>
-        {
-          // navigationButtons &&
-          // loggedUserAccountId &&
-          // canLoggedUserCreateArticle &&
-          // navigationButtons.map((button, i) => {
-          //   return !(button.id + "") || !button.title ? (
-          //     <p className="text-danger border">Button passed wrong</p>
-          //   ) : (
-          //     <div className="d-none d-md-block">{renderButton(button, i)}</div>
-          //   );
-          // })
-        }
       </div>
     </div>
 

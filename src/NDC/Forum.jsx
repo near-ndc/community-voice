@@ -2,6 +2,12 @@
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 const { getArticles, deleteArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article");
 const { isValidUser } = VM.require("communityvoice.ndctools.near/widget/lib.SBT");
+const { getCategories } = VM.require("communityvoice.ndctools.near/widget/lib.categories");
+
+if(!getConfig || !getArticles || !deleteArticle || !isValidUser || !getCategories){
+  return <div className="spinner-border" role="status"></div>
+}
+
 //===============================================INITIALIZATION=====================================================
 let {
   isTest,
@@ -9,13 +15,6 @@ let {
   authorForWidget,
   widgets,
   brand,
-  baseActions,
-  kanbanColumns,
-  kanbanRequiredTags,
-  kanbanExcludedTags,
-  handleChangeCategory,
-  categories,
-  category,
   sharedData,
 } = props;
 
@@ -51,11 +50,10 @@ function getInitialFilter() {
   }
 }
 
+const [categories] = useState(getCategories())
+const [category, setCategory] = useState(getCategories()[0].value)
 const [articlesToRender, setArticlesToRender] = useState([]);
-// loggedUserHaveSbt and canLoggedUserCreateArticle probably have the same behaviour. Check
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-useState(false);
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
 const [showShareSearchModal, setShowShareSearchModal] = useState(false);
@@ -64,11 +62,14 @@ const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 const [loadingArticles, setLoadingArticles] = useState(true)
 
+const handleChangeCategory = (category) => {
+  setCategory(category)
+}
+
 function loadArticles(category) {
   const userFilters = { category: category };
-  console.log("Reloading categories", category)
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles)
+    setArticlesToRender(newArticles || [])
     setLoadingArticles(false)
   })
 }
@@ -85,7 +86,6 @@ useEffect(() => {
 useEffect(() => {
   isValidUser(context.accountId,getConfig(isTest, context.networkId)).then(isValid=>{
     setLoggedUserHaveSbt(isValid)
-    setCanLoggedUserCreateArticle(isValid)
   })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
@@ -122,7 +122,7 @@ State.init({
 const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
 if (profile === null) {
-  return "Loading";
+  return <div className="spinner-border" role="status"></div>;
 }
 
 let authorProfile = {};
@@ -134,10 +134,6 @@ const navigationPills = [
   { id: tabs.SHOW_ARTICLES_LIST.id, title: "Articles" },
   { id: tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id, title: "Authors" },
   // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
-];
-
-const navigationButtons = [
-  // { id: tabs.ARTICLE_WORKSHOP.id, title: "+Create article" },
 ];
 
 const initialBodyAtCreation = state.editArticleData.value.articleData.body;
@@ -615,7 +611,6 @@ function handleOnCommitArticle(articleId) {
     })
   }, 3000);
 }
-let category2=category
 //===============================================END FUNCTIONS======================================================
 return (
   <AppContainer>
@@ -630,13 +625,11 @@ return (
           handlePillNavigation,
           brand,
           pills: navigationPills,
-          navigationButtons,
           displayedTabId: state.displayedTabId,
           handleFilterArticles,
           filterParameter: filterBy.parameterName,
           handleBackButton,
           tabs,
-          sbtsNames,
           widgets,
         }}
       />
@@ -646,12 +639,8 @@ return (
             src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
             props={{
               label: getCategoriesSelectorLabel(),
-              value: category2,
-              onChange: (e)=>{
-                category2=e
-                handleChangeCategory(e)
-                
-              },
+              value: category,
+              onChange: handleChangeCategory,
               options: categories
             }}
           />
@@ -668,22 +657,17 @@ return (
           props={{
             isTest,
             articlesToRender,
-            tabs,
             widgets,
-            addressForArticles,
             handleOpenArticle,
             handleFilterArticles,
             authorForWidget,
             initialCreateState,
             editArticleData: state.editArticleData,
             handleEditArticle,
-            showCreateArticle: canLoggedUserCreateArticle,
             loggedUserHaveSbt,
             handleShareButton,
             handleShareSearch,
-            canLoggedUserCreateArticles,
             filterBy,
-            baseActions,
             handleOnCommitArticle,
             sharedSearchInputValue: sharedData.sharedSearch,
             category
@@ -703,8 +687,6 @@ return (
           handleEditArticle,
           handleShareButton,
           handleDeleteArticle,
-          baseActions,
-          kanbanColumns,
           sharedCommentId,
           loggedUserHaveSbt
         }}
@@ -717,9 +699,7 @@ return (
           props={{
             isTest,
             finalArticles: articlesToRender,
-            tabs,
             widgets,
-            handleOpenArticle,
             handleFilterArticles,
             authorForWidget,
           }}
@@ -731,23 +711,15 @@ return (
           src={widgets.views.editableWidgets.create}
           props={{
             isTest,
-            addressForArticles,
             authorForWidget,
             widgets,
             initialBody: initialBodyAtCreation,
             initialCreateState,
             editArticleData: state.editArticleData,
             handleFilterArticles,
-            handleEditArticle,
-            sbtWhiteList,
-            sbts,
-            canLoggedUserCreateArticles,
-            baseActions,
-            kanbanColumns,
-            sharedCommentId,
-            loggedUserHaveSbt,
             handleOnCommitArticle,
-            category
+            category,
+            loggedUserHaveSbt
           }}
         />
       )}

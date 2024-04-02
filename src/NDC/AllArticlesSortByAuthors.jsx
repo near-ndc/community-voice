@@ -2,9 +2,7 @@
 
 const {
   finalArticles,
-  tabs,
   widgets,
-  handleOpenArticle,
   handleFilterArticles,
   authorForWidget,
 } = props;

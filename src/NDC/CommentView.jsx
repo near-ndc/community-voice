@@ -2,6 +2,10 @@
 const { deleteComment } = VM.require("communityvoice.ndctools.near/widget/lib.comment");
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 
+if(!deleteComment || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   widgets,
   data,
@@ -10,9 +14,7 @@ const {
   isReply,
   loggedUserHaveSbt,
   orginalCommentData,
-  canLoggedUserCreateComment,
-  baseActions,
-  sharedData,
+  sharedCommentId,
   articleToRenderData,
   loadComments,
   setLoadingComments,
@@ -40,7 +42,7 @@ const CommentCard = styled.div`
     gap: 12px;
     border-radius: "10px"};
     background: ${
-      sharedData.sharedCommentId === data.value.metadata.id
+      sharedCommentId === data.value.metadata.id
         ? "rgba(194, 205, 255, 0.8)"
         : "#fff"
     };
@@ -527,18 +529,16 @@ return (
             <Widget
               src={widgets.views.editableWidgets.addComment}
               props={{
-                article: articleToRenderData,
-                originalComment: data,
                 widgets,
                 isTest,
-                replyingTo: data.accountId,
-                placement: "bottom",
+                article: articleToRenderData,
+                originalComment: data,
                 onCloseModal: closeModal,
-                baseActions,
-                editionData: state.editionData,
-                rootCommentId: state.rootId,
                 loadComments,
                 setLoadingComments,
+                rootCommentId: state.rootId,
+                replyingTo: data.accountId,
+                editionData: state.editionData,
               }}
             />
           )}
@@ -572,7 +572,6 @@ return (
             authorForWidget,
             elementReactedId: data.value.metadata.id,
             disabled: !loggedUserHaveSbt,
-            baseActions,
           }}
         />
       </CommentCardLowerSection>
@@ -594,11 +593,11 @@ return (
                   isTest,
                   authorForWidget,
                   isReply: true,
-                  canLoggedUserCreateComment,
                   loggedUserHaveSbt,
-                  baseActions,
-                  sharedData,
+                  sharedCommentId,
                   articleToRenderData,
+                  loadComments,
+                  setLoadingComments,
                 }}
               />
             </AnswerContainer>

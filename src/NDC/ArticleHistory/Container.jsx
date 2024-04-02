@@ -58,19 +58,6 @@ return (
         currentVersionData,
         allVersionsData,
         prevBlockHeight: prevBlockHeight,
-        findUniqueResult: (
-          lineCountDeleted,
-          lineCountInserted,
-          lineCountCurrentCode,
-          lineCountPrevCode,
-          allLineCount
-        ) => {
-          if (
-            state.lineCountDeleted === undefined ||
-            state.lineCountInserted === undefined
-          )
-            State.update({ lineCountDeleted, lineCountInserted });
-        },
       }}
     />
   </div>

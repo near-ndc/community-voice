@@ -1,31 +1,29 @@
 // NDC.Forum.AllArticlesList
 const { arrayIncludesIgnoreCase } = VM.require("communityvoice.ndctools.near/widget/lib.strings")
 
+if(!arrayIncludesIgnoreCase){
+  return <div className="spinner-border" role="status"></div>
+}
+
 //===============================================INITIALIZATION=====================================================
 
 let {
   isTest,
-  stateUpdate,
   articlesToRender,
-  tabs,
   widgets,
-  addressForArticles,
-  handleFilterArticles,
   handleOpenArticle,
+  handleFilterArticles,
   authorForWidget,
   initialCreateState,
   editArticleData,
   handleEditArticle,
-  showCreateArticle,
+  loggedUserHaveSbt,
   handleShareButton,
   handleShareSearch,
-  loggedUserHaveSbt,
   filterBy,
-  baseActions,
   handleOnCommitArticle,
   sharedSearchInputValue,
   category,
-  sharedData,
 } = props;
 
 if(!articlesToRender) return <></>
@@ -157,19 +155,15 @@ return (
                   src={widgets.views.editableWidgets.create}
                   props={{
                     isTest,
-                    addressForArticles,
                     authorForWidget,
-                    stateUpdate,
                     widgets,
+                    initialBody: "",
                     initialCreateState,
                     editArticleData,
                     handleFilterArticles,
-                    handleEditArticle,
-                    initialBody: "",
-                    canLoggedUserCreateArticles: loggedUserHaveSbt,
-                    baseActions,
                     handleOnCommitArticle,
-                    category
+                    category,
+                    loggedUserHaveSbt
                   }}
                 />
               </AccordionBody>
@@ -256,15 +250,11 @@ return (
                     widgets,
                     isTest,
                     data: article,
-                    displayOverlay: true,
-                    renderReactions: true,
-                    addressForArticles,
                     handleOpenArticle,
                     handleFilterArticles,
                     authorForWidget,
                     handleShareButton,
                     handleEditArticle,
-                    baseActions,
                     loggedUserHaveSbt
                   }}
                 />

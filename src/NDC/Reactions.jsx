@@ -2,13 +2,16 @@
 const { getReactions, createReaction } = VM.require("communityvoice.ndctools.near/widget/lib.reactions")
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
+if(!getReactions || !createReaction || !getConfig){
+  return <div className="spinner-border" role="status"></div>
+}
+
 const {
   isTest,
+  widgets,
   authorForWidget,
   elementReactedId,
-  widgets,
   disabled,
-  baseActions,
 } = props;
 // Don't forget to put space between emoji and text -> "❤️ Positive"
 const initialEmoji = "🤍 Like";

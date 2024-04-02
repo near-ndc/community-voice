@@ -2,6 +2,10 @@
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice");
 const { getCategories } = VM.require("communityvoice.ndctools.near/widget/lib.categories");
 
+if(!getConfig || !getCategories){
+  return <div className="spinner-border" role="status"></div>
+}
+
 let {
   isTest,
   accountId,
@@ -11,12 +15,6 @@ let {
   scid: sharedCommentId,
   ss: sharedSearch,
 } = props;
-
-State.init({categories:getCategories(),category:getCategories().value})
-
-const handleChangeCategory = (category) => {
-  State.update({category})
-}
 
 const sharedData = {
   sharedBlockheight: sharedBlockheight ? Number(sharedBlockheight) : undefined,
@@ -49,8 +47,6 @@ const widgets = {
       upVoteButton: `${componentsOwner}/widget/NDC.UpVoteButton`,
       profileShortInlineBlock: `${componentsOwner}/widget/Profile.ShortInlineBlock`,
       tagsEditor: `${componentsOwner}/widget/TagsEditor`,
-      kanbanBoard: `${componentsOwner}/widget/NDC.KanbanBoard`,
-      compactPost: `${componentsOwner}/widget/NDC.CompactPost`,
       articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
       articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
       articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
@@ -99,18 +95,6 @@ const brand = {
   logoRemHeight: 4,
 };
 
-const baseActions = {
-  commentBaseAction: "sayALotComment",
-  articlesBaseAction: "sayALotArticle",
-  upVoteBaseAction: "sayALotUpVote",
-  reactionBaseAction: "sayALotReaction",
-};
-
-const kanbanColumns = ["Open", "Claimed", "In Work", "Closed"];
-
-const kanbanRequiredTags = [];
-const kanbanExcludedTags = [];
-
 return (
   <> 
     <Widget
@@ -121,13 +105,6 @@ return (
         authorForWidget,
         widgets,
         brand,
-        baseActions,
-        kanbanColumns,
-        kanbanRequiredLabels,
-        kanbanExcludedLabels,
-        handleChangeCategory,
-        categories:state.categories,
-        category:state.category,
         sharedData,
       }}
     />
