@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bos-loader communityvoice.ndctools.near --path ./src",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node deploy.js"
+    "deploy": "node scripts/deploy.js",
+    "get_old_articles": "node scripts/getOldArticles.js"
   },
   "author": "",
   "license": "ISC",

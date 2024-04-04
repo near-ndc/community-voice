@@ -63,7 +63,7 @@ function getArticleNormalized(articleIndex, action) {
   });
 
   const articleVersionKey = Object.keys(versions)[articleVersionIndex];
-  // const action = versions[articleVersionKey].action
+  const action = versions[articleVersionKey].action
   const key = "main";
 
   return asyncFetch(" https://api.near.social/get", {
