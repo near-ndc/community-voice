@@ -91,10 +91,6 @@ function filterValidArticles(articles) {
 }
 
 function filterInvalidArticlesIndexes(articlesIndexes) {
-  // const myArticlesIndexes = articlesIndexes.filter(
-  //   (articleIndex) => articleIndex.accountId === "kenrou-it.near"
-  // );
-
   return articlesIndexes
     .filter((articleIndex) => articleIndex.value.id) // Has id
     .filter((articleIndex) => {
@@ -116,7 +112,7 @@ function filterInvalidArticlesIndexes(articlesIndexes) {
 function getLatestEdits(newFormatArticlesIndexes) {
   return newFormatArticlesIndexes.filter((articleIndex) => {
     const latestEditForThisArticle = newFormatArticlesIndexes.find(
-      (newArticleData) => newArticleData.value.id === articleIndex.value.id
+      (newArticleData) => newArticleData.id === articleIndex.id
     );
     return (
       JSON.stringify(articleIndex) === JSON.stringify(latestEditForThisArticle)
@@ -154,19 +150,6 @@ function getArticleData(articleIndex, action, key) {
 }
 
 function getArticleNormalized(articleIndex) {
-  // const articleVersionIndex = Object.keys(versions).findIndex((versionName, index) => {
-  //   // const versionData = versions[versionName];
-
-  //   return (
-  //     articleIndex.versionIndex === index + 1
-  //     // versionData.validBlockHeightRange[0] <= articleIndex.blockHeight &&
-  //     // (articleIndex.blockHeight < versionData.validBlockHeightRange[1] ||
-  //     //   versionData.validBlockHeightRange[1] === undefined)
-  //   );
-  // });
-
-  // const articleVersionKey = Object.keys(versions)[articleVersionIndex];
-
   const articleVersionKey =
     Object.keys(versions)[Number(articleIndex.versionIndex)];
   const action = versions[articleVersionKey].action;
@@ -237,6 +220,10 @@ function normalizeArticle(article) {
   return article;
 }
 
+function isActive(article) {
+  return !!!article.isDelete;
+}
+
 function getArticlesNormalized(/*userFilters*/) {
   const articlesIndexesByVersionPromises = Object.keys(versions).map(
     (version, versionIndex) => {
@@ -275,11 +262,6 @@ function getArticlesNormalized(/*userFilters*/) {
           return article;
         });
 
-      // const articles = articlesVersionArray.flat();
-      // const normalizedArticles = articles.map((article) =>
-      //   normalizeArticle(article)
-      // );
-
       return Promise.all(normalizedArticlesPromises).then(
         (normalizedArticles) => {
           const latestActiveEdits = getLatestEdits(normalizedArticles);
@@ -288,26 +270,15 @@ function getArticlesNormalized(/*userFilters*/) {
           return activeArticles;
         }
       );
-      // const filteredArticles = applyUserFilters(activeArticles, userFilters);
     }
   );
 }
 
 function getArticles() {
-  // Call other libs
   let normArticles;
 
   try {
     normArticles = getArticlesNormalized();
-    // Keep last edit from every article
-    // const lastEditionArticles = normArticles.filter((article) => {
-    //   return normArticles.find(
-    //     (compArticle) => JSON.stringify(compArticle) === JSON.stringify(article)
-    //   );
-    // });
-
-    // const finalArticles = filterValidArticles(normArticles);
-    // return finalArticles;
   } catch (err) {
     console.error(err);
   }
@@ -325,7 +296,7 @@ function normalizeOldToV_0_0_1(article) {
 }
 
 function normalizeFromV0_0_1ToV0_0_2(article) {
-  article.title = article.articleId;
+  if (!article.title) article.title = article.articleId;
   article.id = article.realArticleId;
   if (article.sbts[0] !== "public") {
     article.sbts[0] = article.sbts[0] + " - class 1";
@@ -336,25 +307,6 @@ function normalizeFromV0_0_1ToV0_0_2(article) {
 
   return article;
 }
-
-// function filterMultipleKanbanTags(articleTags, kanbanTags) {
-//   const normalizedKanbanTag = [];
-//   kanbanTags.forEach((tag) => {
-//     normalizedKanbanTag.push(tag.replace(` `, "-"));
-//   });
-
-//   const kanbanTagsInArticleTags = articleTags.filter((tag) =>
-//     normalizedKanbanTag.includes(tag.toLowerCase().replace(` `, "-"))
-//   );
-
-//   const nonKanbanTags = articleTags.filter(
-//     (tag) => !normalizedKanbanTag.includes(tag.toLowerCase().replace(` `, "-"))
-//   );
-
-//   const result = [...nonKanbanTags, kanbanTagsInArticleTags[0]];
-
-//   return result;
-// }
 
 function normalizeFromV0_0_2ToV0_0_3(article) {
   if (!Array.isArray(article.tags) && typeof article.tags === "object") {
@@ -368,15 +320,6 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
   } else {
     article.tags = [];
   }
-
-  // if (kanbanColumns) {
-  //   const lowerCaseColumns = [];
-  //   kanbanColumns.forEach((cl) => {
-  //     lowerCaseColumns.push(cl.toLowerCase());
-  //   });
-
-  //   article.tags = filterMultipleKanbanTags(article.tags, lowerCaseColumns);
-  // }
 
   //Add day-month-year tag if it doesn't exists yet
   const creationDate = new Date(article.timeCreate);
@@ -398,21 +341,83 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
   return article;
 }
 
+function getNewArticleIdFormat(oldId) {
+  const splittedId = oldId.split("-");
+  const timestampPartOfId = splittedId.pop();
+  const accountIdPartOfId = splittedId.join("/");
+
+  const newArticleId = `article/${accountIdPartOfId}/${timestampPartOfId}`;
+
+  return newArticleId;
+}
+
+function normalizeFromV0_0_4ToV0_0_5(article) {
+  const articleCopy = { ...article };
+
+  articleCopy.value = {};
+  articleCopy.value.metadata = {};
+  articleCopy.value.articleData = {};
+
+  //articleData section
+  articleCopy.value.articleData.title = articleCopy.title;
+  delete articleCopy.title;
+
+  articleCopy.value.articleData.body = articleCopy.body;
+  delete articleCopy.body;
+
+  articleCopy.value.articleData.tags = articleCopy.tags;
+  delete articleCopy.tags;
+
+  articleCopy.value.articleData.category = articleCopy.category;
+  delete articleCopy.category;
+
+  //metadata section
+  articleCopy.value.metadata.author = articleCopy.author;
+  delete articleCopy.author;
+
+  if (articleCopy.isDelete !== undefined) {
+    articleCopy.value.metadata.isDelete = articleCopy.isDelete;
+    delete articleCopy.isDelete;
+  }
+
+  articleCopy.value.metadata.createdTimestamp = articleCopy.timeCreate;
+  delete articleCopy.timeCreate;
+
+  articleCopy.value.metadata.lastEditTimestamp = articleCopy.timeLastEdit;
+  delete articleCopy.timeLastEdit;
+
+  articleCopy.value.metadata.id = getNewArticleIdFormat(articleCopy.id);
+  delete articleCopy.id;
+
+  //Add data to metada
+  articleCopy.value.metadata.versionKey = "v0.0.5";
+
+  //delete data not used
+  delete articleCopy.version;
+  delete articleCopy.lastEditor;
+  delete articleCopy.navigation_id;
+  delete articleCopy.sbts;
+  delete articleCopy.blockHeight;
+  delete articleCopy.articleIndex;
+
+  if (!!articleCopy.value.metadata.isDelete) return articleCopy;
+  articleCopy.value.articleData.category = "uncategorized";
+
+  return articleCopy;
+}
+
 async function run() {
-  const articles = await getArticles();
+  const oldArticles = await getArticles();
+
+  const oldArticlesNormalizedToLastVersion = oldArticles.map((article) => {
+    const newVersion = normalizeFromV0_0_4ToV0_0_5(article);
+    return newVersion;
+  });
+
+  oldArticlesNormalizedToLastVersion.forEach((article) => {
+    console.log("article.value.metadata: ", article.value.metadata);
+    console.log("article.value.articleData: ", article.value.articleData);
+  });
 }
 
 run();
-
-// getArticlesIndexes("test_communityVoiceArticle_v0.0.2", "main").then((res) => {
-// });
-
-// const articlesPromise = fetch("https://api.near.social/index", {
-//   action: "test_communityVoiceArticle_v0.0.2",
-//   key: "main",
-// }).then((res) => {
-//   res.json().then((res2) => {
-//   });
-
-//   return res.body;
-// });
