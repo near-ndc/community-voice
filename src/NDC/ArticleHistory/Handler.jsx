@@ -73,10 +73,6 @@ function blockHeightToWidgetRender(blockHeight, allArticles) {
   return <Markdown text={allArticles[index].value.articleData.body} />;
 }
 
-function articleHistoryHasndlerStateUpdate(obj) {
-  State.update(obj);
-}
-
 //styles forked from calebjacob.near/widget/Activity
 const Tabs = styled.div`
   display: flex;

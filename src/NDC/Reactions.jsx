@@ -1,8 +1,8 @@
 // NDC.Reactions
-const { getReactions, createReaction } = VM.require("communityvoice.ndctools.near/widget/lib.reactions")
+const { getInitialEmoji, getEmojis, getReactions, createReaction } = VM.require("communityvoice.ndctools.near/widget/lib.reactions")
 const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
 
-if(!getReactions || !createReaction || !getConfig){
+if(!getInitialEmoji || !getEmojis || !getReactions || !createReaction || !getConfig){
   return <div className="spinner-border" role="status"></div>
 }
 
@@ -13,21 +13,9 @@ const {
   elementReactedId,
   disabled,
 } = props;
-// Don't forget to put space between emoji and text -> "❤️ Positive"
-const initialEmoji = "🤍 Like";
-// It is important that 'Heart' Positive emoji is first
-const emojiArray = [
-  "❤️ Positive",
-  "🙏 Thank you",
-  "💯 Definitely",
-  "👀 Thinking",
-  "🔥 Awesome",
-  "👍 Like",
-  "🙌 Celebrate",
-  "👏 Applause",
-  "⚡ Lightning",
-  "⋈ Bowtie",
-];
+
+const initialEmoji = getInitialEmoji()
+const emojiArray = getEmojis()
 
 const [reactionsData, setReactionsData] = useState({reactionsStatistics: [], userEmoji: undefined})
 const [showEmojiList, setShowEmojiList] = useState(false)
@@ -76,16 +64,11 @@ function reactListener(emojiToWrite) {
   }
   setLoading(true)
 
-  // decide to put unique emoji or white heart (unreaction emoji)
-  // const emojiToWrite =
-  //   emojiMessage === initialEmoji ? emojiArray[0] : emojiMessage;
-
   const author = context.accountId
   const result = createReaction(getConfig(isTest), emojiToWrite, elementReactedId, author, onCommit, onCancel)
   if(result.error) {
       console.error(result.data)
   }
-
 }
 
 // =============== CSS Styles ===============

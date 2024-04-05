@@ -248,4 +248,4 @@ function createReaction(config, emoji, elementReactedId, author, onCommit, onCan
 
 }
 
-return { getEmojis, getReactions, createReaction }
+return { getInitialEmoji ,getEmojis, getReactions, createReaction }

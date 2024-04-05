@@ -8,14 +8,14 @@ if(!deleteComment || !getConfig){
 
 const {
   widgets,
-  data,
+  comment,
   isTest,
   authorForWidget,
   isReply,
   loggedUserHaveSbt,
   orginalCommentData,
   sharedCommentId,
-  articleToRenderData,
+  article,
   loadComments,
   setLoadingComments,
 } = props;
@@ -42,7 +42,7 @@ const CommentCard = styled.div`
     gap: 12px;
     border-radius: "10px"};
     background: ${
-      sharedCommentId === data.value.metadata.id
+      sharedCommentId === comment.value.metadata.id
         ? "rgba(194, 205, 255, 0.8)"
         : "#fff"
     };
@@ -387,9 +387,9 @@ function deleteCommentListener() {
   
   deleteComment({
     config: getConfig(isTest),
-    commentId: data.value.metadata.id,
-    articleId: data.value.metadata.articleId,
-    rootId: data.value.metadata.rootId,
+    commentId: comment.value.metadata.id,
+    articleId: comment.value.metadata.articleId,
+    rootId: comment.value.metadata.rootId,
     onCommit: onCommitDeleteComment,
     onCancel: closeDeleteCommentModal,
   });
@@ -407,20 +407,20 @@ function closeModal() {
 
 function getProperRootId(isEdition) {
   if (isEdition) {
-    return data.value.metadata.rootId;
+    return comment.value.metadata.rootId;
   }
 
-  if (data.answers) {
-    return data.value.metadata.id;
+  if (comment.answers) {
+    return comment.value.metadata.id;
   } else {
-    return data.value.metadata.rootId;
+    return comment.value.metadata.rootId;
   }
 }
 
 function handleEditComment() {
   State.update({
     showModal: true,
-    editionData: data,
+    editionData: comment,
     rootId: getProperRootId(true),
   });
 }
@@ -440,13 +440,13 @@ function handleReplyListener() {
 return (
   <>
     {state.showDeleteModal && renderDeleteModal()}
-    <CommentCard id={data.value.metadata.id}>
+    <CommentCard id={comment.value.metadata.id}>
       <CommentCardHeader>
         <CommentUserContent>
           <Widget
             src={widgets.views.standardWidgets.newStyledComponents.Element.User}
             props={{
-              accountId: data.accountId,
+              accountId: comment.accountId,
               options: {
                 showHumanBadge: true,
                 showImage: true,
@@ -458,7 +458,7 @@ return (
           />
         </CommentUserContent>
 
-        {context.accountId == data.accountId && (
+        {context.accountId == comment.accountId && (
           <CommentEdition>
             <Widget
               src={
@@ -496,7 +496,7 @@ return (
         <Widget
           src={widgets.views.standardWidgets.socialMarkdown}
           props={{
-            text: data.value.commentData.text,
+            text: comment.value.commentData.text,
             onHashtag: (hashtag) => (
               <span
                 key={hashtag}
@@ -518,9 +518,9 @@ return (
         <TimestampCommentDiv>
           <i className="bi bi-clock" />
           <TimestampTextComment>
-            {new Date(data.value.metadata.lastEditTimestamp).toDateString()}
+            {new Date(comment.value.metadata.lastEditTimestamp).toDateString()}
           </TimestampTextComment>
-          {data.isEdition && (
+          {comment.isEdition && (
             <EditedIndication className="text-muted">(edited)</EditedIndication>
           )}
         </TimestampCommentDiv>
@@ -531,13 +531,13 @@ return (
               props={{
                 widgets,
                 isTest,
-                article: articleToRenderData,
-                originalComment: data,
+                article,
+                originalComment: comment,
                 onCloseModal: closeModal,
                 loadComments,
                 setLoadingComments,
                 rootCommentId: state.rootId,
-                replyingTo: data.accountId,
+                replyingTo: comment.accountId,
                 editionData: state.editionData,
               }}
             />
@@ -570,7 +570,7 @@ return (
             widgets,
             isTest,
             authorForWidget,
-            elementReactedId: data.value.metadata.id,
+            elementReactedId: comment.value.metadata.id,
             disabled: !loggedUserHaveSbt,
           }}
         />
@@ -578,24 +578,24 @@ return (
     </CommentCard>
     {!isReply && (
       <>
-        {data.answers.length > 0 && (
+        {comment.answers.length > 0 && (
           <i className="bi bi-arrow-return-right"></i>
         )}
-        {data.answers.map((answer) => {
+        {comment.answers.map((answer) => {
           return (
             <AnswerContainer>
               <Widget
                 src={widgets.views.editableWidgets.commentView}
                 props={{
                   widgets,
-                  data: answer,
-                  orginalCommentData: data,
+                  comment: answer,
+                  orginalCommentData: comment,
                   isTest,
                   authorForWidget,
                   isReply: true,
                   loggedUserHaveSbt,
                   sharedCommentId,
-                  articleToRenderData,
+                  article,
                   loadComments,
                   setLoadingComments,
                 }}

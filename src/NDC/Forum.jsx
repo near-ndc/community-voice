@@ -17,10 +17,7 @@ let {
   brand,
   sharedData,
 } = props;
-
 const [searchInputValue, setSearchInputValue] = useState("");
-
-accountId = context.accountId;
 
 function getInitialFilter() {
   if (sharedData.sharedBlockheight) {
@@ -52,7 +49,7 @@ function getInitialFilter() {
 
 const [categories] = useState(getCategories())
 const [category, setCategory] = useState(getCategories()[0].value)
-const [articlesToRender, setArticlesToRender] = useState([]);
+const [articles, setArticles] = useState([]);
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
@@ -69,7 +66,7 @@ const handleChangeCategory = (category) => {
 function loadArticles(category) {
   const userFilters = { category: category };
   getArticles(getConfig(isTest), userFilters).then((newArticles) => {
-    setArticlesToRender(newArticles || [])
+    setArticles(newArticles)
     setLoadingArticles(false)
   })
 }
@@ -90,8 +87,6 @@ useEffect(() => {
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
 
-accountId = context.accountId;
-
 const tabs = {
   SHOW_ARTICLES_LIST: { id: 0 },
   SHOW_ARTICLE: { id: 1 },
@@ -110,7 +105,7 @@ function getInitialTabId() {
 
 State.init({
   displayedTabId: getInitialTabId(),
-  articleToRenderData: {},
+  article: {},
   authorsProfiles: [],
   firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
 });
@@ -119,7 +114,7 @@ State.init({
 
 //==================================================CONSTS==========================================================
 
-const profile = props.profile ?? Social.getr(`${accountId}/profile`);
+const profile = props.profile ?? Social.getr(`${context.accountId}/profile`);
 
 if (profile === null) {
   return <div className="spinner-border" role="status"></div>;
@@ -174,31 +169,31 @@ function filterOnePostByArticleId(articleId, articles) {
 }
 
 if (filterBy.parameterName === "tag") {
-  setArticlesToRender(filterArticlesByTag(
+  setArticles(filterArticlesByTag(
     filterBy.parameterValue,
-    articlesToRender
+    articles
   ));
 } else if (filterBy.parameterName === "author") {
-  setArticlesToRender(filterArticlesByAuthor(
+  setArticles(filterArticlesByAuthor(
     filterBy.parameterValue,
-    articlesToRender
+    articles
   ));
 } else if (filterBy.parameterName === "getPost") {
-  setArticlesToRender(filterOnePostByBlockHeight(
+  setArticles(filterOnePostByBlockHeight(
     filterBy.parameterValue,
-    articlesToRender
+    articles
   ));
 
-  if (articlesToRender.length > 0) {
-    State.update({ articleToRenderData: articlesToRender[0] });
+  if (articles.length > 0) {
+    State.update({ article: articles[0] });
   }
 } else if (filterBy.parameterName === "articleId") {
-  setArticlesToRender(filterOnePostByArticleId(
+  setArticles(filterOnePostByArticleId(
     filterBy.parameterValue,
-    articlesToRender
+    articles
   ));
-  if (articlesToRender.length > 0) {
-    State.update({ articleToRenderData: articlesToRender[0] });
+  if (articles.length > 0) {
+    State.update({ article: articles[0] });
   }
 }
 //===============================================END GET DATA=======================================================
@@ -438,8 +433,8 @@ const getCategoriesSelectorLabel = () => {
 //==============================================END COMPONENTS======================================================
 
 //=================================================FUNCTIONS========================================================
-function onCommitDeletArticle() {
-  setArticlesToRender([])
+function onCommitDeleteArticle() {
+  setArticles([])
   setTimeout(() => {
     loadArticles()
   }, 3000);
@@ -448,7 +443,7 @@ function onCommitDeletArticle() {
     showDeleteModal: false,
     deleteArticleData: undefined,
     displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    articleToRenderData: undefined,
+    article: undefined,
     editArticleData: undefined,
   });
 }
@@ -459,7 +454,7 @@ function deletePostListener() {
   deleteArticle(
     getConfig(isTest),
     article.value.metadata.id,
-    onCommitDeletArticle,
+    onCommitDeleteArticle,
     closeDeleteArticleModal
   );
 }
@@ -482,13 +477,12 @@ const initialCreateState = {
   tags: state.editArticleData.value.articleData.tags
     ? getValidEditArticleDataTags()
     : {},
-  libsCalls: { comment: {}, article: {}, emojis: {}, upVotes: {} },
 };
 
-function handleOpenArticle(articleToRenderData) {
+function handleOpenArticle(article) {
   State.update({
     displayedTabId: tabs.SHOW_ARTICLE.id,
-    articleToRenderData,
+    article,
     editArticleData: undefined,
   });
 }
@@ -546,7 +540,7 @@ function handleBackButton() {
     });
     State.update({
       displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-      articleToRenderData: {},
+      article: {},
       editArticleData: undefined,
       firstRender: false,
     });
@@ -557,7 +551,7 @@ function handleGoHomeButton() {
   setFilterBy({ parameterName: "", parameterValue: {} });
   State.update({
     displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    articleToRenderData: {},
+    article: {},
     editArticleData: undefined,
   });
   loadArticles()
@@ -605,7 +599,7 @@ function handleOnCommitArticle(articleId) {
       if(newArticles && newArticles.length > 0){
         State.update({
           displayedTabId: tabs.SHOW_ARTICLE.id,
-          articleToRenderData: newArticles[0]
+          article: newArticles[0]
         });
       }
     })
@@ -656,7 +650,7 @@ return (
           src={widgets.views.editableWidgets.showArticlesList}
           props={{
             isTest,
-            articlesToRender,
+            articles,
             widgets,
             handleOpenArticle,
             handleFilterArticles,
@@ -674,7 +668,7 @@ return (
           }}
       />      
     )}
-    {state.articleToRenderData.value.articleData.title &&
+    {state.article.value.articleData.title &&
       state.displayedTabId == tabs.SHOW_ARTICLE.id && (
         <Widget
         src={widgets.views.editableWidgets.articleView}
@@ -682,7 +676,7 @@ return (
           isTest,
           widgets,
           handleFilterArticles,
-          articleToRenderData: state.articleToRenderData,
+          article: state.article,
           authorForWidget,
           handleEditArticle,
           handleShareButton,
@@ -698,7 +692,7 @@ return (
       src={widgets.views.editableWidgets.showArticlesListSortedByAuthors}
           props={{
             isTest,
-            finalArticles: articlesToRender,
+            articles,
             widgets,
             handleFilterArticles,
             authorForWidget,

@@ -9,18 +9,16 @@ if(!createUpVote || !deleteUpVote || !getConfig){
 const {
   isTest,
   authorForWidget,
-  reactedElementData,
+  article,
   widgets,
   disabled,
-  upVotes: articleUpVotes,
+  upVotes,
   loadUpVotes,
   loadingUpVotes,
   setLoadingUpVotes,
 } = props;
 
-const data = reactedElementData;
-
-let userVote = articleUpVotes? articleUpVotes.find((vote) => vote.accountId === context.accountId) : undefined;
+let userVote = upVotes? upVotes.find((vote) => vote.accountId === context.accountId) : undefined;
 
 function getUpVoteButtonClass() {
   if (userVote) {
@@ -53,8 +51,8 @@ function handleUpVote() {
   :
     createUpVote(
       getConfig(isTest),
-      data.value.metadata.id,
-      data.value.metadata.author,
+      article.value.metadata.id,
+      article.value.metadata.author,
       onCommitUpVotes,
       onCancelUpVotes
     )
@@ -101,7 +99,7 @@ return (
           props={{
             children: (
               <div className="d-flex">
-                <span>{`+${articleUpVotes.length}`}</span>
+                <span>{`+${upVotes.length}`}</span>
                 <IconContainer>
                   <Icon
                     className={`bi bi-fast-forward-fill ${

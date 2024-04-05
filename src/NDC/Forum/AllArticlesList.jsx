@@ -9,7 +9,7 @@ if(!arrayIncludesIgnoreCase){
 
 let {
   isTest,
-  articlesToRender,
+  articles,
   widgets,
   handleOpenArticle,
   handleFilterArticles,
@@ -26,7 +26,7 @@ let {
   category,
 } = props;
 
-if(!articlesToRender) return <></>
+if(!articles) return <></>
 
 const [searchInputValue, setSearchInputValue] = useState(
   sharedSearchInputValue ?? ""
@@ -43,8 +43,7 @@ function filterArticlesBySearch(articles, searchInputValue) {
     return arrayIncludesIgnoreCase(arr, searchInputValue)        
   });
 }
-
-const articlesFilteredBySearch = filterArticlesBySearch(articlesToRender, searchInputValue);
+const articlesFilteredBySearch = filterArticlesBySearch(articles, searchInputValue);
 
 const fiveDaysTimeLapse = 5 * 24 * 60 * 60 * 1000;
 const newestArticlesWithUpVotes = articlesFilteredBySearch
@@ -55,7 +54,7 @@ const olderArticlesWithUpVotes = articlesFilteredBySearch
   .filter((article) => article.value.metadata.lastEditTimestamp < Date.now() - fiveDaysTimeLapse)
   // .sort((a, b) => b.upVotes.length - a.upVotes.length);
 
-const sortedArticlesToRender = [
+const sortedArticles = [
   ...newestArticlesWithUpVotes,
   ...olderArticlesWithUpVotes,
 ];
@@ -111,15 +110,6 @@ const SearchResult = styled.span`
 //=================================================END CONSTS=======================================================
 
 //==================================================FUNCTIONS=======================================================
-
-function getDateLastEdit(timestamp) {
-  const date = new Date(Number(timestamp));
-  const dateString = {
-    date: date.toLocaleDateString(),
-    time: date.toLocaleTimeString(),
-  };
-  return dateString;
-}
 
 function handleSearch(e) {
   setSearchInputValue(e.target.value);
@@ -188,9 +178,9 @@ return (
     />
     {searchInputValue &&
       searchInputValue !== "" &&
-      sortedArticlesToRender.length > 0 && (
+      sortedArticles.length > 0 && (
         <SearchResult className="text-secondary">
-          {`Found ${sortedArticlesToRender.length} articles searching for "${searchInputValue}"`}
+          {`Found ${sortedArticles.length} articles searching for "${searchInputValue}"`}
         </SearchResult>
       )}
     <ShareSearchRow>
@@ -229,8 +219,8 @@ return (
         </div>
       )}
       <ArticlesListContainer className="row card-group py-3">
-        {sortedArticlesToRender.length > 0 ? (
-          sortedArticlesToRender.map((article, i) => {
+        {sortedArticles.length > 0 ? (
+          sortedArticles.map((article, i) => {
             const authorProfileCall = Social.getr(
               `${article.value.metadata.author}/profile`
             );
@@ -249,7 +239,7 @@ return (
                   props={{
                     widgets,
                     isTest,
-                    data: article,
+                    article,
                     handleOpenArticle,
                     handleFilterArticles,
                     authorForWidget,

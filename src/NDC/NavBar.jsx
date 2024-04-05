@@ -14,9 +14,6 @@ const {
   widgets,
 } = props;
 
-function stateUpdate(obj) {
-  State.update(obj);
-}
 /*
   ======================================================PILLS EXAMPLE====================================================
       *Note: the first pill allways has to be the first one displayed*
@@ -38,8 +35,6 @@ function stateUpdate(obj) {
   ============(When modified to be web app we should delete action to replace it with a propper State.update)============
   */
 
-const loggedUserAccountId = context.accountId;
-
 const logoRemWidth = brand.logoRemWidth
   ? brand.logoRemWidth + "rem"
   : undefined;
@@ -48,7 +43,6 @@ const logoRemHeight = brand.logoRemHeight
   : undefined;
 
 if (
-  !stateUpdate ||
   !(displayedTabId + "") ||
   !pills ||
   (brand && (!brand.logoHref || !(brand.homePageId + "")))
@@ -58,8 +52,6 @@ if (
     <div>
       <h3 className="text-danger">{crucialPropMissingMsg}</h3>
       <ul>
-        {!stateUpdate && <li className="text-danger">stateUpdate</li>}
-
         {!(displayedTabId + "") && (
           <li className="text-danger">displayedTabId</li>
         )}
@@ -127,13 +119,9 @@ const renderButton = (button, i) => {
           size: "big",
           onClick: () => {
             handlePillNavigation(button.id);
-            State.update({
-              selectedButtonIndex: i,
-            });
           },
           text: button.title,
-          className:
-            state.selectedButtonIndex == i ? "primary light" : "primary dark",
+          className: "primary dark",
         },
       }}
     />
@@ -141,24 +129,6 @@ const renderButton = (button, i) => {
 };
 //==============================================End components===================================================
 
-//==================================================FUNCTIONS====================================================
-
-function realHandleBackButton() {
-  State.update({
-    selectedButtonIndex: undefined,
-  });
-
-  handleBackButton();
-}
-
-function realHandleGoHome() {
-  State.update({
-    selectedButtonIndex: undefined,
-  });
-  handleGoHomeButton();
-}
-
-//================================================END FUNCTIONS===================================================
 return (
   <>
     <div className="navbar navbar-expand-md border-bottom mb-3">
@@ -217,9 +187,6 @@ return (
                         } else {
                           handlePillNavigation(pill.id);
                         }
-                        State.update({
-                          selectedButtonIndex: undefined,
-                        });
                       }}
                       className={`nav-link ${
                         pill.id === displayedTabId
@@ -247,8 +214,8 @@ return (
         onClick={
           displayedTabId == tabs.SHOW_ARTICLE.id ||
           (editArticleData && tabs.ARTICLE_WORKSHOP.id)
-            ? realHandleBackButton
-            : realHandleGoHome
+            ? handleBackButton
+            : handleGoHomeButton
         }
         className="my-3"
       >

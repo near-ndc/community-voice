@@ -310,10 +310,6 @@ function getInitialText() {
   }
 }
 
-const SetText = (txt) => {
-  State.update({ shareText: txt });
-};
-
 const renderSpinner = () => {
   return <Spinner className="spinner-border" role="status"></Spinner>;
 };
@@ -337,14 +333,14 @@ function handleSubmitButton() {
     return () => {};
   } else {
     if (isEdition) {
-      return editCommentListener;
+      return handleEditComment;
     } else {
-      return addCommentListener;
+      return handleCreateComment;
     }
   }
 }
 
-function addCommentListener() {
+function handleCreateComment() {
   State.update({showSpinner: true });
   
   createComment({
@@ -358,7 +354,7 @@ function addCommentListener() {
   });
 }
 
-function editCommentListener() {
+function handleEditComment() {
   State.update({showSpinner: true });
   const comment = originalComment
   comment.value.commentData.text=state.reply

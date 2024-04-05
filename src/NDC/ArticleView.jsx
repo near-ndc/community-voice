@@ -13,7 +13,7 @@ const {
   isTest,
   widgets,
   handleFilterArticles,
-  articleToRenderData,
+  article,
   authorForWidget,
   handleEditArticle,
   handleShareButton,
@@ -22,19 +22,19 @@ const {
   loggedUserHaveSbt
 } = props;
 
-const accountId = articleToRenderData.value.metadata.author;
+const authorAccountId = article.value.metadata.author;
 const id =
-  articleToRenderData.value.metadata.id ??
-  `article/${articleToRenderData.value.metadata.author}/${articleToRenderData.value.metadata.createdTimestamp}`;
+  article.value.metadata.id ??
+  `article/${article.value.metadata.author}/${article.value.metadata.createdTimestamp}`;
 
 if (
-  !Array.isArray(articleToRenderData.value.articleData.tags) &&
-  typeof articleToRenderData.value.articleData.tags === "object"
+  !Array.isArray(article.value.articleData.tags) &&
+  typeof article.value.articleData.tags === "object"
 ) {
-  articleToRenderData.value.articleData.tags = Object.keys(articleToRenderData.value.articleData.tags);
+  article.value.articleData.tags = Object.keys(article.value.articleData.tags);
 }
 
-articleToRenderData.value.articleData.tags = articleToRenderData.value.articleData.tags.filter(
+article.value.articleData.tags = article.value.articleData.tags.filter(
   (tag) => tag !== undefined && tag !== null
 );
 
@@ -46,10 +46,8 @@ const tabs = [
   },
 ];
 
-//To slice the article body and show the showMore button just uncoment the sliceContent: true, un the State.init
 State.init({
   tabSelected: tabs[0].id,
-  // sliceContent: true,
 });
 
 const [comments, setComments] = useState(undefined)
@@ -58,7 +56,7 @@ const [versions, setVersions] = useState([]);
 
 if(versions.length === 0) {
   try {
-    const versionsPromise = getArticlesVersions(getConfig(isTest), articleToRenderData.value.metadata.id);
+    const versionsPromise = getArticlesVersions(getConfig(isTest), article.value.metadata.id);
     versionsPromise.then((newVersions) => {
       setVersions(newVersions)
     })
@@ -68,7 +66,7 @@ if(versions.length === 0) {
 }
 
 function loadComments() {
-  const articleId = articleToRenderData.value.metadata.id
+  const articleId = article.value.metadata.id
   getComments(articleId, getConfig(isTest)).then((newComments) => {
     setComments(newComments)
     setLoadingComments(false)
@@ -99,7 +97,7 @@ useEffect(() => {
     }, 30000)
 }, [])
 
-const timeLastEdit = new Date(articleToRenderData.value.metadata.lastEditTimestamp);
+const timeLastEdit = new Date(article.value.metadata.lastEditTimestamp);
 
 const CursorPointer = styled.div`
     margin-bottom: 0.5rem;
@@ -542,18 +540,8 @@ const articleComments = rootComments.map((rootComment) => {
   };
 });
 
-function stateUpdate(obj) {
-  State.update(obj);
-}
-
-function getUserName() {
-  const profile = data.authorProfile;
-
-  return profile.name ?? getShortUserName();
-}
-
 const getShortUserName = () => {
-  const userId = accountId;
+  const userId = authorAccountId;
 
   if (userId.length === 64) return `${userId.slice(0, 4)}..${userId.slice(-4)}`;
   const name = userId.slice(0, -5); // truncate .near
@@ -562,8 +550,8 @@ const getShortUserName = () => {
 };
 
 let displayedContent = state.sliceContent
-  ? articleToRenderData.value.articleData.body.slice(0, 1000)
-  : articleToRenderData.value.articleData.body;
+  ? article.value.articleData.body.slice(0, 1000)
+  : article.value.articleData.body;
 
 return (
   <>
@@ -598,7 +586,7 @@ return (
               <Widget
                 src={widgets.views.editableWidgets.articleHistory}
                 props={{
-                  articleId: articleToRenderData.value.metadata.id,
+                  articleId: article.value.metadata.id,
                   isTest,
                   widgets,
                   versions,
@@ -628,7 +616,7 @@ return (
                       .User
                   }
                   props={{
-                    accountId,
+                    accountId: authorAccountId,
                     options: {
                       showHumanBadge: true,
                       showImage: true,
@@ -639,8 +627,8 @@ return (
                   }}
                 />
                 <TagContainer>
-                  {articleToRenderData.value.articleData.tags.length > 0 &&
-                    articleToRenderData.value.articleData.tags.map((tag) => {
+                  {article.value.articleData.tags.length > 0 &&
+                    article.value.articleData.tags.map((tag) => {
                       const filter = { filterBy: "tag", value: tag };
                       return (
                         <CursorPointer
@@ -670,7 +658,7 @@ return (
                       props={{
                         isTest,
                         authorForWidget,
-                        reactedElementData: articleToRenderData,
+                        article,
                         widgets,
                         disabled: !loggedUserHaveSbt,
                         upVotes,
@@ -692,7 +680,7 @@ return (
                           handleShareButton(true, {
                             key: "said",
                             type: "sharedArticleId",
-                            value: articleToRenderData.value.metadata.id,
+                            value: article.value.metadata.id,
                           }),
                       }}
                     />
@@ -707,7 +695,7 @@ return (
                       disabled: !loggedUserHaveSbt,
                     }}
                   />
-                  {context.accountId == accountId && (
+                  {context.accountId == authorAccountId && (
                     <EditDeleteButtonsContainer>
                       <Widget
                         src={
@@ -723,7 +711,7 @@ return (
                           ),
                           className: `info outline mt-2`,
                           onClick: () => {
-                            handleEditArticle(articleToRenderData)
+                            handleEditArticle(article)
                           }
                         }}
                       />
@@ -740,7 +728,7 @@ return (
                           ),
                           className: `danger outline mt-2`,
                           onClick: () =>
-                            handleDeleteArticle(articleToRenderData),
+                            handleDeleteArticle(article),
                         }}
                       />
                     </EditDeleteButtonsContainer>
@@ -754,7 +742,7 @@ return (
               <PlatformContent>
                 <ContentHeader>
                   <ContentHeaderText>
-                    {articleToRenderData.value.articleData.title}
+                    {article.value.articleData.title}
                   </ContentHeaderText>
                 </ContentHeader>
 
@@ -779,7 +767,7 @@ return (
                   }}
                 />
                 {state.sliceContent &&
-                  articleToRenderData.value.articleData.body.length > 1000 && (
+                  article.value.articleData.body.length > 1000 && (
                     <Widget
                       src={
                         widgets.views.standardWidgets.newStyledComponents.Input
@@ -816,9 +804,9 @@ return (
                 props={{
                   widgets,
                   isTest,
-                  article: articleToRenderData,
+                  article,
                   isReplying: false,
-                  username: accountId,
+                  username: authorAccountId,
                   onCloseModal: () => State.update({ showModal: false }),
                   loadComments,
                   setLoadingComments,
@@ -848,18 +836,18 @@ return (
                 src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
               />
             :
-              articleComments.map((data) => (
+              articleComments.map((comment) => (
                 <Widget
                   src={widgets.views.editableWidgets.commentView}
                   props={{
                     widgets,
-                    data,
+                    comment,
                     isTest,
                     authorForWidget,
                     isReply: false,
                     loggedUserHaveSbt,
                     sharedCommentId,
-                    articleToRenderData,
+                    article,
                     loadComments,
                     setLoadingComments,
                   }}
@@ -891,7 +879,7 @@ return (
                 <div>
                   <DescriptionSubtitle>Created by:</DescriptionSubtitle>
                   <DescriptionInfoSpan>
-                    {articleToRenderData.authorProfile.name ??
+                    {article.authorProfile.name ??
                       getShortUserName()}
                   </DescriptionInfoSpan>
                 </div>

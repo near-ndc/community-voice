@@ -19,19 +19,11 @@ const {
   loggedUserHaveSbt
 } = props;
 
-const errTextNoBody = "ERROR: no article Body",
-  errTextNoId = "ERROR: no article Id",
-  errTextDublicatedId = "ERROR: there is article with such name";
-
 State.init({
   ...initialCreateState,
   initialBody: props.initialBody ?? "",
   tags:[]
 });
-
-function createStateUpdate(obj) {
-  State.update(obj);
-}
 
 const tagsArray =
   editArticleData && !state.tagsModified ? editArticleData.value.articleData.tags : state.tags;
@@ -75,12 +67,9 @@ function onCommit(articleId) {
     articleBody: "",
     clearArticleBody: true,
     initalBody: "",
-    // showCreatedArticle: true,
     showPreview: false,
     saving: true,
   });
-
-  //if (!Array.isArray(article.tags)) article.tags = Object.keys(article.tags);
 
   handleOnCommitArticle(articleId);
 }
@@ -221,7 +210,7 @@ return (
                 props={{
                   widgets,
                   isTest,
-                  data: {
+                  article: {
                     blockHeight:-1,
                     accountId,
                     value:{
