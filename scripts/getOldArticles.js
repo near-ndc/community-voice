@@ -48,11 +48,12 @@ const versions = {
     actionSuffix: `_v0.0.2`,
     validBlockHeightRange: [103053147, Infinity],
   },
-  // "v0.0.3": {
-  //   normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
-  //   actionSuffix: `_v0.0.3`,
-  //   validBlockHeightRange: [Infinity, Infinity],
-  // },
+  "v0.0.3": {
+    normalizationFunction: normalizeFromV0_0_3ToV0_0_4,
+    action: `${versionsBaseActions}_v.0.0.3`,
+    actionSuffix: `_v0.0.3`,
+    validBlockHeightRange: [Infinity, Infinity],
+  },
 };
 
 function getAction(version) {
@@ -90,23 +91,78 @@ function filterValidArticles(articles) {
   return articlesWithoutDeletedOnes;
 }
 
+function getArticleBlackListByBlockHeight() {
+  return [
+    91092435, 91092174, 91051228, 91092223, 91051203, 98372095, 96414482,
+    96412953, 103131250, 106941548, 103053147, 102530777,
+  ];
+}
+
+function getArticleBlackListByArticleId() {
+  return [
+    "blaze.near-1690410074090",
+    "blaze.near-1690409577184",
+    "blaze.near-1690803928696",
+    "blaze.near-1690803872147",
+    "blaze.near-1690574978421",
+    "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb-1691703303485",
+    "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb-1691702619510",
+    "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb-1691702487944",
+    "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb-1691707918243",
+    "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb-1691707889297",
+    "blaze.near-1697211386373",
+    "silkking.near-1696797896796",
+    "silkking.near-1696797784589",
+    "silkking.near-1696797350661",
+    "silkking.near-1696797276482",
+    "silkking.near-1696797155012",
+    "silkking.near-1696796793605",
+    "silkking.near-1696796543546",
+    "silkking.near-1696795954175",
+    "silkking.near-1696794571874",
+    "silkking.near-1696792789177",
+    "zarmade.near-1690578803015",
+  ];
+}
+
 function filterInvalidArticlesIndexes(articlesIndexes) {
+  if (articlesIndexes.versionIndex === 3) {
+    return articlesIndexes
+      .filter((articleIndex) => articleIndex.value.metadata.id) // Has id
+      .filter((articleIndex) => {
+        const splittedId = articleIndex.value.metadata.id.split("/");
+
+        return splittedId[1] === articleIndex.accountId;
+      }) // id begins with same accountId as index object
+      .filter((articleIndex) => {
+        return !getArticleBlackListByBlockHeight().includes(
+          articleIndex.blockHeight
+        ); // Blockheight is not in blacklist
+      })
+      .filter((articleIndex) => {
+        return !getArticleBlackListByArticleId().includes(
+          articleIndex.value.metadata.id
+        ); // Article id is not in blacklist
+      });
+  }
+
   return articlesIndexes
     .filter((articleIndex) => articleIndex.value.id) // Has id
     .filter((articleIndex) => {
       const splittedId = articleIndex.value.id.split("-");
+
       splittedId.pop();
 
       return splittedId.join("-") === articleIndex.accountId;
     }) // id begins with same accountId as index object
-    .filter(
-      (articleIndex) =>
-        !getArticleBlackListByBlockHeight().includes(articleIndex.blockHeight) // Blockheight is not in blacklist
-    )
-    .filter(
-      (articleIndex) =>
-        !getArticleBlackListByRealArticleId().includes(articleIndex.value.id) // Article id is not in blacklist
-    );
+    .filter((articleIndex) => {
+      return !getArticleBlackListByBlockHeight().includes(
+        articleIndex.blockHeight
+      ); // Blockheight is not in blacklist
+    })
+    .filter((articleIndex) => {
+      return !getArticleBlackListByArticleId().includes(articleIndex.value.id); // Article id is not in blacklist
+    });
 }
 
 function getLatestEdits(newFormatArticlesIndexes) {
@@ -149,11 +205,7 @@ function getArticleData(articleIndex, action, key) {
   return articleDataPromise;
 }
 
-function getArticleNormalized(articleIndex) {
-  const articleVersionKey =
-    Object.keys(versions)[Number(articleIndex.versionIndex)];
-  const action = versions[articleVersionKey].action;
-
+function getArticleNormalized(articleIndex, action) {
   const key = "main";
 
   const articleData = getArticleData(articleIndex, action, key).then((data) => {
@@ -207,19 +259,6 @@ function normalizeLibData(libDataByVersion) {
   return libData;
 }
 
-function normalizeArticle(article) {
-  const versionsKeys = Object.keys(versions);
-  const versionIndex = article.versionIndex;
-
-  for (let i = versionIndex; i < versionsKeys.length; i++) {
-    const version = versions[versionsKeys[i]];
-    article = version.normalizationFunction(article);
-  }
-  delete article.versionIndex;
-
-  return article;
-}
-
 function isActive(article) {
   return !!!article.isDelete;
 }
@@ -238,7 +277,7 @@ function getArticlesNormalized(/*userFilters*/) {
             return article;
           });
 
-          return articlesWithVersionIndex;
+          return filterInvalidArticlesIndexes(articlesWithVersionIndex);
         }
       );
 
@@ -253,7 +292,13 @@ function getArticlesNormalized(/*userFilters*/) {
         .map((articleIndex) => {
           if (articleIndex.length === 0) return [];
 
-          const article = getArticleNormalized(articleIndex).then(
+          const articleVersionKey =
+            Object.keys(versions)[Number(articleIndex.versionIndex)];
+          const action = versions[articleVersionKey].action;
+
+          if (action.includes("0.0.3")) return articleIndex;
+
+          const article = getArticleNormalized(articleIndex, action).then(
             (articleNormalized) => {
               return articleNormalized;
             }
@@ -341,6 +386,10 @@ function normalizeFromV0_0_2ToV0_0_3(article) {
   return article;
 }
 
+function normalizeFromV0_0_3ToV0_0_4(article) {
+  return article;
+}
+
 function getNewArticleIdFormat(oldId) {
   const splittedId = oldId.split("-");
   const timestampPartOfId = splittedId.pop();
@@ -353,6 +402,13 @@ function getNewArticleIdFormat(oldId) {
 
 function normalizeFromV0_0_4ToV0_0_5(article) {
   const articleCopy = { ...article };
+
+  if (article.value && article.value.metadata.versionKey === "v0.0.3") {
+    delete article.accountId;
+    delete article.blockHeight;
+
+    return articleCopy;
+  }
 
   articleCopy.value = {};
   articleCopy.value.metadata = {};
@@ -414,10 +470,12 @@ async function run() {
     return newVersion;
   });
 
-  oldArticlesNormalizedToLastVersion.forEach((article) => {
-    console.log("article.value.metadata: ", article.value.metadata);
-    console.log("article.value.articleData: ", article.value.articleData);
+  console.log("Total old articles: ", oldArticlesNormalizedToLastVersion.length)
+  oldArticlesNormalizedToLastVersion.forEach((article, index) => {
+    console.log(`article ${index} : `, article);
   });
+
+  // console.log(0, await getArticlesIndexes("test_communityVoiceArticle_v0.0.3", "main"))
 }
 
 run();
