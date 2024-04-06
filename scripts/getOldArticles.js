@@ -1,14 +1,37 @@
-const isTest = true;
+const path = require("path");
+// const { readdirSync, readFileSync, writeFileSync } = require("fs");
+const { keyStores, connect, Contract } = require("near-api-js");
+const { homedir } = require("os");
 
-const currentVersion = "0.0.2";
+const isTest = true;
+const currentVersion = "v0.0.5";
+
+const lastOldVersion = "0.0.2";
 
 const prodAction = `${
   getConfig(isTest).baseActions.article
-}_v${currentVersion}`;
+}_v${lastOldVersion}`;
+
 const testAction = `test_${prodAction}`;
+
 const versionsBaseActions = isTest
-  ? `test_${getConfig(isTest).baseActions.article}`
+  ? testAction
   : getConfig(isTest).baseActions.article;
+
+const currentAction = `${versionsBaseActions}_${currentVersion}`;
+
+function getArticlesJsons(articles) {
+  return articles.map((article) => {
+    return {
+      index: {
+        [currentAction]: JSON.stringify({
+          key: "main",
+          article,
+        })
+      },
+    };
+  });
+}
 
 function getConfig(isTest, networkId) {
   const componentsOwner = "communityvoice.ndctools.near";
@@ -58,7 +81,7 @@ const versions = {
 
 function getAction(version) {
   const baseAction = getConfig(isTest).baseActions.article;
-  const versionData = version ? versions[version] : versions[currentVersion];
+  const versionData = version ? versions[version] : versions[lastOldVersion];
   const action = baseAction + versionData.actionSuffix;
   return getConfig(isTest).isTest ? `test_${action}` : action;
 }
@@ -462,6 +485,41 @@ function normalizeFromV0_0_4ToV0_0_5(article) {
   return articleCopy;
 }
 
+async function getContract() {
+  const CREDENTIALS_DIR = ".near-credentials";
+  const credentialsPath = path.join(homedir(), CREDENTIALS_DIR);
+  console.log("credentialsPath", credentialsPath )
+  const myKeyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath);
+
+  const connectionConfig = {
+      networkId: "mainnet",
+      keyStore: myKeyStore, // first create a key store
+      nodeUrl: "https://rpc.mainnet.near.org",
+      walletUrl: "https://wallet.mainnet.near.org",
+      helperUrl: "https://helper.mainnet.near.org",
+      explorerUrl: "https://nearblocks.io",
+  };
+  const nearConnection = await connect(connectionConfig);
+  // const walletConnection = new WalletConnection(nearConnection);
+  const account = await nearConnection.account(ACCOUNT);
+
+  const contract = new Contract(
+      account , // the account object that is connecting
+      "social.near",
+      {
+          // name of contract you're connecting to
+          viewMethods: [], // view methods do not change state but usually return a value
+          changeMethods: ["set"], // change methods modify state
+      }
+  );
+
+  return contract
+}
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 async function run() {
   const oldArticles = await getArticles();
 
@@ -470,9 +528,34 @@ async function run() {
     return newVersion;
   });
 
-  console.log("Total old articles: ", oldArticlesNormalizedToLastVersion.length)
-  oldArticlesNormalizedToLastVersion.forEach((article, index) => {
-    console.log(`article ${index} : `, article);
+  console.log(
+    "Total old articles: ",
+    oldArticlesNormalizedToLastVersion.length
+  );
+  const articlesJsons = getArticlesJsons(oldArticlesNormalizedToLastVersion);
+
+  const socialContract = await getContract()
+  
+  articlesJsons.forEach((article, index) => {
+    console.log(`article json ${index} : `, article);
+
+    const json = articlesJsons[index]
+    const articleReference = `article with articleReference title ${oldArticlesNormalizedToLastVersion[index].value.articleData.title} and lastEditTimestamp ${oldArticlesNormalizedToLastVersion[index].value.metadata.lastEditTimestamp}`
+    console.log(`Deploying ${articleReference}`)
+
+    try {
+      await socialContract.set({
+        data: json
+      },
+      `${3*10*14}`,
+      "1" + "0".repeat(21))
+      console.log(`Deployed ${articleReference}`)
+    } catch(err) {
+      console.log(`Error deploying ${articleReference}`)
+      console.log(err)
+    } finally {
+      await sleep(1521)
+    }
   });
 
   // console.log(0, await getArticlesIndexes("test_communityVoiceArticle_v0.0.3", "main"))
