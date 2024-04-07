@@ -33,9 +33,10 @@ const accountId = article.value.metadata.author;
 const title = article.value.articleData.title;
 const content = article.value.articleData.body;
 const timeLastEdit = article.value.metadata.lastEditTimestamp;
-const id = article.value.metadata.id ?? `${article.author}-${article.metadata.createdTiemestamp}`;
+const id = article.value.metadata.id ?? `article/${article.value.metadata.author}/${article.value.metadata.createdTimestamp}`;
 const [upVotes, setUpVotes] = useState(undefined)
 const [loadingUpVotes, setLoadingUpVotes] = useState(true)
+const [sliceContent, setSliceContent] = useState(true)
 
 function loadUpVotes() {
   getUpVotes(getConfig(isTest),id).then((newVotes) => {
@@ -51,12 +52,6 @@ useEffect(() => {
     }, 30000)
 }, [])
 
-State.init({
-  verified: true,
-  start: true,
-  voted: false,
-  sliceContent: true,
-});
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
@@ -334,7 +329,7 @@ const renderTags = () => {
 };
 
 const renderArticleBody = () => {
-  let displayedContent = state.sliceContent ? content.slice(0, 1000) : content;
+  let displayedContent = sliceContent ? content.slice(0, 1000) : content;
   return (
     <ArticleBodyContainer>
       <Widget
@@ -357,7 +352,7 @@ const renderArticleBody = () => {
           ),
         }}
       />
-      {state.sliceContent && content.length > 1000 && (
+      {sliceContent && content.length > 1000 && (
         <Widget
           src={widgets.views.standardWidgets.styledComponents}
           props={{
@@ -365,9 +360,7 @@ const renderArticleBody = () => {
               text: `Show more`,
               size: "sm",
               className: "w-100 justify-content-center",
-              onClick: () => {
-                State.update({ sliceContent: false });
-              },
+              onClick: ()=>setSliceContent(false),
               icon: <i className="bi bi-chat-square-text-fill"></i>,
             },
           }}
