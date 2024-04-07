@@ -213,7 +213,7 @@ return (
         style={{ cursor: "pointer" }}
         onClick={
           displayedTabId == tabs.SHOW_ARTICLE.id ||
-          (editArticleData && tabs.ARTICLE_WORKSHOP.id)
+          (editArticleData && tabs.ARTICLE_WORKSHOP.id) // TODO consultar editArticleData
             ? handleBackButton
             : handleGoHomeButton
         }

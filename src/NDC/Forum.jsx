@@ -47,9 +47,18 @@ function getInitialFilter() {
   }
 }
 
+function getInitialTabId() {
+  if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
+    return tabs.SHOW_ARTICLE.id;
+  } else {
+    return tabs.SHOW_ARTICLES_LIST.id;
+  }
+}
+
 const [categories] = useState(getCategories())
 const [category, setCategory] = useState(getCategories()[0].value)
 const [articles, setArticles] = useState([]);
+const [article, setArticle] = useState({});
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false);
 const [sharedElement, setSharedElement] = useState(undefined);
@@ -58,6 +67,10 @@ const [sharingSearch, setSharingSearch] = useState(false);
 const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 const [loadingArticles, setLoadingArticles] = useState(true)
+const [displayedTabId, setDisplayedTabId] = useState(getInitialTabId)
+const [showDeleteModal, setShowDeleteModal] = useState(false)
+const [deleteArticleData, setDeleteArticleData] = useState()
+const [editArticleData, setEditArticleData] = useState()
 
 const handleChangeCategory = (category) => {
   setCategory(category)
@@ -92,23 +105,7 @@ const tabs = {
   SHOW_ARTICLE: { id: 1 },
   ARTICLE_WORKSHOP: { id: 2 },
   SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
-  //SHOW_KANBAN_VIEW: { id: 4 },
 };
-
-function getInitialTabId() {
-  if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
-    return tabs.SHOW_ARTICLE.id;
-  } else {
-    return tabs.SHOW_ARTICLES_LIST.id;
-  }
-}
-
-State.init({
-  displayedTabId: getInitialTabId(),
-  article: {},
-  authorsProfiles: [],
-  firstRender: !isNaN(sharedData.sharedBlockheight) || typeof sharedData.sharedArticleId === "string",
-});
 
 //=============================================END INITIALIZATION===================================================
 
@@ -131,12 +128,11 @@ const navigationPills = [
   // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
 ];
 
-const initialBodyAtCreation = state.editArticleData.value.articleData.body;
+const initialBodyAtCreation = editArticleData.value.articleData.body;
 
 //=================================================END CONSTS=======================================================
 
 //=================================================GET DATA=========================================================
-const finalArticles = state.articles;
 
 function filterArticlesByTag(tag, articles) {
   return articles.filter((article) => {
@@ -185,7 +181,7 @@ if (filterBy.parameterName === "tag") {
   ));
 
   if (articles.length > 0) {
-    State.update({ article: articles[0] });
+    setArticle(articles[0])
   }
 } else if (filterBy.parameterName === "articleId") {
   setArticles(filterOnePostByArticleId(
@@ -193,7 +189,7 @@ if (filterBy.parameterName === "tag") {
     articles
   ));
   if (articles.length > 0) {
-    State.update({ article: articles[0] });
+    setArticle(articles[0])
   }
 }
 //===============================================END GET DATA=======================================================
@@ -265,7 +261,7 @@ const ClipboardContainer = styled.div`
 `;
 
 const ClipboardIcon = styled.i`
-  color: ${state.linkCopied ? "#0065FF" : "black"};
+  color: ${linkCopied ? "#0065FF" : "black"};
   transition: color 0.3s linear;
   cursor: pointer;
 `;
@@ -439,28 +435,24 @@ function onCommitDeleteArticle() {
     loadArticles()
   }, 3000);
   setFilterBy({ parameterName: "", parameterValue: {} });
-  State.update({
-    showDeleteModal: false,
-    deleteArticleData: undefined,
-    displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    article: undefined,
-    editArticleData: undefined,
-  });
+  setDisplayedTabId(tabs.SHOW_ARTICLES_LIST.id)
+  setArticle(undefined)
+  setEditArticleData(undefined)
+  setDeleteArticleData(undefined)
+  setShowDeleteModal(false)
 }
 
 function deletePostListener() {
-  State.update({ saving: true });
-  const article = state.deleteArticleData;
   deleteArticle(
     getConfig(isTest),
-    article.value.metadata.id,
+    deleteArticleData.value.metadata.id,
     onCommitDeleteArticle,
     closeDeleteArticleModal
   );
 }
 
 function getValidEditArticleDataTags() {
-  let tags = state.editArticleData.value.articleData.tags ?? [];
+  let tags = editArticleData.value.articleData.tags ?? [];
   let newFormatTags = {};
 
   tags &&
@@ -470,42 +462,33 @@ function getValidEditArticleDataTags() {
   return newFormatTags;
 }
 
-const initialCreateState = {
-  title: state.editArticleData.value.articleData.title ?? "",
-  articleBody:
-    state.editArticleData.value.articleData.body ?? initialBodyAtCreation,
-  tags: state.editArticleData.value.articleData.tags
+const initialCreateState = { //TODO pasar variable editArticleData a componente que lo necesite en vez de usar este objeto
+  title: editArticleData.value.articleData.title ?? "",
+  articleBody: editArticleData.value.articleData.body ?? initialBodyAtCreation,
+  tags: editArticleData.value.articleData.tags
     ? getValidEditArticleDataTags()
     : {},
 };
 
 function handleOpenArticle(article) {
-  State.update({
-    displayedTabId: tabs.SHOW_ARTICLE.id,
-    article,
-    editArticleData: undefined,
-  });
+  setDisplayedTabId(tabs.SHOW_ARTICLE.id)
+  setArticle(article)
+  setEditArticleData(undefined)
 }
 
 function handleEditArticle(articleData) {
-  State.update({
-    displayedTabId: tabs.ARTICLE_WORKSHOP.id,
-    editArticleData: articleData,
-  });
+  setDisplayedTabId(tabs.ARTICLE_WORKSHOP.id)
+  setEditArticleData(articleData)
 }
 
 function handleDeleteArticle(articleData) {
-  State.update({
-    showDeleteModal: true,
-    deleteArticleData: articleData,
-  });
+  setDeleteArticleData(articleData)
+  setShowDeleteModal(true)
 }
 
 function closeDeleteArticleModal() {
-  State.update({
-    showDeleteModal: false,
-    deleteArticleData: undefined,
-  });
+  setDeleteArticleData(undefined)
+  setShowDeleteModal(false)
 }
 
 function handleFilterArticles(filter) {
@@ -513,52 +496,43 @@ function handleFilterArticles(filter) {
     parameterName: filter.filterBy,
     parameterValue: filter.value,
   });
-  State.update({
-    displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    editArticleData: undefined,
-  });
+  setDisplayedTabId(tabs.SHOW_ARTICLES_LIST.id)
+  setEditArticleData(undefined)
 }
 
 function handleBackButton() {
   loadArticles()
-  if (props.editArticleData) {
+  if (props.editArticleData) { //TODO esto no hace nada, consultar a martin
     setFilterBy({
       parameterName: "",
       parameterValue: undefined,
       handleBackClicked: true,
     });
-    State.update({
-      displayedTabId: tabs.SHOW_ARTICLE.id,
-      editArticleData: undefined,
-      firstRender: false,
-    });
-  } else {
+    setDisplayedTabId(tabs.SHOW_ARTICLE.id)
+    setEditArticleData(undefined)
+} else {
     setFilterBy({
       parameterName: "",
       parameterValue: undefined,
       handleBackClicked: true,
     });
-    State.update({
-      displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-      article: {},
-      editArticleData: undefined,
-      firstRender: false,
-    });
+    setDisplayedTabId(tabs.SHOW_ARTICLES_LIST.id)
+    setArticle({})
+    setEditArticleData(undefined)
   }
 }
 
 function handleGoHomeButton() {
   setFilterBy({ parameterName: "", parameterValue: {} });
-  State.update({
-    displayedTabId: tabs.SHOW_ARTICLES_LIST.id,
-    article: {},
-    editArticleData: undefined,
-  });
+  setDisplayedTabId(tabs.SHOW_ARTICLES_LIST.id)
+  setArticle({})
+  setEditArticleData(undefined)
   loadArticles()
 }
 
 function handlePillNavigation(navegateTo) {
-  State.update({ displayedTabId: navegateTo, editArticleData: undefined });
+  setEditArticleData(undefined)
+  setDisplayedTabId(navegateTo)
 }
 
 function handleShareButton(showShareModal, sharedElement) {
@@ -567,7 +541,6 @@ function handleShareButton(showShareModal, sharedElement) {
 }
 
 function handleShareSearch(showShareSearchModal, newSearchInputValue) {
-  //showShareSearchModal is a boolean
   setShowShareSearchModal(showShareSearchModal);
   setSharingSearch(true);
   setSearchInputValue(newSearchInputValue ?? "");
@@ -597,10 +570,8 @@ function handleOnCommitArticle(articleId) {
     const userFilters = {id: articleId, sbt: undefined}
     getArticles(getConfig(isTest), userFilters).then((newArticles) => {
       if(newArticles && newArticles.length > 0){
-        State.update({
-          displayedTabId: tabs.SHOW_ARTICLE.id,
-          article: newArticles[0]
-        });
+        setDisplayedTabId(tabs.SHOW_ARTICLE.id)
+        setArticle(newArticles[0])
       }
     })
   }, 3000);
@@ -609,7 +580,7 @@ function handleOnCommitArticle(articleId) {
 return (
   <AppContainer>
     <SecondContainer>
-      {state.showDeleteModal && renderDeleteModal()}
+      {showDeleteModal && renderDeleteModal()}
       {(showShareModal || showShareSearchModal) && renderShareInteraction()}
       <Widget
         src={widgets.views.editableWidgets.header}
@@ -619,7 +590,7 @@ return (
           handlePillNavigation,
           brand,
           pills: navigationPills,
-          displayedTabId: state.displayedTabId,
+          displayedTabId: displayedTabId,
           handleFilterArticles,
           filterParameter: filterBy.parameterName,
           handleBackButton,
@@ -627,7 +598,7 @@ return (
           widgets,
         }}
       />
-      {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+      {displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
         <div className="my-3 col-lg-8 col-md-8 col-sm-12">
           <Widget
             src={widgets.views.standardWidgets.newStyledComponents.Input.Select}
@@ -640,7 +611,7 @@ return (
           />
         </div>
       )}
-    {state.displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
+    {displayedTabId == tabs.SHOW_ARTICLES_LIST.id && (
       loadingArticles?
         <Widget
           src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
@@ -656,7 +627,7 @@ return (
             handleFilterArticles,
             authorForWidget,
             initialCreateState,
-            editArticleData: state.editArticleData,
+            editArticleData: editArticleData,
             handleEditArticle,
             loggedUserHaveSbt,
             handleShareButton,
@@ -668,15 +639,15 @@ return (
           }}
       />      
     )}
-    {state.article.value.articleData.title &&
-      state.displayedTabId == tabs.SHOW_ARTICLE.id && (
+    {article.value.articleData.title &&
+      displayedTabId == tabs.SHOW_ARTICLE.id && (
         <Widget
         src={widgets.views.editableWidgets.articleView}
         props={{
           isTest,
           widgets,
           handleFilterArticles,
-          article: state.article,
+          article: article,
           authorForWidget,
           handleEditArticle,
           handleShareButton,
@@ -687,7 +658,7 @@ return (
       />
     )}
 
-  {state.displayedTabId == tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id && (
+  {displayedTabId == tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id && (
     <Widget
       src={widgets.views.editableWidgets.showArticlesListSortedByAuthors}
           props={{
@@ -700,7 +671,7 @@ return (
         />
       )}
 
-      {state.displayedTabId == tabs.ARTICLE_WORKSHOP.id && (
+      {displayedTabId == tabs.ARTICLE_WORKSHOP.id && (
         <Widget
           src={widgets.views.editableWidgets.create}
           props={{
@@ -709,7 +680,7 @@ return (
             widgets,
             initialBody: initialBodyAtCreation,
             initialCreateState,
-            editArticleData: state.editArticleData,
+            editArticleData: editArticleData, //TODO change editArticleData name
             handleFilterArticles,
             handleOnCommitArticle,
             category,
