@@ -47,6 +47,13 @@ function getInitialFilter() {
   }
 }
 
+const tabs = {
+  SHOW_ARTICLES_LIST: { id: 0 },
+  SHOW_ARTICLE: { id: 1 },
+  ARTICLE_WORKSHOP: { id: 2 },
+  SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
+};
+
 function getInitialTabId() {
   if (sharedData.sharedBlockheight || sharedData.sharedArticleId) {
     return tabs.SHOW_ARTICLE.id;
@@ -67,10 +74,10 @@ const [sharingSearch, setSharingSearch] = useState(false);
 const [linkCopied, setLinkCopied] = useState(false);
 const [filterBy, setFilterBy] = useState(getInitialFilter());
 const [loadingArticles, setLoadingArticles] = useState(true)
-const [displayedTabId, setDisplayedTabId] = useState(getInitialTabId)
+const [displayedTabId, setDisplayedTabId] = useState(getInitialTabId())
 const [showDeleteModal, setShowDeleteModal] = useState(false)
-const [deleteArticleData, setDeleteArticleData] = useState()
-const [editArticleData, setEditArticleData] = useState()
+const [deleteArticleData, setDeleteArticleData] = useState(undefined)
+const [editArticleData, setEditArticleData] = useState(undefined)
 
 const handleChangeCategory = (category) => {
   setCategory(category)
@@ -99,13 +106,6 @@ useEffect(() => {
   })
   //TODO change isValidUser name to getIsValidUser
 }, [context.accountId])
-
-const tabs = {
-  SHOW_ARTICLES_LIST: { id: 0 },
-  SHOW_ARTICLE: { id: 1 },
-  ARTICLE_WORKSHOP: { id: 2 },
-  SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
-};
 
 //=============================================END INITIALIZATION===================================================
 
