@@ -433,7 +433,7 @@ return (
         )}
         <div className="w-100 col">
           <Widget
-            src={widgets.views.standardWidgets.markownEditorIframe}
+            src={widgets.views.editableWidgets.markdownEditorIframe}
             props={{
               initialText: getInitialText(),
               onChange: (e) =>

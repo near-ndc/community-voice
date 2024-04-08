@@ -50,10 +50,10 @@ const widgets = {
       articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
       articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
       articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
+      markdownEditorIframe: `${componentsOwner}/widget/NDC.MarkdownEditorIframe`,
+      fasterTextInput: `${componentsOwner}/widget/NDC.FasterTextInput`,
     },
     standardWidgets: {
-      fasterTextInput: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput`,
-      markownEditorIframe: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/MarkdownEditorIframe`,
       styledComponents: "rubycop.near/widget/NDC.StyledComponents",
       newStyledComponents: {
         Element: {

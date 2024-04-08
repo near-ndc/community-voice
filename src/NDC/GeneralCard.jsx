@@ -17,7 +17,7 @@ const {
   authorForWidget,
   handleShareButton,
   handleEditArticle,
-  switchShowPreview,
+  toggleShowPreview,
   isPreview,
   loggedUserHaveSbt
 } = props;
@@ -538,7 +538,7 @@ return (
                     className: `info w-25`,
                     onClick: () =>
                       isPreview
-                        ? switchShowPreview()
+                        ? toggleShowPreview()
                         : handleEditArticle(article),
                   }}
                 />

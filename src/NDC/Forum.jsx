@@ -128,8 +128,6 @@ const navigationPills = [
   // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
 ];
 
-const initialBodyAtCreation = editArticleData.value.articleData.body;
-
 //=================================================END CONSTS=======================================================
 
 //=================================================GET DATA=========================================================
@@ -451,24 +449,7 @@ function deletePostListener() {
   );
 }
 
-function getValidEditArticleDataTags() {
-  let tags = editArticleData.value.articleData.tags ?? [];
-  let newFormatTags = {};
 
-  tags &&
-    tags.map((tag) => {
-      newFormatTags[tag] = "";
-    });
-  return newFormatTags;
-}
-
-const initialCreateState = { //TODO pasar variable editArticleData a componente que lo necesite en vez de usar este objeto
-  title: editArticleData.value.articleData.title ?? "",
-  articleBody: editArticleData.value.articleData.body ?? initialBodyAtCreation,
-  tags: editArticleData.value.articleData.tags
-    ? getValidEditArticleDataTags()
-    : {},
-};
 
 function handleOpenArticle(article) {
   setDisplayedTabId(tabs.SHOW_ARTICLE.id)
@@ -590,7 +571,7 @@ return (
           handlePillNavigation,
           brand,
           pills: navigationPills,
-          displayedTabId: displayedTabId,
+          displayedTabId: displayedTabId ,
           handleFilterArticles,
           filterParameter: filterBy.parameterName,
           handleBackButton,
@@ -626,8 +607,7 @@ return (
             handleOpenArticle,
             handleFilterArticles,
             authorForWidget,
-            initialCreateState,
-            editArticleData: editArticleData,
+            editArticleData,
             handleEditArticle,
             loggedUserHaveSbt,
             handleShareButton,
@@ -678,9 +658,7 @@ return (
             isTest,
             authorForWidget,
             widgets,
-            initialBody: initialBodyAtCreation,
-            initialCreateState,
-            editArticleData: editArticleData, //TODO change editArticleData name
+            editArticleData,
             handleFilterArticles,
             handleOnCommitArticle,
             category,
