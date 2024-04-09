@@ -20,14 +20,10 @@ const {
   setLoadingComments,
 } = props;
 
-State.init({
-  showModal: false,
-  hasReply: false,
-});
-
-function stateUpdate(obj) {
-  State.update(obj);
-}
+const [showModal, setShowModal] = useState(false)
+const [editionData, setEditionData] = useState(undefined)
+const [rootId, setRootId] = useState(undefined)
+const [showDeleteModal, setShowDeleteModal] = useState(false)
 
 const CallLibrary = styled.div`
   display: none;
@@ -367,9 +363,7 @@ const renderDeleteModal = () => {
 };
 
 function onCommitDeleteComment() {
-  State.update({
-    showDeleteModal: false,
-  });
+  setShowDeleteModal(false)
   setLoadingComments(true)
   setTimeout(() => {
     loadComments()
@@ -377,14 +371,10 @@ function onCommitDeleteComment() {
 }
 
 function closeDeleteCommentModal() {
-  State.update({
-    showDeleteModal: false,
-  });
+  setShowDeleteModal(false)
 }
 
 function deleteCommentListener() {
-  State.update({ saving: true });
-  
   deleteComment({
     config: getConfig(isTest),
     commentId: comment.value.metadata.id,
@@ -396,13 +386,11 @@ function deleteCommentListener() {
 }
 
 function handleDeleteComment() {
-  State.update({
-    showDeleteModal: true,
-  });
+  setShowDeleteModal(true)
 }
 
 function closeModal() {
-  State.update({ showModal: false });
+  setShowModal(false)
 }
 
 function getProperRootId(isEdition) {
@@ -418,28 +406,23 @@ function getProperRootId(isEdition) {
 }
 
 function handleEditComment() {
-  State.update({
-    showModal: true,
-    editionData: comment,
-    rootId: getProperRootId(true),
-  });
+  setShowModal(true)
+  setEditionData(comment)
+  setRootId(getProperRootId(true))
 }
 
-function handleReplyListener() {
+function handleReply() {
   if (!loggedUserHaveSbt) {
     return;
   }
-
-  State.update({
-    showModal: true,
-    editionData: undefined,
-    rootId: getProperRootId(false),
-  });
+  setShowModal(true)
+  setEditionData(undefined)
+  setRootId(getProperRootId(false))
 }
 
 return (
   <>
-    {state.showDeleteModal && renderDeleteModal()}
+    {showDeleteModal && renderDeleteModal()}
     <CommentCard id={comment.value.metadata.id}>
       <CommentCardHeader>
         <CommentUserContent>
@@ -525,7 +508,7 @@ return (
           )}
         </TimestampCommentDiv>
         <div>
-          {state.showModal && (
+          {showModal && (
             <Widget
               src={widgets.views.editableWidgets.addComment}
               props={{
@@ -536,9 +519,9 @@ return (
                 onCloseModal: closeModal,
                 loadComments,
                 setLoadingComments,
-                rootCommentId: state.rootId,
+                rootCommentId: rootId,
                 replyingTo: comment.accountId,
-                editionData: state.editionData,
+                editionData: editionData,
               }}
             />
           )}
@@ -558,7 +541,7 @@ return (
                   disabled: !loggedUserHaveSbt,
                   size: "sm",
                   className: "info outline",
-                  onClick: handleReplyListener,
+                  onClick: handleReply,
                 }}
               />
             </>

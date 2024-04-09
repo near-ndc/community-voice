@@ -189,7 +189,7 @@ return (
                       props={{
                         initialText: body,
                         onChange: (body) => setBody(body),
-                        clear: clearArticleBody,
+                        clear: clearArticleBody, //TODO check funcionality
                       }}
                     />
                   </div>
