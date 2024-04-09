@@ -303,6 +303,10 @@ const Element = styled.div`
 const CallLibrary = styled.div`
     display: none;
   `;
+
+const InnerContainer = styled.div`
+    max-width: 100%;
+  `;
 //============================================END STYLED COMPONENTS=================================================
 
 //=================================================MORE STYLES======================================================
@@ -314,12 +318,16 @@ const profileImageStyles = {
   overflow: "hidden",
 };
 
+const overlayStyle = {
+  "max-width": "80vw"
+}
+
 //===============================================END MORE STYLES====================================================
 
 //=================================================COMPONENTS=======================================================
 
 const inner = (
-  <div className="d-flex flex-row mx-1">
+  <InnerContainer className="d-flex flex-row mx-1">
     <Widget
       src={widgets.views.standardWidgets.newStyledComponents.Element.User}
       props={{
@@ -328,11 +336,11 @@ const inner = (
           showHumanBadge: true,
           showImage: true,
           showSocialName: true,
-          shortenLength: 20,
+          shortenLength: 13,
         },
       }}
     />
-  </div>
+  </InnerContainer>
 );
 
 const renderTags = () => {
@@ -431,11 +439,11 @@ return (
           }}
         />
       )}
-      <HeaderCard className="d-flex justify-content-between pb-1 border-bottom border-dark">
+      <HeaderCard className="d-flex flex-wrap justify-content-between pb-1 border-bottom border-dark">
         <div className="d-flex align-items-center gap-2">
           <Widget
             src={widgets.views.standardWidgets.profileOverlayTrigger}
-            props={{ accountId, children: inner }}
+            props={{ accountId, children: inner, overlayStyle }}
           />
         </div>
         <HeaderButtonsContainer>

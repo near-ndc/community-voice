@@ -34,7 +34,7 @@ const CallLibrary = styled.div`
 `;
 
 const CommentCard = styled.div`
-    margin-left: ${isReply ? "2rem" : "0"};
+    margin-left: ${isReply ? "1rem" : "0"};
     display: flex;
     padding: 14px 16px;
     flex-direction: column;
