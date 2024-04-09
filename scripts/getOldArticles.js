@@ -3,6 +3,10 @@ const path = require("path");
 const { keyStores, connect, Contract } = require("near-api-js");
 const { homedir } = require("os");
 
+// const ACCOUNT = "communityvoice.ndctools.near"
+const ACCOUNT =
+  "1bca60321502ac5bf48525b20a96947e64deef14aa88fa5028522615be4b5ac6";
+
 const isTest = true;
 const currentVersion = "v0.0.5";
 
@@ -27,7 +31,7 @@ function getArticlesJsons(articles) {
         [currentAction]: JSON.stringify({
           key: "main",
           article,
-        })
+        }),
       },
     };
   });
@@ -485,78 +489,107 @@ function normalizeFromV0_0_4ToV0_0_5(article) {
   return articleCopy;
 }
 
+async function uploadData(articlesJsons, articles) {
+  const socialContract = await getContract();
+
+  for (let i = 0; i < articlesJsons.length; i++) {
+    console.log(`article json ${i} : `, articlesJsons[i]);
+
+    const articleReference = `article with articleReference title ${articles[i].value.articleData.title} and lastEditTimestamp ${articles[i].value.metadata.lastEditTimestamp}`;
+    console.log(`Deploying ${articleReference}`);
+
+    try {
+      await socialContract.set(
+        {
+          data: articlesJsons[i],
+        },
+        `${3 * 10 * 14}`,
+        "1" + "0".repeat(21)
+      );
+      console.log(`Deployed ${articleReference}`);
+    } catch (err) {
+      console.log(`Error deploying ${articleReference}`);
+      console.log(err);
+    } finally {
+      await sleep(1521);
+    }
+  }
+}
+
 async function getContract() {
   const CREDENTIALS_DIR = ".near-credentials";
   const credentialsPath = path.join(homedir(), CREDENTIALS_DIR);
-  console.log("credentialsPath", credentialsPath )
-  const myKeyStore = new keyStores.UnencryptedFileSystemKeyStore(credentialsPath);
+  console.log("credentialsPath", credentialsPath);
+  const myKeyStore = new keyStores.UnencryptedFileSystemKeyStore(
+    credentialsPath
+  );
 
   const connectionConfig = {
-      networkId: "mainnet",
-      keyStore: myKeyStore, // first create a key store
-      nodeUrl: "https://rpc.mainnet.near.org",
-      walletUrl: "https://wallet.mainnet.near.org",
-      helperUrl: "https://helper.mainnet.near.org",
-      explorerUrl: "https://nearblocks.io",
+    networkId: "mainnet",
+    keyStore: myKeyStore, // first create a key store
+    nodeUrl: "https://rpc.mainnet.near.org",
+    walletUrl: "https://wallet.mainnet.near.org",
+    helperUrl: "https://helper.mainnet.near.org",
+    explorerUrl: "https://nearblocks.io",
   };
   const nearConnection = await connect(connectionConfig);
   // const walletConnection = new WalletConnection(nearConnection);
   const account = await nearConnection.account(ACCOUNT);
 
   const contract = new Contract(
-      account , // the account object that is connecting
-      "social.near",
-      {
-          // name of contract you're connecting to
-          viewMethods: [], // view methods do not change state but usually return a value
-          changeMethods: ["set"], // change methods modify state
-      }
+    account, // the account object that is connecting
+    "social.near",
+    {
+      // name of contract you're connecting to
+      viewMethods: [], // view methods do not change state but usually return a value
+      changeMethods: ["set"], // change methods modify state
+    }
   );
 
-  return contract
+  return contract;
 }
 
-function sleep(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function run() {
-  const oldArticles = await getArticles();
+  // const oldArticles = await getArticles();
 
-  const oldArticlesNormalizedToLastVersion = oldArticles.map((article) => {
-    const newVersion = normalizeFromV0_0_4ToV0_0_5(article);
-    return newVersion;
-  });
+  // const oldArticlesNormalizedToLastVersion = oldArticles.map((article) => {
+  //   const newVersion = normalizeFromV0_0_4ToV0_0_5(article);
+  //   return newVersion;
+  // });
 
-  console.log(
-    "Total old articles: ",
-    oldArticlesNormalizedToLastVersion.length
-  );
-  const articlesJsons = getArticlesJsons(oldArticlesNormalizedToLastVersion);
+  // console.log(
+  //   "Total old articles: ",
+  //   oldArticlesNormalizedToLastVersion.length
+  // );
+  // const articlesJsons = getArticlesJsons(oldArticlesNormalizedToLastVersion);
+  // uploadData(articlesJsons, oldArticlesNormalizedToLastVersion);
 
-  const socialContract = await getContract()
-  
-  articlesJsons.forEach((article, index) => {
-    console.log(`article json ${index} : `, article);
-
-    const json = articlesJsons[index]
-    const articleReference = `article with articleReference title ${oldArticlesNormalizedToLastVersion[index].value.articleData.title} and lastEditTimestamp ${oldArticlesNormalizedToLastVersion[index].value.metadata.lastEditTimestamp}`
-    console.log(`Deploying ${articleReference}`)
-
-    try {
-      await socialContract.set({
-        data: json
+  const articles = [
+    {
+      value: {
+        metadata: {
+          author: "ayelen.near",
+          createdTimestamp: 1699314338205,
+          lastEditTimestamp: 1699314338205,
+          id: "article/ayelen.near/1699314338205",
+          versionKey: "v0.0.5",
+        },
+        articleData: {
+          title: "testt",
+          body: "***testtt***",
+          tags: [Array],
+          category: "uncategorized",
+        },
       },
-      `${3*10*14}`,
-      "1" + "0".repeat(21))
-      console.log(`Deployed ${articleReference}`)
-    } catch(err) {
-      console.log(`Error deploying ${articleReference}`)
-      console.log(err)
-    } finally {
-      await sleep(1521)
-    }
-  });
+    },
+  ];
+  const articlesJsons = getArticlesJsons(articles);
+
+  uploadData(articlesJsons, articles);
 
   // console.log(0, await getArticlesIndexes("test_communityVoiceArticle_v0.0.3", "main"))
 }
