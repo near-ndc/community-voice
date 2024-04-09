@@ -5,7 +5,7 @@ const { homedir } = require("os");
 
 // const ACCOUNT = "communityvoice.ndctools.near"
 const ACCOUNT =
-  "1bca60321502ac5bf48525b20a96947e64deef14aa88fa5028522615be4b5ac6";
+  "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb";
 
 const isTest = true;
 const currentVersion = "v0.0.5";
@@ -14,7 +14,7 @@ const lastOldVersion = "0.0.2";
 
 const prodAction = `${
   getConfig(isTest).baseActions.article
-}_v${lastOldVersion}`;
+}`;
 
 const testAction = `test_${prodAction}`;
 
@@ -503,8 +503,8 @@ async function uploadData(articlesJsons, articles) {
         {
           data: articlesJsons[i],
         },
-        `${3 * 10 * 14}`,
-        "1" + "0".repeat(21)
+        `${3 * 10 ** 14}`,
+        "1" + "0".repeat(23)
       );
       console.log(`Deployed ${articleReference}`);
     } catch (err) {
