@@ -22,11 +22,8 @@ const {
   editionData,
 } = props;
 
-const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location
-
-const commentId = editionData ? editionData.value.metadata.id : undefined; //(OPTIONAL) to edit comment
-
-const isEdition = commentId !== undefined;
+const [reply, setReply] = useState("")
+const [showSpinner, setShowSpinner] = useState(false)
 
 const ModalCard = styled.div`
     position: fixed;
@@ -280,13 +277,6 @@ const CallLibrary = styled.div`
     display: none;
   `;
 
-State.init({
-  theme,
-  reply: "",
-  cancel: false,
-  e_message: "",
-});
-
 function getShouldDisplayOriginalComment() {
   return (
     (!editionData && replyingTo) ||
@@ -298,13 +288,13 @@ function getShouldDisplayOriginalComment() {
 
 function getInitialText() {
   if (editionData) {
-    if (!state.reply || editionData.value.commentData.text === state.reply) {
+    if (!reply || editionData.value.commentData.text === reply) {
       return editionData.value.commentData.text;
     } 
   } else if (replyingTo) {
     return `@${replyingTo} `;
-  } else if (state.reply && state.reply !== editionData.value.commentData.text) {
-    return state.reply;
+  } else if (reply && reply !== editionData.value.commentData.text) {
+    return reply;
   } else {
     return "Reply here";
   }
@@ -318,21 +308,22 @@ function onCommit() {
   setLoadingComments && setLoadingComments(true)
   setTimeout(() => {
     loadComments && loadComments()
-    State.update({reply: "Reply here", showSpinner: false });
+    setReply("Reply here")
+    setShowSpinner(false)
     onCloseModal();
   }, 3000);
 }
 
 function onCancel() {
   setLoadingComments(false)
-  State.update({ showSpinner: false });
+  setShowSpinner(false)
 }
 
 function handleSubmitButton() {
-  if (state.showSpinner) {
+  if (showSpinner) {
     return () => {};
   } else {
-    if (isEdition) {
+    if (editionData) {
       return handleEditComment;
     } else {
       return handleCreateComment;
@@ -341,13 +332,12 @@ function handleSubmitButton() {
 }
 
 function handleCreateComment() {
-  State.update({showSpinner: true });
-  
+  setShowSpinner(false)
   createComment({
     config:getConfig(isTest),
     author: context.accountId,
-    commentText: state.reply,
-    replyingTo: rootId,
+    commentText: reply,
+    replyingTo: rootCommentId ?? article.value.metadata.id,
     articleId:article.value.metadata.id,
     onCommit,
     onCancel,
@@ -355,9 +345,9 @@ function handleCreateComment() {
 }
 
 function handleEditComment() {
-  State.update({showSpinner: true });
+  setShowSpinner(true)
   const comment = originalComment
-  comment.value.commentData.text=state.reply
+  comment.value.commentData.text=reply
   
   editComment({
     config: getConfig(isTest),
@@ -373,7 +363,7 @@ return (
       <H1>
         {isReplying
           ? "Reply to comment"
-          : isEdition
+          : editionData
           ? "Edit comment"
           : "Add a Comment"}
       </H1>
@@ -404,7 +394,6 @@ return (
                 </BCommentmessage>
               </BComment>
               <BFooter>
-                <label>{state.e_message}</label>
                 <BFootercont>
                   <BFootercontTime>
                     <img
@@ -436,10 +425,7 @@ return (
             src={widgets.views.editableWidgets.markdownEditorIframe}
             props={{
               initialText: getInitialText(),
-              onChange: (e) =>
-                State.update({
-                  reply: e,
-                }),
+              onChange: (e) => setReply(e),
             }}
           />
         </div>
@@ -458,9 +444,9 @@ return (
             src={widgets.views.standardWidgets.styledComponents}
             props={{
               Button: {
-                text: state.showSpinner ? "" : "Submit",
+                text: showSpinner ? "" : "Submit",
                 onClick: handleSubmitButton(),
-                icon: state.showSpinner ? renderSpinner() : <></>,
+                icon: showSpinner ? renderSpinner() : <></>,
               },
             }}
           />
