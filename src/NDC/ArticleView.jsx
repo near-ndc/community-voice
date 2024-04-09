@@ -46,13 +46,12 @@ const tabs = [
   },
 ];
 
-State.init({
-  tabSelected: tabs[0].id,
-});
-
+const [tabSelected, setTabSelected] = useState(tabs[0].id)
 const [comments, setComments] = useState(undefined)
 const [loadingComments, setLoadingComments] = useState(true)
 const [versions, setVersions] = useState([]);
+const [sliceContent, setSliceContent] = useState(true)
+const [showModal, setShowModal] = useState(false)
 
 if(versions.length === 0) {
   try {
@@ -549,7 +548,7 @@ const getShortUserName = () => {
   return name.length > 20 ? `${name.slice(0, 20)}...` : name;
 };
 
-let displayedContent = state.sliceContent
+let displayedContent = sliceContent
   ? article.value.articleData.body.slice(0, 1000)
   : article.value.articleData.body;
 
@@ -766,7 +765,7 @@ return (
                     ),
                   }}
                 />
-                {state.sliceContent &&
+                {sliceContent &&
                   article.value.articleData.body.length > 1000 && (
                     <Widget
                       src={
@@ -783,7 +782,7 @@ return (
                         size: "sm",
                         className: "w-100",
                         onClick: () => {
-                          State.update({ sliceContent: false });
+                          setSliceContent(false);
                         },
                       }}
                     />
@@ -798,7 +797,7 @@ return (
               </span>
             </NominationTitle>
 
-            {state.showModal && (
+            {showModal && (
               <Widget
                 src={widgets.views.editableWidgets.addComment}
                 props={{
@@ -807,7 +806,7 @@ return (
                   article,
                   isReplying: false,
                   username: authorAccountId,
-                  onCloseModal: () => State.update({ showModal: false }),
+                  onCloseModal: () => setShowModal(false),
                   loadComments,
                   setLoadingComments,
                 }}
@@ -826,9 +825,7 @@ return (
                 ),
                 disabled: !loggedUserHaveSbt,
                 className: "info outline w-100 mt-4 mb-2",
-                onClick: () => {
-                  State.update({ showModal: true });
-                },
+                onClick: () => setShowModal(true),
               }}
             />
             {loadingComments ? 
@@ -863,8 +860,8 @@ return (
             {tabs.map(({ id, title, icon }, i) => (
               <li className="nav-item" role="presentation" key={i}>
                 <Tab
-                  active={state.tabSelected === id}
-                  onClick={() => State.update({ tabSelected: id })}
+                  active={tabSelected === id}
+                  onClick={() => setTabSelected(id)}
                 >
                   <i className={`${icon}`} />
                   {title}
@@ -873,7 +870,7 @@ return (
             ))}
           </ul>
           <div>
-            {state.tabSelected == "generalInfo" && (
+            {tabSelected == "generalInfo" && (
               <DeclarationCard>
                 <SectionTitle className="mt-4 mb-3"></SectionTitle>
                 <div>
