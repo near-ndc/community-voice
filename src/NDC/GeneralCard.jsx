@@ -37,6 +37,7 @@ const id = article.value.metadata.id ?? `article/${article.value.metadata.author
 const [upVotes, setUpVotes] = useState(undefined)
 const [loadingUpVotes, setLoadingUpVotes] = useState(true)
 const [sliceContent, setSliceContent] = useState(true)
+const [showModal, setShowModal] = useState(false)
 
 function loadUpVotes() {
   getUpVotes(getConfig(isTest),id).then((newVotes) => {
@@ -67,7 +68,7 @@ function getPublicationDate(creationTimestamp) {
 }
 
 function toggleShowModal() {
-  State.update({ showModal: !state.showModal });
+  setShowModal(showModal=>!showModal)
 }
 
 //================================================END FUNCTIONS=====================================================
@@ -381,7 +382,7 @@ return (
     }`}
   >
     <Card>
-      {state.showModal && (
+      {showModal && (
         <Widget
           src={widgets.views.editableWidgets.addComment}
           props={{
