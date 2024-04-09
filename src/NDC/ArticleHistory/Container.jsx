@@ -10,8 +10,6 @@ const {
   widgets,
 } = props;
 
-State.init({});
-
 function getDatastring(time) {
   const date = new Date(time);
   return date.toDateString() + " " + date.toLocaleTimeString();
@@ -30,7 +28,7 @@ return (
               overlay={<Tooltip>count inserted lines</Tooltip>}
             >
               <span className="badge text-bg-success p-2 me-1 align-self-center">
-                {state.lineCountInserted}
+                {state.lineCountInserted /* //TODO review this line */} 
               </span>
             </OverlayTrigger>
 
@@ -39,7 +37,7 @@ return (
               overlay={<Tooltip>count deleted lines</Tooltip>}
             >
               <span className="badge text-bg-danger p-2 me-1 align-self-center">
-                {state.lineCountDeleted}
+                {state.lineCountDeleted /* //TODO review this line */}
               </span>
             </OverlayTrigger>
           </div>
