@@ -12,9 +12,7 @@ const currentVersion = "v0.0.5";
 
 const lastOldVersion = "0.0.2";
 
-const prodAction = `${
-  getConfig(isTest).baseActions.article
-}`;
+const prodAction = `${getConfig(isTest).baseActions.article}`;
 
 const testAction = `test_${prodAction}`;
 
@@ -30,7 +28,7 @@ function getArticlesJsons(articles) {
       index: {
         [currentAction]: JSON.stringify({
           key: "main",
-          article,
+          value: article,
         }),
       },
     };
@@ -209,12 +207,6 @@ function filterFakeAuthors(articleData, articleIndexData) {
   }
 }
 
-function filterByArticleId(newFormatArticlesIndexes, articleIdToFilter) {
-  return newFormatArticlesIndexes.filter((articleIndex) => {
-    return articleIndex.value.id === articleIdToFilter;
-  });
-}
-
 function getArticleData(articleIndex, action, key) {
   const socialGetURL = "https://api.near.social/get";
 
@@ -253,39 +245,6 @@ function getArticleNormalized(articleIndex, action) {
   return articleData;
 }
 
-function normalizeLibData(libDataByVersion) {
-  let libData;
-
-  Object.keys(versions).forEach((version, index, array) => {
-    const normFn = versions[version].normalizationFunction;
-    const validBlockHeightRange = versions[version].validBlockHeightRange;
-    const normLibData = libDataByVersion[index]
-      .filter((libData) => {
-        if (validBlockHeightRange[1] === undefined) {
-          return true;
-        }
-
-        return (
-          validBlockHeightRange[0] < libData.blockHeight &&
-          libData.blockHeight < validBlockHeightRange[1]
-        );
-      })
-      .map((libData, i) => {
-        if (libData) return normFn(libData);
-      });
-
-    if (index + 1 === array.length) {
-      // Last index
-      libData = normLibData;
-      return;
-    }
-    libDataByVersion[index + 1] =
-      libDataByVersion[index + 1].concat(normLibData);
-  });
-
-  return libData;
-}
-
 function isActive(article) {
   return !!!article.isDelete;
 }
@@ -322,12 +281,16 @@ function getArticlesNormalized(/*userFilters*/) {
           const articleVersionKey =
             Object.keys(versions)[Number(articleIndex.versionIndex)];
           const action = versions[articleVersionKey].action;
-
           if (action.includes("0.0.3")) return articleIndex;
 
           const article = getArticleNormalized(articleIndex, action).then(
             (articleNormalized) => {
-              return articleNormalized;
+              const fakeAuthorsFiltered = filterFakeAuthors(
+                articleNormalized,
+                articleIndex
+              );
+
+              return fakeAuthorsFiltered;
             }
           );
 
@@ -428,7 +391,7 @@ function getNewArticleIdFormat(oldId) {
 }
 
 function normalizeFromV0_0_4ToV0_0_5(article) {
-  const articleCopy = { ...article };
+  const articleCopy = article;
 
   if (article.value && article.value.metadata.versionKey === "v0.0.3") {
     delete article.accountId;
@@ -469,6 +432,7 @@ function normalizeFromV0_0_4ToV0_0_5(article) {
   articleCopy.value.metadata.lastEditTimestamp = articleCopy.timeLastEdit;
   delete articleCopy.timeLastEdit;
 
+
   articleCopy.value.metadata.id = getNewArticleIdFormat(articleCopy.id);
   delete articleCopy.id;
 
@@ -493,18 +457,24 @@ async function uploadData(articlesJsons, articles) {
   const socialContract = await getContract();
 
   for (let i = 0; i < articlesJsons.length; i++) {
-    console.log(`article json ${i} : `, articlesJsons[i]);
+    const articleToPush = {
+      data: {
+        [ACCOUNT]: {
+          ...articlesJsons[i],
+        },
+      },
+    };
 
-    const articleReference = `article with articleReference title ${articles[i].value.articleData.title} and lastEditTimestamp ${articles[i].value.metadata.lastEditTimestamp}`;
+    console.log(`articleToPush: `, JSON.stringify(articleToPush, null, 4));
+
+    const articleReference = `Article with articleReference title ${articles[i].articleData.title} and lastEditTimestamp ${articles[i].metadata.lastEditTimestamp}`;
     console.log(`Deploying ${articleReference}`);
 
     try {
       await socialContract.set(
-        {
-          data: articlesJsons[i],
-        },
+        articleToPush,
         `${3 * 10 ** 14}`,
-        "1" + "0".repeat(23)
+        "1" + "0".repeat(21)
       );
       console.log(`Deployed ${articleReference}`);
     } catch (err) {
@@ -554,44 +524,19 @@ function sleep(ms) {
 }
 
 async function run() {
-  // const oldArticles = await getArticles();
+  const oldArticles = await getArticles();
 
-  // const oldArticlesNormalizedToLastVersion = oldArticles.map((article) => {
-  //   const newVersion = normalizeFromV0_0_4ToV0_0_5(article);
-  //   return newVersion;
-  // });
+  const oldArticlesNormalizedToLastVersion = oldArticles.map((article) => {
+    const newVersion = normalizeFromV0_0_4ToV0_0_5(article);
+    return newVersion;
+  });
 
-  // console.log(
-  //   "Total old articles: ",
-  //   oldArticlesNormalizedToLastVersion.length
-  // );
-  // const articlesJsons = getArticlesJsons(oldArticlesNormalizedToLastVersion);
-  // uploadData(articlesJsons, oldArticlesNormalizedToLastVersion);
-
-  const articles = [
-    {
-      value: {
-        metadata: {
-          author: "ayelen.near",
-          createdTimestamp: 1699314338205,
-          lastEditTimestamp: 1699314338205,
-          id: "article/ayelen.near/1699314338205",
-          versionKey: "v0.0.5",
-        },
-        articleData: {
-          title: "testt",
-          body: "***testtt***",
-          tags: [Array],
-          category: "uncategorized",
-        },
-      },
-    },
-  ];
-  const articlesJsons = getArticlesJsons(articles);
-
-  uploadData(articlesJsons, articles);
-
-  // console.log(0, await getArticlesIndexes("test_communityVoiceArticle_v0.0.3", "main"))
+  console.log(
+    "Total old articles: ",
+    oldArticlesNormalizedToLastVersion.length
+  );
+  const articlesJsons = getArticlesJsons(oldArticlesNormalizedToLastVersion);
+  uploadData(articlesJsons, oldArticlesNormalizedToLastVersion);
 }
 
 run();
