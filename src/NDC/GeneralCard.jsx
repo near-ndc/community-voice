@@ -523,7 +523,7 @@ return (
                   onClick: () => handleOpenArticle(article),
                 }}
               />
-              {context.accountId === article.author && (
+              {context.accountId === article.value.metadata.author && (
                 <Widget
                   src={
                     widgets.views.standardWidgets.newStyledComponents.Input
