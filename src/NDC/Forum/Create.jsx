@@ -10,8 +10,6 @@ const {
   isTest,
   authorForWidget,
   widgets,
-  initialBody,
-  initialCreateState,
   editArticleData,
   handleFilterArticles,
   handleOnCommitArticle,
@@ -19,120 +17,54 @@ const {
   loggedUserHaveSbt
 } = props;
 
-const errTextNoBody = "ERROR: no article Body",
-  errTextNoId = "ERROR: no article Id",
-  errTextDublicatedId = "ERROR: there is article with such name";
-
-State.init({
-  ...initialCreateState,
-  initialBody: props.initialBody ?? "",
-  tags:[]
-});
-
-function createStateUpdate(obj) {
-  State.update(obj);
-}
-
-const tagsArray =
-  editArticleData && !state.tagsModified ? editArticleData.value.articleData.tags : state.tags;
+const [title, setTitle] = useState(editArticleData.value.articleData.title ?? "")
+const [tags, setTags] = useState(editArticleData.value.articleData.tags ?? [])
+const [body, setBody] = useState(editArticleData.value.articleData.body ?? "Post content (markdown supported)")
+const [clearTags, setClearTags] = useState(false)
+const [clearArticleBody, setClearArticleBody] = useState(false)
+const [showPreview, setShowPreview] = useState(false)
+const [saving, setSaving] = useState(false)
   
-const accountId = context.accountId;
-
-function getRealArticleId() {
-  if (editArticleData) {
-    return (
-      editArticleData.value.metadata.id ??
-      `article/${editArticleData.value.metadata.author}/${editArticleData.value.metadata.createdTimestamp}`
-    );
-  } else {
-    return `article/${accountId}/${Date.now()}`;
-  }
-}
-
-function getArticleData() {
-  const args = {
-    title: editArticleData.value.articleData.title ?? state.title,
-    author: editArticleData.value.metadata.author ?? accountId,
-    lastEditor: accountId,
-    timeLastEdit: Date.now(),
-    timeCreate: editArticleData.value.metadata.createdTimestamp ?? Date.now(),
-    body: state.articleBody,
-    version: editArticleData ? editArticleData.value.metadata.versionKey + 1 : 0,
-    navigation_id: null,
-    tags: tagsArray ?? [],
-    id: getRealArticleId(),
-    category: editArticleData.value.articleData.category ?? category,
-  };
-  return args;
-}
-
 function onCommit(articleId) {
-  State.update({
-    title: "",
-    clearArticleId: true,
-    tags: [],
-    clearTags: true,
-    articleBody: "",
-    clearArticleBody: true,
-    initalBody: "",
-    // showCreatedArticle: true,
-    showPreview: false,
-    saving: true,
-  });
-
-  //if (!Array.isArray(article.tags)) article.tags = Object.keys(article.tags);
-
+  setClearTags(true)
+  setClearArticleBody(true)
+  setTitle("")
+  setBody("")
+  setTags([])
+  setShowPreview(false)
+  setSaving(true)
   handleOnCommitArticle(articleId);
 }
 
 function onCancel() {
-  State.update({
-    createdArticle: undefined,
-    saving: false,
-  });
+  setSaving(false)
 }
 
 const handleCreate = () => {
-  const {title, body, tags, category} = getArticleData()
-
   const articleData = { title, body, tags, category}
   
   const metadataHelper = {
     author: context.accountId,
   }
+
   createArticle(getConfig(isTest), articleData, metadataHelper, (id) => onCommit(id), onCancel)
 }
 
 const handleEdit = () => {
-  const {title, body, tags, id, category} = getArticleData()
-
-  const articleData = { title, body, tags, category }
+  const articleData = { 
+    title: editArticleData.value.articleData.title, 
+    body, 
+    tags, 
+    category: editArticleData.value.articleData.category,
+  }
 
   const articleMetadata = editArticleData.value.metadata 
   
-  editArticle(getConfig(isTest), articleData, articleMetadata, ()=>onCommit(id), onCancel)
+  editArticle(getConfig(isTest), articleData, articleMetadata, ()=>onCommit(editArticle.value.metadata.id), onCancel)
 }
 
-function getInitialMarkdownBody() {
-  if (
-    editArticleData &&
-    (!state.articleBody || state.articleBody === editArticleData.value.articleData.body)
-  ) {
-    return editArticleData.value.articleData.body;
-  } else if (state.articleBody && state.articleBody !== editArticleData.value.articleData.body) {
-    return state.articleBody;
-  } else {
-    return state.initialBody == "" || !state.initialBody
-      ? "Post content (markdown supported)"
-      : state.initialBody;
-  }
-}
-
-function switchShowPreview() {
-  State.update({
-    showPreview: !state.showPreview,
-    initialBody: state.articleBody,
-  });
+function toggleShowPreview() {
+  setShowPreview(showPreview=>!showPreview)
 }
 
 const GeneralContainer = styled.div`
@@ -194,14 +126,7 @@ const Spinner = () => {
   );
 };
 
-const initialTagsObject = {};
-
-Array.isArray(tagsArray) &&
-  tagsArray.forEach((tag) => {
-    initialTagsObject[tag] = true;
-  });
-
-if(state.saving){
+if(saving){
   return (
     <Widget
       src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
@@ -215,22 +140,22 @@ return (
       <BoxShadow className="rounded-3 p-3 m-3 bg-white col-lg-8 col-md-8 col-sm-12">
         <div>
           <SecondContainer className="rounded">
-            {state.showPreview ? (
+            {showPreview ? (
               <Widget
                 src={widgets.views.editableWidgets.generalCard}
                 props={{
                   widgets,
                   isTest,
-                  data: {
+                  article: {
                     blockHeight:-1,
-                    accountId,
+                    accountId: context.accountId,
                     value:{
                       ...buildArticle({
-                        title: state.title,
-                        body: state.articleBody,
-                        tags: tagsArray,
+                        title: title,
+                        body: body,
+                        tags: tags,
                       },{
-                        author: accountId,
+                        author: context.accountId,
                       })
                     }
                   },
@@ -239,47 +164,32 @@ return (
                   authorForWidget,
                   handleShareButton: () => {},
                   handleEditArticle: () => {},
-                  switchShowPreview,
-                  isPreview: state.showPreview,
+                  toggleShowPreview,
+                  isPreview: showPreview,
                   loggedUserHaveSbt
                 }}
               />
             ) : (
               <div>
                 <div className="d-flex flex-column pt-3">
-                  <label for="inputArticleId" className="small text-danger">
-                    {state.errorId}
-                  </label>
                   <Widget
-                    src={widgets.views.standardWidgets.fasterTextInput}
+                    src={widgets.views.editableWidgets.fasterTextInput}
                     props={{
-                      firstText: state.title,
-                      forceClear: state.clearArticleId,
-                      stateUpdate: (obj) => State.update(obj),
-                      filterText: (e) => e.target.value,
+                      title,
+                      setTitle,
                       placeholder: "Post title (case-sensitive)",
                       editable: editArticleData,
                     }}
                   />
                 </div>
                 <div className="d-flex flex-column pt-3">
-                  <label
-                    for="textareaArticleBody"
-                    className="small text-danger"
-                  >
-                    {state.errorBody}
-                  </label>
                   <div className="d-flex gap-2">
                     <Widget
-                      src={widgets.views.standardWidgets.markownEditorIframe}
+                      src={widgets.views.editableWidgets.markdownEditorIframe}
                       props={{
-                        initialText: getInitialMarkdownBody(),
-                        onChange: (articleBody) =>
-                          State.update({
-                            articleBody,
-                            clearArticleBody: false,
-                          }),
-                        clearArticleBody: state.clearArticleBody,
+                        initialText: body,
+                        onChange: (body) => setBody(body),
+                        clear: clearArticleBody, //TODO check funcionality
                       }}
                     />
                   </div>
@@ -288,17 +198,10 @@ return (
                   <Widget
                     src={widgets.views.editableWidgets.tagsEditor}
                     props={{
-                      forceClear: state.clearTags,
-                      stateUpdate: (obj) => State.update(obj),
-                      initialTagsObject,
-                      placeholder: "Input tags",
-                      setTagsObject: (tags) => {
-                        // state.tags = Object.keys(tags);
-                        State.update({
-                          tagsModified: true,
-                          tags: Object.keys(tags),
-                        });
-                      },
+                      tags,
+                      setTags,
+                      clearTags,
+                      setClearTags,
                     }}
                   />
                 </div>
@@ -312,12 +215,12 @@ return (
                 props={{
                   className: "info outline mx-2",
                   disabled:
-                    state.title.length === 0 || state.articleBody.length === 0,
-                  onClick: switchShowPreview,
+                    title.length === 0 || body.length === 0,
+                  onClick: toggleShowPreview,
                   children: (
                     <i
                       className={`bi ${
-                        state.showPreview ? "bi-pencil" : "bi-eye-fill"
+                        showPreview ? "bi-pencil" : "bi-eye-fill"
                       }`}
                     ></i>
                   ),
@@ -330,11 +233,11 @@ return (
                 props={{
                   className: "info ",
                   disabled:
-                    state.title.length === 0 || state.articleBody.length === 0,
+                    title.length === 0 || body.length === 0,
                   onClick: editArticleData ? handleEdit : handleCreate,
                   children: (
                     <div className="d-flex justify-conten-center align-items-center">
-                      {state.saving ? (
+                      {saving ? (
                         <Spinner />
                       ) : (
                         <>

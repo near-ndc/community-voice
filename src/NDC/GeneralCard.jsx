@@ -11,37 +11,39 @@ if(!getUpVotes || !getConfig){
 const {
   widgets,
   isTest,
-  data,
+  article,
   handleOpenArticle,
   handleFilterArticles,
   authorForWidget,
   handleShareButton,
   handleEditArticle,
-  switchShowPreview,
+  toggleShowPreview,
   isPreview,
   loggedUserHaveSbt
 } = props;
 
-if (!Array.isArray(data.value.articleData.tags) && typeof data.value.articleData.tags === "object") {
-  data.value.articleData.tags = Object.keys(data.value.articleData.tags);
+if (!Array.isArray(article.value.articleData.tags) && typeof article.value.articleData.tags === "object") {
+  article.value.articleData.tags = Object.keys(article.value.articleData.tags);
 }
 
-data.value.articleData.tags = data.value.articleData.tags.filter((tag) => tag !== undefined && tag !== null);
+// article.value.articleData.tags = article.value.articleData.tags.filter((tag) => tag !== undefined && tag !== null);
 
-const tags = data.value.articleData.tags;
-const accountId = data.value.metadata.author;
-const title = data.value.articleData.title;
-const content = data.value.articleData.body;
-const timeLastEdit = data.value.metadata.lastEditTimestamp;
-const id = data.value.metadata.id ?? `${data.author}-${data.metadata.createdTiemestamp}`;
+const tags = article.value.articleData.tags;
+const accountId = article.value.metadata.author;
+const title = article.value.articleData.title;
+const content = article.value.articleData.body;
+const timeLastEdit = article.value.metadata.lastEditTimestamp;
+const id = article.value.metadata.id ?? `article/${article.value.metadata.author}/${article.value.metadata.createdTimestamp}`;
 const [upVotes, setUpVotes] = useState(undefined)
 const [loadingUpVotes, setLoadingUpVotes] = useState(true)
+const [sliceContent, setSliceContent] = useState(true)
+const [showModal, setShowModal] = useState(false)
 
 function loadUpVotes() {
   getUpVotes(getConfig(isTest),id).then((newVotes) => {
     setUpVotes(newVotes)
     setLoadingUpVotes(false)
-  })
+})
 }
 
 useEffect(() => {
@@ -51,17 +53,6 @@ useEffect(() => {
     }, 30000)
 }, [])
 
-
-function stateUpdate(obj) {
-  State.update(obj);
-}
-
-State.init({
-  verified: true,
-  start: true,
-  voted: false,
-  sliceContent: true,
-});
 //=============================================END INITIALIZATION===================================================
 
 //===================================================CONSTS=========================================================
@@ -76,23 +67,8 @@ function getPublicationDate(creationTimestamp) {
   return new Date(creationTimestamp).toDateString();
 }
 
-function getUserName() {
-  const profile = data.authorProfile;
-
-  return profile.name ?? getShortUserName();
-}
-
-const getShortUserName = () => {
-  const userId = accountId;
-
-  if (userId.length === 64) return `${userId.slice(0, 4)}..${userId.slice(-4)}`;
-  const name = userId.slice(0, -5); // truncate .near
-
-  return name.length > 20 ? `${name.slice(0, 20)}...` : name;
-};
-
 function toggleShowModal() {
-  State.update({ showModal: !state.showModal });
+  setShowModal(showModal=>!showModal)
 }
 
 //================================================END FUNCTIONS=====================================================
@@ -305,17 +281,6 @@ const CallLibrary = styled.div`
   `;
 //============================================END STYLED COMPONENTS=================================================
 
-//=================================================MORE STYLES======================================================
-
-const profileImageStyles = {
-  width: profilePictureStyles.width,
-  height: profilePictureStyles.height,
-  borderRadius: profilePictureStyles.borderRadius,
-  overflow: "hidden",
-};
-
-//===============================================END MORE STYLES====================================================
-
 //=================================================COMPONENTS=======================================================
 
 const inner = (
@@ -365,7 +330,7 @@ const renderTags = () => {
 };
 
 const renderArticleBody = () => {
-  let displayedContent = state.sliceContent ? content.slice(0, 1000) : content;
+  let displayedContent = sliceContent ? content.slice(0, 1000) : content;
   return (
     <ArticleBodyContainer>
       <Widget
@@ -388,7 +353,7 @@ const renderArticleBody = () => {
           ),
         }}
       />
-      {state.sliceContent && content.length > 1000 && (
+      {sliceContent && content.length > 1000 && (
         <Widget
           src={widgets.views.standardWidgets.styledComponents}
           props={{
@@ -396,9 +361,7 @@ const renderArticleBody = () => {
               text: `Show more`,
               size: "sm",
               className: "w-100 justify-content-center",
-              onClick: () => {
-                State.update({ sliceContent: false });
-              },
+              onClick: ()=>setSliceContent(false),
               icon: <i className="bi bi-chat-square-text-fill"></i>,
             },
           }}
@@ -419,13 +382,13 @@ return (
     }`}
   >
     <Card>
-      {state.showModal && (
+      {showModal && (
         <Widget
           src={widgets.views.editableWidgets.addComment}
           props={{
             widgets,
             isTest,
-            article: data,
+            article,
             isReplying: false,
             onCloseModal: toggleShowModal,
           }}
@@ -444,7 +407,7 @@ return (
             props={{
               isTest,
               authorForWidget,
-              reactedElementData: data,
+              article,
               widgets,
               disabled: isPreview || !loggedUserHaveSbt,
               upVotes,
@@ -463,7 +426,7 @@ return (
                 handleShareButton(true, {
                   key: "said",
                   type: "sharedArticleId",
-                  value: data.value.metadata.id,
+                  value: article.value.metadata.id,
                 }),
             }}
           />
@@ -473,7 +436,7 @@ return (
         <KeyIssuesTitle
           role="button"
           onClick={() => {
-            handleOpenArticle(data);
+            handleOpenArticle(article);
           }}
         >
           {title}
@@ -500,7 +463,7 @@ return (
             <TextLowerSectionContainer
               className="align-items-center"
               onClick={() => {
-                handleOpenArticle(data);
+                handleOpenArticle(article);
               }}
             >
               <i className="bi bi-clock"></i>
@@ -557,10 +520,10 @@ return (
                   ),
                   size: "sm",
                   className: "info w-25",
-                  onClick: () => handleOpenArticle(data),
+                  onClick: () => handleOpenArticle(article),
                 }}
               />
-              {context.accountId === data.author && (
+              {context.accountId === article.value.metadata.author && (
                 <Widget
                   src={
                     widgets.views.standardWidgets.newStyledComponents.Input
@@ -576,8 +539,8 @@ return (
                     className: `info w-25`,
                     onClick: () =>
                       isPreview
-                        ? switchShowPreview()
-                        : handleEditArticle(data),
+                        ? toggleShowPreview()
+                        : handleEditArticle(article),
                   }}
                 />
               )}

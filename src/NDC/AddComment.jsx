@@ -22,11 +22,8 @@ const {
   editionData,
 } = props;
 
-const rootId = rootCommentId ?? article.value.metadata.id; //To render in the proper location
-
-const commentId = editionData ? editionData.value.metadata.id : undefined; //(OPTIONAL) to edit comment
-
-const isEdition = commentId !== undefined;
+const [reply, setReply] = useState("")
+const [showSpinner, setShowSpinner] = useState(false)
 
 const ModalCard = styled.div`
     position: fixed;
@@ -280,13 +277,6 @@ const CallLibrary = styled.div`
     display: none;
   `;
 
-State.init({
-  theme,
-  reply: "",
-  cancel: false,
-  e_message: "",
-});
-
 function getShouldDisplayOriginalComment() {
   return (
     (!editionData && replyingTo) ||
@@ -298,21 +288,17 @@ function getShouldDisplayOriginalComment() {
 
 function getInitialText() {
   if (editionData) {
-    if (!state.reply || editionData.value.commentData.text === state.reply) {
+    if (!reply || editionData.value.commentData.text === reply) {
       return editionData.value.commentData.text;
     } 
   } else if (replyingTo) {
     return `@${replyingTo} `;
-  } else if (state.reply && state.reply !== editionData.value.commentData.text) {
-    return state.reply;
+  } else if (reply && reply !== editionData.value.commentData.text) {
+    return reply;
   } else {
     return "Reply here";
   }
 }
-
-const SetText = (txt) => {
-  State.update({ shareText: txt });
-};
 
 const renderSpinner = () => {
   return <Spinner className="spinner-border" role="status"></Spinner>;
@@ -322,46 +308,46 @@ function onCommit() {
   setLoadingComments && setLoadingComments(true)
   setTimeout(() => {
     loadComments && loadComments()
-    State.update({reply: "Reply here", showSpinner: false });
+    setReply("Reply here")
+    setShowSpinner(false)
     onCloseModal();
-  }, 3000);
+  }, 5000);
 }
 
 function onCancel() {
   setLoadingComments(false)
-  State.update({ showSpinner: false });
+  setShowSpinner(false)
 }
 
 function handleSubmitButton() {
-  if (state.showSpinner) {
+  if (showSpinner) {
     return () => {};
   } else {
-    if (isEdition) {
-      return editCommentListener;
+    if (editionData) {
+      return handleEditComment;
     } else {
-      return addCommentListener;
+      return handleCreateComment;
     }
   }
 }
 
-function addCommentListener() {
-  State.update({showSpinner: true });
-  
+function handleCreateComment() {
+  setShowSpinner(false)
   createComment({
     config:getConfig(isTest),
     author: context.accountId,
-    commentText: state.reply,
-    replyingTo: rootId,
+    commentText: reply,
+    replyingTo: rootCommentId ?? article.value.metadata.id,
     articleId:article.value.metadata.id,
     onCommit,
     onCancel,
   });
 }
 
-function editCommentListener() {
-  State.update({showSpinner: true });
+function handleEditComment() {
+  setShowSpinner(true)
   const comment = originalComment
-  comment.value.commentData.text=state.reply
+  comment.value.commentData.text=reply
   
   editComment({
     config: getConfig(isTest),
@@ -377,7 +363,7 @@ return (
       <H1>
         {isReplying
           ? "Reply to comment"
-          : isEdition
+          : editionData
           ? "Edit comment"
           : "Add a Comment"}
       </H1>
@@ -408,7 +394,6 @@ return (
                 </BCommentmessage>
               </BComment>
               <BFooter>
-                <label>{state.e_message}</label>
                 <BFootercont>
                   <BFootercontTime>
                     <img
@@ -437,13 +422,10 @@ return (
         )}
         <div className="w-100 col">
           <Widget
-            src={widgets.views.standardWidgets.markownEditorIframe}
+            src={widgets.views.editableWidgets.markdownEditorIframe}
             props={{
               initialText: getInitialText(),
-              onChange: (e) =>
-                State.update({
-                  reply: e,
-                }),
+              onChange: (e) => setReply(e),
             }}
           />
         </div>
@@ -462,9 +444,9 @@ return (
             src={widgets.views.standardWidgets.styledComponents}
             props={{
               Button: {
-                text: state.showSpinner ? "" : "Submit",
+                text: showSpinner ? "" : "Submit",
                 onClick: handleSubmitButton(),
-                icon: state.showSpinner ? renderSpinner() : <></>,
+                icon: showSpinner ? renderSpinner() : <></>,
               },
             }}
           />

@@ -8,17 +8,16 @@ const {
   versions,
 } = props;
 
-State.init({
-  selectedTab: "code",
-  selectedBlockHeight: null,
-});
-
+const [selectedTab, setSelectedTab] = useState("code")
+const [selectedBlockHeight, setSelectedBlockHeight] = useState(null)
 //TODO Need the function getArticlesVersions in the lib.articles
 
 if (props.count) props.count(versions.length);
 
-if (!state.selectedBlockHeight && versions.length > 0)
-  state.selectedBlockHeight = versions[0].blockHeight;
+if (!selectedBlockHeight && versions.length > 0){
+  setSelectedBlockHeight(versions[0].blockHeight)
+}
+
 
 const renderBlockChangesLink = (version) => {
   if (!version) return <>Loading...</>;
@@ -29,13 +28,11 @@ const renderBlockChangesLink = (version) => {
     <div>
       <button
         className={`list-group-item list-group-item-action ${
-          state.selectedBlockHeight != version.blockHeight
+          selectedBlockHeight != version.blockHeight
             ? ""
             : "list-group-item-info"
         }`}
-        onClick={() => {
-          State.update({ selectedBlockHeight: version.blockHeight });
-        }}
+        onClick={() => setSelectedBlockHeight(version.blockHeight)}
       >
         #{version.blockHeight} *{" "}
         {timeLastEdit.toDateString() + " " + timeLastEdit.toLocaleTimeString()}
@@ -71,10 +68,6 @@ function renderWidgetCode(blockHeight) {
 function blockHeightToWidgetRender(blockHeight, allArticles) {
   const index = versions.findIndex((el) => el.blockHeight === blockHeight);  
   return <Markdown text={allArticles[index].value.articleData.body} />;
-}
-
-function articleHistoryHasndlerStateUpdate(obj) {
-  State.update(obj);
 }
 
 //styles forked from calebjacob.near/widget/Activity
@@ -149,36 +142,28 @@ return (
           <Tabs>
             <TabsButton
               type="button"
-              onClick={() =>
-                State.update({
-                  selectedTab: "code",
-                })
-              }
-              selected={state.selectedTab === "code"}
+              onClick={() => setSelectedTab("code")}
+              selected={selectedTab === "code"}
             >
               Code
             </TabsButton>
 
             <TabsButton
               type="button"
-              onClick={() =>
-                State.update({
-                  selectedTab: "render",
-                })
-              }
-              selected={state.selectedTab === "render"}
+              onClick={() => setSelectedTab("render")}
+              selected={selectedTab === "render"}
             >
               Render
             </TabsButton>
           </Tabs>
 
-          {state.selectedTab === "code" && (
-            <div>{renderWidgetCode(state.selectedBlockHeight)}</div>
+          {selectedTab === "code" && (
+            <div>{renderWidgetCode(selectedBlockHeight)}</div>
           )}
 
-          {state.selectedTab === "render" && (
+          {selectedTab === "render" && (
             <div>
-              {blockHeightToWidgetRender(state.selectedBlockHeight, versions)}
+              {blockHeightToWidgetRender(selectedBlockHeight, versions)}
             </div>
           )}
         </div>

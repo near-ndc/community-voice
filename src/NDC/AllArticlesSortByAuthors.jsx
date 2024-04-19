@@ -1,23 +1,21 @@
 //NDC.AllArticlesSortByAuthors
 
 const {
-  finalArticles,
+  articles,
   widgets,
   handleFilterArticles,
   authorForWidget,
 } = props;
 
-const allFinalArticles = finalArticles;
-
 const articlesAuthors =
-  allFinalArticles.length &&
-  Array.from(allFinalArticles, (article) => article.value.metadata.author);
+  articles.length &&
+  Array.from(articles, (article) => article.value.metadata.author);
   
 let authors = [...new Set(articlesAuthors)];
 
 let articlesByAuthorsArray = [];
 authors.map((author) => {
-  let thisAuthorArtciles = allFinalArticles.filter(
+  let thisAuthorArtciles = articles.filter(
     (article) => article.value.metadata.author == author
   );
   articlesByAuthorsArray.push(thisAuthorArtciles);

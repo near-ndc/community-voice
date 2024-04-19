@@ -1,13 +1,17 @@
-const accountId = props.accountId;
-const profile = props.profile ?? Social.getr(`${accountId}/profile`);
 
-const maxNameLength = props.maxNameLength;
 
-const widgets = props.widgets;
+const {
+  accountId,
+  maxNameLength,
+  widgets,
+  maxWidth,
+  profile,
+  tooltip,
+} = props
 
+maxWidth = maxWidth ?? "60%";
+profile = profile ?? Social.getr(`${accountId}/profile`);
 let name = profile.name;
-
-const maxWidth = props.maxWidth ?? "60%";
 
 const inner = (
   <div className="d-flex flex-row" style={{ maxWidth: "100%" }}>
@@ -51,7 +55,7 @@ return (
     className="short-inline-block-container"
     style={{ maxWidth: `${maxWidth}` }}
   >
-    {props.tooltip ? (
+    {tooltip ? (
       <Widget
         src={widgets.views.standardWidgets.profileOverlayTrigger}
         props={{ accountId, children: inner, maxWidth: `${maxWidth}` }}

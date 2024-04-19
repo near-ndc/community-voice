@@ -217,7 +217,7 @@ function normalizeArticle(article) {
 }
 
 function getArticlesNormalized(userFilters) {
-  const articlesDataPromises = Object.keys(versions).map((version, versionIndex) => {
+  const articlesDataPromises = Object.keys(versions).reverse().map((version, versionIndex) => {
     // const action = versions[version].action;
     const action = getAction(version);
     const articles = getArticlesIndexes(action, "main").then((articles) => {
