@@ -431,7 +431,7 @@ function onCommitDeleteArticle() {
   setArticles([])
   setTimeout(() => {
     loadArticles()
-  }, 3000);
+  }, 5000);
   setFilterBy({ parameterName: "", parameterValue: {} });
   setDisplayedTabId(tabs.SHOW_ARTICLES_LIST.id)
   setArticle(undefined)
@@ -555,7 +555,7 @@ function handleOnCommitArticle(articleId) {
         setArticle(newArticles[0])
       }
     })
-  }, 3000);
+  }, 5000);
 }
 //===============================================END FUNCTIONS======================================================
 return (

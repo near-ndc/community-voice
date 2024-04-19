@@ -32,7 +32,7 @@ function onCommitUpVotes() {
   setLoadingUpVotes(true)
   setTimeout(() => {
     loadUpVotes()
-  }, 3000);
+  }, 5000);
 }
 
 function onCancelUpVotes() {

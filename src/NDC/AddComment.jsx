@@ -311,7 +311,7 @@ function onCommit() {
     setReply("Reply here")
     setShowSpinner(false)
     onCloseModal();
-  }, 3000);
+  }, 5000);
 }
 
 function onCancel() {

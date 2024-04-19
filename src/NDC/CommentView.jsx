@@ -367,7 +367,7 @@ function onCommitDeleteComment() {
   setLoadingComments(true)
   setTimeout(() => {
     loadComments()
-  }, 3000);
+  }, 5000);
 }
 
 function closeDeleteCommentModal() {

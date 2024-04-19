@@ -51,7 +51,7 @@ function onCommit() {
   setLoading(true)
   setTimeout(() => {
     loadReactions()
-  }, 3000);
+  }, 5000);
 }
 
 function onCancel() {
