@@ -7,12 +7,17 @@ const {
   filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
+  getArticlesVersions,
 } = VM.require("communityvoice.ndctools.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
   "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
 
-const isTest = false;
+const { getConfig } = VM.require(
+  "communityvoice.ndctools.near/widget/config.CommunityVoice"
+);
+
+const isTest = true;
 const baseAction = "sayALotArticle";
 const currentVersion = "v0.0.4"; // EDIT: Set version
 
@@ -33,6 +38,25 @@ const action = isTest ? testAction : prodAction;
 //     id: "blaze.near-1708703244668",
 //   },
 // };
+
+function doesArticleHavePropperStructure(article) {
+  return (
+    article.accountId &&
+    typeof article.accountId === "string" &&
+    article.blockHeight &&
+    typeof article.blockHeight === "number" &&
+    article.value &&
+    typeof article.value === "object" &&
+    article.value.articleData &&
+    typeof article.value.articleData === "object" &&
+    article.value.articleData.body &&
+    article.value.articleData.title &&
+    article.value.metadata.author &&
+    article.value.metadata.author === "string" &&
+    article.value.metadata.id &&
+    article.value.metadata.id === "string"
+  );
+}
 
 function testLatestEditsRepeatedArticle() {
   const fnName = "testLatestEdits";
@@ -133,34 +157,6 @@ function testLatestEditEmptyIndex() {
       : "",
     fnName,
   };
-}
-
-function testGetArticleNormalized() {
-  //NEED CHECK AFTER FIX OF getArticleNormalized
-
-  const fnName = "testGetArticleNormalized";
-  const articleIndex = realArticleIndexInMainnet;
-  let articleNormalized;
-  try {
-    getArticleNormalized(articleIndex, action).then((response) => {
-      const expectedNormalizedArticle = [];
-      const isError =
-        JSON.stringify(response) !== JSON.stringify(expectedLatestEdit);
-      return {
-        isError: isError,
-        msg: isError
-          ? `Items don't match output ${articleNormalized}, expected ${expectedLatestEdit}`
-          : "",
-        fnName,
-      };
-    });
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
 }
 
 function testGetActionInIsTestPassingParameters() {
@@ -458,6 +454,71 @@ async function testGetArticlesIndexes() {
   });
 }
 
+async function testGetArticlesVersions() {
+  const fnName = "testGetArticlesVersions";
+
+  const articleId =
+    "article/f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/1711582852141";
+
+  const articlesVersions = getArticlesVersions(getConfig(isTest), articleId);
+
+  function versionsHavePropperStructure(versions) {
+    return versions.map((article) => {
+      return doesArticleHavePropperStructure(article);
+    });
+  }
+
+  let isError = false;
+  let msg = "";
+  return articlesVersions.then((res) => {
+    try {
+      if (!Array.isArray(res) || (Array.isArray(res) && res.length === 0)) {
+        isError = true;
+        msg = [
+          `getArticlesVersions is expecting an Array with all the versions`,
+          `it returns: ${JSON.stringify(res)}`,
+        ];
+      } else if (!versionsHavePropperStructure(res).includes(false)) {
+        isError = true;
+        msg = [
+          `One or more version doesn't have the propper structure`,
+          `Returns: ${JSON.stringify(res)}`,
+          `Expected structure: {
+          "accountId": string,
+          "blockHeight": number,
+          "value": {
+              "articleData": {
+                  "title": string,
+                  "body": string,
+                  "tags": Array
+              },
+              "metadata": {
+                  "id": string,
+                  "author": string,
+                  "createdTimestamp": number,
+                  "lastEditTimestamp": number,
+                  "versionKey": string,
+              }
+          }
+      }`,
+        ];
+      }
+
+      return {
+        isError,
+        msg,
+        fnName,
+      };
+    } catch (err) {
+      return {
+        isError: true,
+        msg: err.message,
+        fnName,
+      };
+    }
+  });
+}
+
 const [asyncComponent, setAsyncComponent] = useState(<p>Loading...</p>);
 
 // displayTestsAsyncResults(/*[
@@ -478,6 +539,11 @@ displayTestsAsyncResults([
     fn: testGetArticlesIndexes,
     description: "Should get an array of article index",
   },
+  {
+    fnName: "testGetArticlesVersions",
+    fn: testGetArticlesVersions,
+    description: "Should get all versions of an article from one articleId",
+  },
 ]).then((res) => {
   setAsyncComponent(res);
 });
@@ -494,10 +560,6 @@ return (
         fnName: "testLatestEditEmptyIndex",
         fn: testLatestEditEmptyIndex,
       },
-      // {
-      //   fnName: "testGetArticleNormalized",
-      //   fn: testGetArticleNormalized,
-      // },
       {
         fnName: "testGetActionInIsTestPassingParameters",
         fn: testGetActionInIsTestPassingParameters,

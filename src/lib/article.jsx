@@ -46,50 +46,6 @@ function getArticles(config, filters) {
   return getArticlesNormalized(filters);
 }
 
-function filterFakeAuthors(articleData, articleIndexData) {
-  if (articleData.author === articleIndexData.accountId) {
-    return articleData;
-  }
-}
-
-function getArticleNormalized(articleIndex, action) {
-  const articleVersionIndex = Object.keys(versions).findIndex((versionName) => {
-    const versionData = versions[versionName];
-    return (
-      (versionData.validBlockHeightRange[0] <= articleIndex.blockHeight &&
-        articleIndex.blockHeight < versionData.validBlockHeightRange[1]) ||
-      versionData.validBlockHeightRange[1] === undefined
-    );
-  });
-
-  const articleVersionKey = Object.keys(versions)[articleVersionIndex];
-  // const action = versions[articleVersionKey].action
-  const key = "main";
-
-  return asyncFetch(" https://api.near.social/get", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      keys: [`${articleIndex.accountId}/${action}/${key}`],
-      blockHeight: articleIndex.blockHeight,
-    }),
-  }).then((response) => {
-    //ERROR: Check the structure of the response to define "article"
-    let article = JSON.parse(
-      response.body[articleIndex.accountId][action][key]
-    );
-    article.blockHeight = articleIndex.blockHeight;
-    article.articleIndex = articleIndex;
-    Object.keys(versions).forEach((versionName, index) => {
-      if (articleVersionIndex >= index) {
-        const versionData = versions[versionName];
-        article = versionData.normalizationFunction(article);
-      }
-    });
-    return article;
-  });
-}
-
 function normalizeArticleData(articleData) {
   return normalizeObjectWithMetadata(articleData, versions);
 }
