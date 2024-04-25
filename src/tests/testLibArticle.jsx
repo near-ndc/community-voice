@@ -1,10 +1,8 @@
 const {
   getLatestEdits,
   processArticles,
-  getArticleNormalized,
   getArticlesIndexes,
   getAction,
-  filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
@@ -273,68 +271,6 @@ function testGetActionNotPassingParameters() {
   }
 }
 
-function testFilterFakeAuthorsAuthorDoesntMatch() {
-  const fnName = "testFilterFakeAuthors";
-  const articleData = {
-    author: "a",
-  };
-  const articleIndexData = {
-    accountId: "b",
-  };
-  let result;
-  try {
-    result = filterFakeAuthors(articleData, articleIndexData);
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-
-  const expectedLatestEdit = undefined;
-
-  const isError = !(result === expectedLatestEdit);
-  return {
-    isError: isError,
-    msg: isError
-      ? `This item should be filtered and it's not been filtered`
-      : "",
-    fnName,
-  };
-}
-
-function testFilterFakeAuthorsMatchAuthor() {
-  const fnName = "testFilterFakeAuthors";
-  const articleData = {
-    author: "a",
-  };
-  const articleIndexData = {
-    accountId: "a",
-  };
-  let result;
-  try {
-    result = filterFakeAuthors(articleData, articleIndexData);
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-
-  const expectedLatestEdit = articleData;
-
-  const isError = JSON.stringify(result) !== JSON.stringify(expectedLatestEdit);
-  return {
-    isError: isError,
-    msg: isError
-      ? `This item should not be filtered and it's been filtered`
-      : "",
-    fnName,
-  };
-}
-
 function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
   const fnName = "testGetArticleBlackListByArticleIdReturnValidAccountIds";
 
@@ -579,16 +515,6 @@ return (
         fnName: "testGetActionNotPassingParameters",
         fn: testGetActionNotPassingParameters,
         description: "Should get the propper action",
-      },
-      {
-        fnName: "testFilterFakeAuthorsMatchAuthor",
-        fn: testFilterFakeAuthorsMatchAuthor,
-        description: "Test if filtering is working propperly",
-      },
-      {
-        fnName: "testFilterFakeAuthorsAuthorDoesntMatch",
-        fn: testFilterFakeAuthorsAuthorDoesntMatch,
-        description: "Test if filtering is working propperly",
       },
       {
         fnName: "testGetArticleBlackListByArticleIdReturnValidAccountIds",
