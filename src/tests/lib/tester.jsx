@@ -140,33 +140,36 @@ function displayTestsAsyncResults(functionArray) {
   }
 
   const functionsReturns = [];
-
+  
   for (let i = 0; i < functionArray.length; i++) {
-    const fn = functionArray[i].fn;
+    const fnData = functionArray[i];
+
+    const fn = fnData.fn;
+    const fnName = fnData.fnName;
+    const fnDescription = fnData.description;
 
     const functionReturn = fn().then((functionResponse) => {
       //Sets a key for this function in errorResults
-      const functionName = functionArray[i].fnName;
 
       let functionPassingTest;
       const functionErrorResults = {};
-      functionErrorResults.description = functionArray[i].description;
+      functionErrorResults.description = fnDescription;
       functionErrorResults.errorList = [];
 
       if (typeof fn !== "function") {
         functionErrorResults.errorList.push(
-          `${functionName} is not a function`
+          `${fnName} is not a function`
         );
       } else {
         if (functionResponse.isError) {
           //Error msg can be an string to use 1 line or an Array to use 1 line per element in the Array
           functionErrorResults.errorList.push(functionResponse.msg);
         } else {
-          functionPassingTest = functionName;
+          functionPassingTest = fnName;
         }
       }
 
-      return { functionName, functionErrorResults, functionPassingTest };
+      return { fnName, functionErrorResults, functionPassingTest };
     });
     functionsReturns.push(functionReturn);
   }
@@ -174,10 +177,13 @@ function displayTestsAsyncResults(functionArray) {
   const finalResults = Promise.all(functionsReturns).then((functionsResults) => {
     const errorResults = {};
     const functionsPassingTest = [];
+
     functionsResults.forEach((functionResult) => {
-      errorResults[functionResult.functionName] =
+      errorResults[functionResult.fnName] =
         functionResult.functionErrorResults;
-      functionsPassingTest.push(functionResult.functionPassingTest);
+      if(functionResult.functionPassingTest) {
+        functionsPassingTest.push(functionResult.functionPassingTest);
+      }
     });
 
     //Filter functions without errors of list

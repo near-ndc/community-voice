@@ -222,7 +222,7 @@ function testGetActionPassingParameters() {
     const expectedAction = baseAction;
 
     const isError = resultAction === expectedAction;
-
+    
     return {
       isError: isError,
       msg: isError
