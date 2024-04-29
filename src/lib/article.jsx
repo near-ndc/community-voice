@@ -84,25 +84,6 @@ function getArticleBlackListByArticleId() {
   ];
 }
 
-function filterInvalidArticlesIndexes(articlesData) {
-  return articlesData
-    .filter((articleData) => articleData.value.metadata.id) // Has id
-    .filter((articleData) => {
-      const splittedId = articleData.value.metadata.id.split("-");
-      splittedId.pop();
-
-      return splittedId.join("-") === articleData.accountId;
-    }) // id begins with same accountId as index object
-    .filter(
-      (articleData) =>
-        !getArticleBlackListByBlockHeight().includes(articleData.blockHeight) // Blockheight is not in blacklist
-    )
-    .filter(
-      (articleData) =>
-        !getArticleBlackListByArticleId().includes(articleData.value.id) // Article id is not in blacklist
-    );
-}
-
 function getLatestEdits(articles) {
   return articles.filter((articleData, index) => {
     const latestEditForThisArticleIndex = articles.findIndex(
@@ -217,54 +198,54 @@ function getArticlesIndexes(action, key) {
   return articlesPromise;
 }
 
-function normalizeOldToV_0_0_1(article) {
-  article.realArticleId = `${article.author}-${article.timeCreate}`;
-  article.sbts = ["public"];
+// function normalizeOldToV_0_0_1(article) {
+//   article.realArticleId = `${article.author}-${article.timeCreate}`;
+//   article.sbts = ["public"];
 
-  return article;
-}
+//   return article;
+// }
 
-function normalizeFromV0_0_1ToV0_0_2(article) {
-  article.title = article.articleId;
-  article.id = article.realArticleId;
-  if (article.sbts[0] !== "public") {
-    article.sbts[0] = article.sbts[0] + " - class 1";
-  } // There is only one article that is not public and only has class 1
+// function normalizeFromV0_0_1ToV0_0_2(article) {
+//   article.title = article.articleId;
+//   article.id = article.realArticleId;
+//   if (article.sbts[0] !== "public") {
+//     article.sbts[0] = article.sbts[0] + " - class 1";
+//   } // There is only one article that is not public and only has class 1
 
-  delete article.articleId;
-  delete article.realArticleId;
+//   delete article.articleId;
+//   delete article.realArticleId;
 
-  return article;
-}
+//   return article;
+// }
 
-function normalizeFromV0_0_2ToV0_0_3(article) {
-  if (!Array.isArray(article.tags) && typeof article.tags === "object") {
-    article.tags = Object.keys(article.tags);
-  }
+// function normalizeFromV0_0_2ToV0_0_3(article) {
+//   if (!Array.isArray(article.tags) && typeof article.tags === "object") {
+//     article.tags = Object.keys(article.tags);
+//   }
 
-  if (article.tags) {
-    article.tags = article.tags.filter(
-      (tag) => tag !== undefined && tag !== null
-    );
-  } else {
-    article.tags = [];
-  }
+//   if (article.tags) {
+//     article.tags = article.tags.filter(
+//       (tag) => tag !== undefined && tag !== null
+//     );
+//   } else {
+//     article.tags = [];
+//   }
 
-  //Add day-month-year tag if it doesn't exists yet by request
-  const creationDate = new Date(article.timeCreate);
+//   //Add day-month-year tag if it doesn't exists yet by request
+//   const creationDate = new Date(article.timeCreate);
 
-  const dateTag = `${creationDate.getDate()}-${
-    creationDate.getMonth() + 1
-  }-${creationDate.getFullYear()}`;
+//   const dateTag = `${creationDate.getDate()}-${
+//     creationDate.getMonth() + 1
+//   }-${creationDate.getFullYear()}`;
 
-  if (!article.tags.includes(dateTag)) article.tags.push(dateTag);
+//   if (!article.tags.includes(dateTag)) article.tags.push(dateTag);
 
-  if (article.blockHeight < 105654020 && article.sbts.includes("public")) {
-    article.sbts = ["fractal.i-am-human.near - class 1"];
-  }
+//   if (article.blockHeight < 105654020 && article.sbts.includes("public")) {
+//     article.sbts = ["fractal.i-am-human.near - class 1"];
+//   }
 
-  return article;
-}
+//   return article;
+// }
 
 function normalizeFromV0_0_4ToV0_0_5(article) {
   if(!isActive(article)) return article
@@ -528,10 +509,10 @@ return {
   buildArticle,
   editArticle,
   deleteArticle,
+  applyUserFilters,
   getArticlesIndexes,
   getLatestEdits,
   getAction,
-  filterFakeAuthors,
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
