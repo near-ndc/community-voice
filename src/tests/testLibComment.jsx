@@ -115,12 +115,12 @@ function getIsResponseStructureWrong(res) {
   // ];
   let errorDescriptionList = [];
 
+  let errorInStructure = false;
   if (Array.isArray(res) && res.length === 0) {
     errorDescriptionList.push("res is an empty array");
-    return false;
+    return {errorInStructure: true, errorDescriptionList};
   }
 
-  let errorInStructure = false;
   for (let i = 0; i < res.length; i++) {
     const comment = res[i];
     const commentAccountId = comment.accountId;
