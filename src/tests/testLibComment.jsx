@@ -1,4 +1,6 @@
-const { functionsToTest } = VM.require("communityvoice.ndctools.near/widget/lib.comment");
+const { functionsToTest } = VM.require(
+  "communityvoice.ndctools.near/widget/lib.comment"
+);
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
   "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
@@ -49,22 +51,25 @@ function doesCommentIdHavePropperStructure(id) {
 
   const commentIdPrefix = splittedCommentId.shift();
 
-  const commentIdUserNamePart = splittedCommentId;
+  const commentIdUserNamePart = splittedCommentId.length === 1;
 
   const isTimeStampANumber = !isNaN(Number(timeStampPartOfCommentId));
-  const isPrefixCorrect = commentIdPrefix === "c/";
+  const isPrefixCorrect = commentIdPrefix === "comment";
   const isValidUserName = userNameRegEx.test(commentIdUserNamePart);
 
-  if(!isTimeStampANumber) {
-    console.log("Timestamp is not a number: ", timeStampPartOfCommentId)
+  if (!isTimeStampANumber) {
+    console.log("Timestamp is not a number: ", timeStampPartOfCommentId);
   }
 
-  if(!isPrefixCorrect) {
-    console.log("Prefix is not correct. Expected: 'c/'. Result: ", commentIdPrefix)
+  if (!isPrefixCorrect) {
+    console.log(
+      "Prefix is not correct. Expected: 'comment'. Result: ",
+      commentIdPrefix
+    );
   }
 
-  if(!isValidUserName) {
-    console.log("Not a valid userName: ", commentIdUserNamePart)
+  if (!isValidUserName) {
+    console.log("Not a valid userName: ", commentIdUserNamePart);
   }
 
   return isTimeStampANumber && isPrefixCorrect && isValidUserName;
@@ -87,100 +92,98 @@ function doesArticleIdHavePropperStructure(articleId) {
   return isTimeStampANumber && isValidUserName;
 }
 
-function doesRootIdHaveAValidFormat(rootId) {
-  if (rootId.startsWith("c_")) {
-    return doesCommentIdHavePropperStructure(rootId);
-  } else {
-    return doesArticleIdHavePropperStructure(rootId);
-  }
-}
-
-function isResponseStructureWrong(res) {
-  //   const resExample = [
-  //     {
-  //       accountId: "ayelen.near",
-  //       blockHeight: 109989354,
-  //       value: {
-  //         type: "md",
-  //         comment: {
-  //           text: "a verr",
-  //           timestamp: 1704812207512,
-  //           commentId: "c_ayelen.near-1704812207512",
-  //           rootId: "ayelen.near-1699406465524",
-  //         },
+function getIsResponseStructureWrong(res) {
+  // const resExample = [
+  //   {
+  //     accountId: "ayelen.near",
+  //     blockHeight: 106744173,
+  //     value: {
+  //       type: "md",
+  //       commentData: {
+  //         text: "asdasd",
   //       },
-  //       isEdition: true,
+  //       metadata: {
+  //         id: "comment/ayelen.near/1701187800370",
+  //         author: "ayelen.near",
+  //         createdTimestamp: 1714420835216,
+  //         lastEditTimestamp: 1714420835216,
+  //         rootId: "ayelen.near-1699406465524",
+  //         versionKey: "v0.0.4",
+  //       },
   //     },
-  //   ];
+  //   },
+  // ];
+  let errorDescriptionList = [];
 
   if (Array.isArray(res) && res.length === 0) {
-    console.log("res is an empty array");
+    errorDescriptionList.push("res is an empty array");
     return false;
   }
 
   let errorInStructure = false;
   for (let i = 0; i < res.length; i++) {
-    const commentData = res[i];
-    const commentAccountId = commentData.accountId;
-    const commentBlockHeight = Number(commentData.blockHeight);
-    const isEdition = commentData.isEdition;
+    const comment = res[i];
+    const commentAccountId = comment.accountId;
+    const commentBlockHeight = Number(comment.blockHeight);
 
     if (typeof commentAccountId !== "string") {
-      console.log(`In the commentData of index ${i} the accountId is not a string`);
-      errorInStructure = true;
-    } else if (!(typeof commentBlockHeight === "number")) {
-      console.log(
-        `In the commentData of index ${i} the blockHeight is not a Number`
+      errorDescriptionList.push(
+        `In the comment of index ${i} the accountId is not a string`
       );
       errorInStructure = true;
-    } else if (isEdition && typeof isEdition !== "boolean") {
-      console.log(
-        `In the commentData of index ${i} the isEdition property is not a booean`
+    }
+    if (!(typeof commentBlockHeight === "number")) {
+      errorDescriptionList.push(
+        `In the comment of index ${i} the blockHeight is not a Number`
       );
       errorInStructure = true;
-    } else if (
-      commentData.value.metadata &&
-      !doesCommentIdHavePropperStructure(commentData.value.metadata.id)
+    }
+    if (
+      comment.value.metadata &&
+      !doesCommentIdHavePropperStructure(comment.value.metadata.id)
     ) {
-      console.log(
-        `In the commentData of index ${i} doesCommentIdHavePropperStructure is returning false`
+      errorDescriptionList.push(
+        `In the comment of index ${i} doesCommentIdHavePropperStructure is returning false`
       );
       errorInStructure = true;
-    } else if (typeof commentData.value.metadata.author !== "string") {
-      console.log(
-        `In the commentData of index ${i} the author property in the metadata is not a string`, commentData
+    }
+    if (typeof comment.value.metadata.author !== "string") {
+      errorDescriptionList.push(
+        `In the comment of index ${i} the author property in the metadata is not a string`,
+        comment
       );
       errorInStructure = true;
-    } else if (
-      typeof commentData.value.metadata.createdTimestamp !== "number" ||
-      typeof commentData.value.metadata.lastEditTimestamp !== "number"
+    }
+    if (
+      typeof comment.value.metadata.createdTimestamp !== "number" ||
+      typeof comment.value.metadata.lastEditTimestamp !== "number"
     ) {
-      console.log(
-        `In the commentData of index ${i} the timestamps in the metadata are not a number`
+      errorDescriptionList.push(
+        `In the comment of index ${i} the timestamps in the metadata are not a number`
       );
       errorInStructure = true;
-    } else if (typeof commentData.value.metadata.versionKey !== "string") {
-      console.log(
-        `In the commentData of index ${i} the versionKey in the metadata is not a string`
+    }
+    if (typeof comment.value.metadata.versionKey !== "string") {
+      errorDescriptionList.push(
+        `In the comment of index ${i} the versionKey in the metadata is not a string`
       );
       errorInStructure = true;
-    } else if (!doesRootIdHaveAValidFormat(commentData.value.metadata.rootId)) {
-      console.log(
-        `In the commentData of index ${i} doesRootIdHaveAValidFormat is returning false`
+    }
+    if (!doesCommentIdHavePropperStructure(comment.value.metadata.rootId)) {
+      errorDescriptionList.push(
+        `In the comment of index ${i} doesCommentIdHavePropperStructure is returning false`
       );
       errorInStructure = true;
     }
   }
 
-  return errorInStructure;
+  return { errorInStructure, errorDescriptionList };
 }
 //=======================================================================End lib functions=========================================================================
 
 //=======================================================================Start tests=======================================================================
 
-function testCreateComment() {
-
-}
+function testCreateComment() {}
 
 async function testGetComments() {
   const fnName = "testGetComments";
@@ -200,13 +203,15 @@ async function testGetComments() {
   let msg = "";
   return getCommentsDataResult.then((res) => {
     try {
-      if (isResponseStructureWrong(res)) {
+      const isResponseStructureWrong = getIsResponseStructureWrong(res);
+      if (isResponseStructureWrong.errorInStructure) {
         isError = true;
         msg = [
           "One or more elements on the array have an invalid structure",
-          "Expected structure example: [{'accountId': accountId, 'blockHeight': number, isEdition: bool, 'value': 'comment': {'commentId': 'c-accountId-timestamp', rootId: commentId || articleId, text: string, timestamp: number}}]",
           `Returned: ${JSON.stringify(res)}`,
         ];
+
+        msg.push(...isResponseStructureWrong.errorDescriptionList);
       }
 
       return {

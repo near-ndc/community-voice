@@ -15,17 +15,24 @@ let config = {};
 const currentVersion = "v0.0.4";
 
 function getSplittedCommentIdV0_0_3(commentId) {
-  const commentIdWithoutPrefix = commentId.slice(2);
+  function getCommentIdWithoutPrefix() {
+    if(commentId.startsWith("comment/")) {
+      return commentId.slice(8);
+    } else {
+      return commentId.slice(2);
+    }
+  };
+
+  const commentIdWithoutPrefix = getCommentIdWithoutPrefix();
   const prefix = "c-";
 
   const oldFormatID = prefix + commentIdWithoutPrefix;
 
   const newCommentID = normalizeId(oldFormatID, "comment");
 
-  const splitCommentId = newCommentID.split("/");
+  const splitCommentId = newCommentID.split("/").filter((e) => e !== "") //remove empty values;
 
   return splitCommentId;
-  // }
 }
 
 function normalizeOldToV_0_0_1(comment) {
