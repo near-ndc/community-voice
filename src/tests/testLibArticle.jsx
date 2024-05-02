@@ -26,469 +26,81 @@ const testAction = `test_${prodAction}`;
 const versionsBaseActions = isTest ? `test_${baseAction}` : baseAction;
 const action = isTest ? testAction : prodAction;
 
-// const articles = getArticlesIndexes(action, "main").then((response) =>
-//   console.log("articlesIndexes: ", response)
-// );
-
-// const realArticleIndexInMainnet = {
-//   accountId: "blaze.near",
-//   blockHeight: 113428547,
-//   value: {
-//     type: "md",
-//     id: "blaze.near-1708703244668",
-//   },
-// };
-
-function testValidateArticleDataNotPassing() {
-  const fnName = "testValidateMetadataNotPassing";
-
-  const badStructureExample = {
-    body: undefined,
-    tags: { test: "a" },
-    category: 1,
-  };
-
-  try {
-    const functionvalidateMetadataNotPassing =
-      functionsToTest.validateArticleData(badStructureExample);
-
-    if (!Array.isArray(functionvalidateMetadataNotPassing)) {
-      return {
-        isError: true,
-        msg: "functionvalidateMetadataNotPassing was expecting to be an Array but is not.",
-      };
-    }
-
-    return {
-      isError: functionvalidateMetadataNotPassing.length === 0,
-      msg: ["It was expected to get errors."],
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testValidateArticleDataPassing() {
-  const fnName = "testValidateMetadataPassing";
-
-  const goodStructureExample = {
-    title: "Test create 4",
-    body: "Test",
-    tags: [],
-    category: "uncategorized",
-  };
-
-  try {
-    const functionvalidateMetadataPassing =
-      functionsToTest.validateArticleData(goodStructureExample);
-
-    if (!Array.isArray(functionvalidateMetadataPassing)) {
-      return {
-        isError: true,
-        msg: "functionvalidateMetadataPassing was expecting to be an Array but is not.",
-      };
-    }
-
-    return {
-      isError: functionvalidateMetadataPassing.length !== 0,
-      msg: [
-        `It was expected to not get errors. It get's the following errors instead:`,
-        functionvalidateMetadataPassing,
-      ],
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testValidateMetadataNotPassing() {
-  const fnName = "testValidateMetadataNotPassing";
-
-  const badStructureExample = {
-    author: undefined,
-    createdTimestamp: "1",
-  };
-
-  try {
-    const functionvalidateMetadataNotPassing =
-      functionsToTest.validateMetadata(badStructureExample);
-
-    if (!Array.isArray(functionvalidateMetadataNotPassing)) {
-      return {
-        isError: true,
-        msg: "functionvalidateMetadataNotPassing was expecting to be an Array but is not.",
-      };
-    }
-
-    return {
-      isError: functionvalidateMetadataNotPassing.length === 0,
-      msg: ["It was expected to get errors."],
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testValidateMetadataPassing() {
-  const fnName = "testValidateMetadataPassing";
-
-  const goodStructureExample = {
-    id: "string",
-    author: "string",
-    createdTimestamp: 1,
-    lastEditTimestamp: 1,
-    versionKey: "string",
-  };
-
-  try {
-    const functionvalidateMetadataPassing =
-      functionsToTest.validateMetadata(goodStructureExample);
-
-    if (!Array.isArray(functionvalidateMetadataPassing)) {
-      return {
-        isError: true,
-        msg: "functionvalidateMetadataPassing was expecting to be an Array but is not.",
-      };
-    }
-
-    return {
-      isError: functionvalidateMetadataPassing.length !== 0,
-      msg: [
-        `It was expected to not get errors. It get's the following errors instead:`,
-        functionvalidateMetadataPassing,
-      ],
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function doesArticleHavePropperStructure(article) {
-  const articleDataStructureErrors = functionsToTest.validateArticleData(
-    article.value.articleData
-  );
-  const metadataStructureErrors = functionsToTest.validateMetadata(
-    article.value.metadata
-  );
-
-  const allStructureErrors = [
-    ...articleDataStructureErrors,
-    ...metadataStructureErrors,
-  ];
-
-  return { isError: allStructureErrors.length === 0, allStructureErrors };
-}
-
-function testLatestEditsRepeatedArticle() {
-  const fnName = "testLatestEdits";
-  const articleIndexes = [
-    {
-      accountId: "test.near",
-      blockHeight: 191891118,
-      value: {
-        type: "md",
-        id: "test.near-1651981918",
-      },
+//================================================================= Start examples to compare with =================================================================//
+const articleIndexes = [
+  {
+    accountId: "test.near",
+    blockHeight: 191891118,
+    value: {
+      type: "md",
+      id: "test.near-1651981918",
     },
-    {
-      accountId: "test.near",
-      blockHeight: 191891117,
-      value: {
-        type: "md",
-        id: "test.near-1651981918",
-      },
+  },
+  {
+    accountId: "test.near",
+    blockHeight: 191891117,
+    value: {
+      type: "md",
+      id: "test.near-1651981918",
     },
-    {
-      accountId: "test.near",
-      blockHeight: 191891116,
-      value: {
-        type: "md",
-        id: "test.near-1651981919",
-      },
+  },
+  {
+    accountId: "test.near",
+    blockHeight: 191891116,
+    value: {
+      type: "md",
+      id: "test.near-1651981919",
     },
-  ];
+  },
+];
 
-  let functionLatestEdit;
-  try {
-    functionLatestEdit = getLatestEdits(articleIndexes);
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
+const emptyArtocleIndexes = [];
 
-  const expectedLatestEdit = [
-    {
-      accountId: "test.near",
-      blockHeight: 191891118,
-      value: {
-        type: "md",
-        id: "test.near-1651981918",
-      },
-    },
-    {
-      accountId: "test.near",
-      blockHeight: 191891116,
-      value: {
-        type: "md",
-        id: "test.near-1651981919",
-      },
-    },
-  ];
+const badArticleDataStructureExample = {
+  body: undefined,
+  tags: { test: "a" },
+  category: 1,
+};
 
-  const isError =
-    JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
-  return {
-    isError: isError,
-    msg: isError
-      ? [
-          `Items don't match.`,
-          `Get: ${JSON.stringify(functionLatestEdit)}`,
-          `Expected: ${JSON.stringify(expectedLatestEdit)}`,
-        ]
-      : "",
-    fnName,
-  };
-  // return JSON.stringify(functionLatestEdit) === JSON.stringify(expectedLatestEdit)
-}
+const badArticleMetadataStructureExample = {
+  author: undefined,
+  createdTimestamp: "1",
+};
 
-function testLatestEditEmptyIndex() {
-  const fnName = "testLatestEditEmptyIndex";
-  const articleIndexes = [];
-  let functionLatestEdit;
-  try {
-    functionLatestEdit = getLatestEdits(articleIndexes);
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
+const badFullArticleExample = {
+  accountId: undefined,
+  blockHeight: "1",
+  value: {
+    articleData: badArticleDataStructureExample,
+    metadata: badArticleMetadataStructureExample,
+  },
+};
 
-  const expectedLatestEdit = [];
-  const isError =
-    JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
-  return {
-    isError: isError,
-    msg: isError
-      ? `Items don't match output ${functionLatestEdit}, expected ${expectedLatestEdit}`
-      : "",
-    fnName,
-  };
-}
+const goodArticleDataStructureExample = {
+  title: "Test create 4",
+  body: "Test",
+  tags: [],
+  category: "uncategorized",
+};
 
-function testGetActionInIsTestPassingParameters() {
-  const fnName = "testGetActionInIsTestPassingParameters";
-  const config = { baseActions: { article: versionsBaseActions }, isTest };
-  try {
-    const resultAction = getAction(currentVersion, config);
-    const expectedAction = baseAction;
+const goodArticleMetadataStructureExample = {
+  id: "string",
+  author: "string",
+  createdTimestamp: 1,
+  lastEditTimestamp: 1,
+  versionKey: "string",
+};
 
-    const isError = resultAction === expectedAction;
+const goodFullArticleExample = {
+  accountId: "string",
+  blockHeight: 1,
+  value: {
+    articleData: goodArticleDataStructureExample,
+    metadata: goodArticleMetadataStructureExample,
+  },
+};
 
-    return {
-      isError: isError,
-      msg: isError
-        ? [
-            `Not returning the expected action.`,
-            `Returns: ${resultAction}`,
-            `Expected: ${expectedAction}`,
-          ]
-        : "",
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testGetActionInIsTestNotPassingParameters() {
-  const fnName = "testGetActionInIsTestNotPassingParameters";
-  try {
-    const resultAction = getAction();
-    const expectedAction = baseAction;
-
-    const isError = resultAction === expectedAction;
-
-    return {
-      isError: isError,
-      msg: isError
-        ? [
-            `Not returning the expected action.`,
-            `Returns: ${resultAction}`,
-            `Expected: ${expectedAction}`,
-          ]
-        : "",
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testGetActionPassingParameters() {
-  const fnName = "testGetActionPassingParameters";
-  const config = { baseActions: { article: baseAction }, isTest: false };
-  try {
-    const resultAction = getAction(currentVersion, config);
-    const expectedAction = baseAction;
-
-    const isError = resultAction === expectedAction;
-
-    return {
-      isError: isError,
-      msg: isError
-        ? [
-            `Not returning the expected action.`,
-            `Returns: ${resultAction}`,
-            `Expected: ${expectedAction}`,
-          ]
-        : "",
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testGetActionNotPassingParameters() {
-  const fnName = "testGetActionNotPassingParameters";
-  try {
-    const resultAction = getAction();
-    const expectedAction = baseAction;
-
-    const isError = resultAction === expectedAction;
-
-    return {
-      isError: isError,
-      msg: isError
-        ? [
-            `Not returning the expected action.`,
-            `Returns: ${resultAction}`,
-            `Expected: ${expectedAction}`,
-          ]
-        : "",
-      fnName,
-    };
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-}
-
-function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
-  const fnName = "testGetArticleBlackListByArticleIdReturnValidAccountIds";
-
-  let result;
-  try {
-    result = getArticleBlackListByArticleId();
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-
-  const arrayArticleIdIsValid = result.map((articleId) => {
-    //articleId example: "silkking.near-1696797896796"
-    const splitedArticleId = articleId.split("-");
-
-    const timeStampPartOfArticleId = splitedArticleId.pop();
-
-    let userNamePartOfArticleId;
-    if (splitedArticleId.length === 1) {
-      userNamePartOfArticleId = splitedArticleId;
-    } else {
-      userNamePartOfArticleId = splitedArticleId.join("-");
-    }
-
-    const userNameRegEx = /^[a-zA-Z0-9._-]/;
-
-    const isTimeStampANumber = !isNaN(Number(timeStampPartOfArticleId));
-    const isValidUserName = userNameRegEx.test(userNamePartOfArticleId);
-
-    return isTimeStampANumber && isValidUserName;
-  });
-
-  const isError = arrayArticleIdIsValid.includes(false);
-
-  return {
-    isError: isError,
-    msg: isError
-      ? `One or more articleId passed does not have the correct format`
-      : "",
-    fnName,
-  };
-}
-
-function testGetArticleBlackListByBlockHeightReturnsNumbers() {
-  const fnName = "testGetArticleBlackListByBlockHeightReturnsNumbers";
-  let result;
-  try {
-    result = getArticleBlackListByBlockHeight();
-  } catch (err) {
-    return {
-      isError: true,
-      msg: err.message,
-      fnName,
-    };
-  }
-
-  const arrayIsResultANumber = result.map((blockHeihgt) => {
-    const isResultANumber = !isNaN(Number(blockHeihgt));
-
-    return isResultANumber;
-  });
-
-  const isError = arrayIsResultANumber.includes(false);
-
-  return {
-    isError: isError,
-    msg: isError ? `One or more blockHeights passed are not numbers` : "",
-    fnName,
-  };
-}
-
-const articlesToFilter = [
+const realArticlesSample = [
   {
     accountId: "silkking.near",
     blockHeight: 115688795,
@@ -1005,6 +617,582 @@ const articlesToFilter = [
   },
 ];
 
+//================================================================= End examples to compare with =================================================================//
+
+// function name() {
+//   const fnName = "name";
+
+//   let isError = false;
+//   let msg = "";
+//   try {
+//     return {
+//       isError,
+//       msg,
+//       fnName,
+//     };
+//   } catch (err) {
+//     return {
+//       isError: true,
+//       msg: err.message,
+//       fnName,
+//     };
+//   }
+// }
+
+async function testGetArticlesNormalized() {
+  const fnName = "testGetArticlesNormalized";
+
+  const filters = {};
+
+  const articlesNormalized = functionsToTest.getArticlesNormalized(filters);
+
+  let isError = false;
+  let msg = "";
+  return articlesNormalized.then((res) => {
+    try {
+      if (!Array.isArray(res)) {
+        isError = true;
+        msg = [
+          `testGetArticlesNormalized is expecting an Array with all the articles`,
+          `it returns: ${JSON.stringify(res)}`,
+        ];
+      } else {
+        const allStructureValidationsErrors =
+          getStructureValidationsErrors(res);
+
+        if (allStructureValidationsErrors.length > 0) {
+          isError = true;
+          msg = [
+            `One or more version doesn't have the propper structure`,
+            `The errors are the following:`,
+            allStructureValidationsErrors,
+          ].flat();
+        }
+      }
+      return {
+        isError,
+        msg,
+        fnName,
+      };
+    } catch (err) {
+      return {
+        isError: true,
+        msg: err.message,
+        fnName,
+      };
+    }
+  });
+}
+
+function testNormalizeArticle() {
+  const fnName = "testNormalizeArticle";
+
+  let isError = false;
+  let msg = "";
+
+  const oldVersionExample = {
+    accountId: "silkking.near",
+    blockHeight: 115692695,
+    value: {
+      articleData: {
+        title: "Test creatives",
+        body: "Test",
+        tags: [],
+      },
+      metadata: {
+        id: "article/silkking.near/1711683372152",
+        author: "silkking.near",
+        createdTimestamp: 1711683372152,
+        lastEditTimestamp: 1711683372152,
+        versionKey: "v0.0.5",
+      },
+    },
+  };
+
+  const result = functionsToTest.normalizeArticle(oldVersionExample);
+  const articleStructureCheck = doesArticleHavePropperStructure(result);
+
+  try {
+    if (
+      result.value.articleData.category !== "uncategorized" ||
+      articleStructureCheck.isError
+    ) {
+      isError = true;
+      msg = [
+        "There's an unexpected modification in the article structure",
+        articleStructureCheck.allStructureErrors,
+      ].flat();
+    }
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testIsActive() {
+  const fnName = "testIsActive";
+
+  let isError = false;
+  let msg = "";
+  try {
+    if (functionsToTest.isActive(goodFullArticleExample) === undefined) {
+      isError = true;
+      msg = "There's an unexpected modification in the article structure";
+    }
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testNormalizeFromV0_0_4ToV0_0_5() {
+  const fnName = "testNormalizeFromV0_0_4ToV0_0_5";
+
+  const oldVersionExample = realArticlesSample[0];
+  delete oldVersionExample.value.articleData.category;
+  delete oldVersionExample.value.metadata.isDelete;
+
+  const result = functionsToTest.normalizeFromV0_0_4ToV0_0_5(oldVersionExample);
+
+  let isError = false;
+  let msg = "";
+  if (result.value.articleData.category !== "uncategorized") {
+    isError = true;
+    msg = "result.value.articleData.category value should be 'uncategorized'";
+  }
+  return {
+    isError,
+    msg,
+    fnName,
+  };
+}
+
+function testValidateArticleDataNotPassing() {
+  const fnName = "testValidateMetadataNotPassing";
+
+  try {
+    const functionvalidateMetadataNotPassing =
+      functionsToTest.validateArticleData(badArticleDataStructureExample);
+
+    if (!Array.isArray(functionvalidateMetadataNotPassing)) {
+      return {
+        isError: true,
+        msg: "functionvalidateMetadataNotPassing was expecting to be an Array but is not.",
+      };
+    }
+
+    return {
+      isError: functionvalidateMetadataNotPassing.length === 0,
+      msg: ["It was expected to get errors."],
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testValidateArticleDataPassing() {
+  const fnName = "testValidateMetadataPassing";
+
+  try {
+    const functionvalidateMetadataPassing = functionsToTest.validateArticleData(
+      goodArticleDataStructureExample
+    );
+
+    if (!Array.isArray(functionvalidateMetadataPassing)) {
+      return {
+        isError: true,
+        msg: "functionvalidateMetadataPassing was expecting to be an Array but is not.",
+      };
+    }
+
+    return {
+      isError: functionvalidateMetadataPassing.length !== 0,
+      msg: [
+        `It was expected to not get errors. It get's the following errors instead:`,
+        functionvalidateMetadataPassing,
+      ],
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testValidateMetadataNotPassing() {
+  const fnName = "testValidateMetadataNotPassing";
+
+  try {
+    const functionvalidateMetadataNotPassing = functionsToTest.validateMetadata(
+      badArticleMetadataStructureExample
+    );
+
+    if (!Array.isArray(functionvalidateMetadataNotPassing)) {
+      return {
+        isError: true,
+        msg: "functionvalidateMetadataNotPassing was expecting to be an Array but is not.",
+      };
+    }
+
+    return {
+      isError: functionvalidateMetadataNotPassing.length === 0,
+      msg: ["It was expected to get errors."],
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testValidateMetadataPassing() {
+  const fnName = "testValidateMetadataPassing";
+
+  try {
+    const functionvalidateMetadataPassing = functionsToTest.validateMetadata(
+      goodArticleMetadataStructureExample
+    );
+
+    if (!Array.isArray(functionvalidateMetadataPassing)) {
+      return {
+        isError: true,
+        msg: "functionvalidateMetadataPassing was expecting to be an Array but is not.",
+      };
+    }
+
+    return {
+      isError: functionvalidateMetadataPassing.length !== 0,
+      msg: [
+        `It was expected to not get errors. It get's the following errors instead:`,
+        functionvalidateMetadataPassing,
+      ],
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function createFeedBackFromDoesArticleHavePropperStructure(articleErrors) {
+  if (articleErrors.length > 0) {
+    articleErrors.unshift(
+      `*In article of blockHeight ${article.blockHeight} there are the following errors:`
+    );
+  }
+
+  return articleErrors;
+}
+
+function doesArticleHavePropperStructure(article) {
+  const articleDataStructureErrors = functionsToTest.validateArticleData(
+    article.value.articleData
+  );
+  const metadataStructureErrors = functionsToTest.validateMetadata(
+    article.value.metadata
+  );
+
+  const allStructureErrors = [
+    ...articleDataStructureErrors,
+    ...metadataStructureErrors,
+  ];
+
+  return { isError: allStructureErrors.length === 0, allStructureErrors };
+}
+
+function testLatestEditsRepeatedArticle() {
+  const fnName = "testLatestEdits";
+
+  let functionLatestEdit;
+  try {
+    functionLatestEdit = getLatestEdits(articleIndexes);
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const expectedLatestEdit = [
+    {
+      accountId: "test.near",
+      blockHeight: 191891118,
+      value: {
+        type: "md",
+        id: "test.near-1651981918",
+      },
+    },
+    {
+      accountId: "test.near",
+      blockHeight: 191891116,
+      value: {
+        type: "md",
+        id: "test.near-1651981919",
+      },
+    },
+  ];
+
+  const isError =
+    JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
+  return {
+    isError: isError,
+    msg: isError
+      ? [
+          `Items don't match.`,
+          `Get: ${JSON.stringify(functionLatestEdit)}`,
+          `Expected: ${JSON.stringify(expectedLatestEdit)}`,
+        ]
+      : "",
+    fnName,
+  };
+  // return JSON.stringify(functionLatestEdit) === JSON.stringify(expectedLatestEdit)
+}
+
+function testLatestEditEmptyIndex() {
+  const fnName = "testLatestEditEmptyIndex";
+  const articleIndexes = [];
+  let functionLatestEdit;
+  try {
+    functionLatestEdit = getLatestEdits(articleIndexes);
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const expectedLatestEdit = [];
+  const isError =
+    JSON.stringify(functionLatestEdit) !== JSON.stringify(expectedLatestEdit);
+  return {
+    isError: isError,
+    msg: isError
+      ? `Items don't match output ${functionLatestEdit}, expected ${expectedLatestEdit}`
+      : "",
+    fnName,
+  };
+}
+
+function testGetActionInIsTestPassingParameters() {
+  const fnName = "testGetActionInIsTestPassingParameters";
+  const config = { baseActions: { article: versionsBaseActions }, isTest };
+  try {
+    const resultAction = getAction(currentVersion, config);
+    const expectedAction = baseAction;
+
+    const isError = resultAction === expectedAction;
+
+    return {
+      isError: isError,
+      msg: isError
+        ? [
+            `Not returning the expected action.`,
+            `Returns: ${resultAction}`,
+            `Expected: ${expectedAction}`,
+          ]
+        : "",
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testGetActionInIsTestNotPassingParameters() {
+  const fnName = "testGetActionInIsTestNotPassingParameters";
+  try {
+    const resultAction = getAction();
+    const expectedAction = baseAction;
+
+    const isError = resultAction === expectedAction;
+
+    return {
+      isError: isError,
+      msg: isError
+        ? [
+            `Not returning the expected action.`,
+            `Returns: ${resultAction}`,
+            `Expected: ${expectedAction}`,
+          ]
+        : "",
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testGetActionPassingParameters() {
+  const fnName = "testGetActionPassingParameters";
+  const config = { baseActions: { article: baseAction }, isTest: false };
+  try {
+    const resultAction = getAction(currentVersion, config);
+    const expectedAction = baseAction;
+
+    const isError = resultAction === expectedAction;
+
+    return {
+      isError: isError,
+      msg: isError
+        ? [
+            `Not returning the expected action.`,
+            `Returns: ${resultAction}`,
+            `Expected: ${expectedAction}`,
+          ]
+        : "",
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testGetActionNotPassingParameters() {
+  const fnName = "testGetActionNotPassingParameters";
+  try {
+    const resultAction = getAction();
+    const expectedAction = baseAction;
+
+    const isError = resultAction === expectedAction;
+
+    return {
+      isError: isError,
+      msg: isError
+        ? [
+            `Not returning the expected action.`,
+            `Returns: ${resultAction}`,
+            `Expected: ${expectedAction}`,
+          ]
+        : "",
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testGetArticleBlackListByArticleIdReturnValidAccountIds() {
+  const fnName = "testGetArticleBlackListByArticleIdReturnValidAccountIds";
+
+  let result;
+  try {
+    result = getArticleBlackListByArticleId();
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const arrayArticleIdIsValid = result.map((articleId) => {
+    //articleId example: "silkking.near-1696797896796"
+    const splitedArticleId = articleId.split("-");
+
+    const timeStampPartOfArticleId = splitedArticleId.pop();
+
+    let userNamePartOfArticleId;
+    if (splitedArticleId.length === 1) {
+      userNamePartOfArticleId = splitedArticleId;
+    } else {
+      userNamePartOfArticleId = splitedArticleId.join("-");
+    }
+
+    const userNameRegEx = /^[a-zA-Z0-9._-]/;
+
+    const isTimeStampANumber = !isNaN(Number(timeStampPartOfArticleId));
+    const isValidUserName = userNameRegEx.test(userNamePartOfArticleId);
+
+    return isTimeStampANumber && isValidUserName;
+  });
+
+  const isError = arrayArticleIdIsValid.includes(false);
+
+  return {
+    isError: isError,
+    msg: isError
+      ? `One or more articleId passed does not have the correct format`
+      : "",
+    fnName,
+  };
+}
+
+function testGetArticleBlackListByBlockHeightReturnsNumbers() {
+  const fnName = "testGetArticleBlackListByBlockHeightReturnsNumbers";
+  let result;
+  try {
+    result = getArticleBlackListByBlockHeight();
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+
+  const arrayIsResultANumber = result.map((blockHeight) => {
+    const isResultANumber = !isNaN(Number(blockHeight));
+
+    return isResultANumber;
+  });
+
+  const isError = arrayIsResultANumber.includes(false);
+
+  return {
+    isError: isError,
+    msg: isError ? `One or more blockHeights passed are not numbers` : "",
+    fnName,
+  };
+}
+
 function getFilteringIsError() {
   return (
     Array.isArray(result) &&
@@ -1018,7 +1206,7 @@ function getFilteringIsError() {
 function testFilterings(fnName, filterKey, filterValue) {
   let result;
   try {
-    result = applyUserFilters(articlesToFilter, { [filterKey]: filterValue });
+    result = applyUserFilters(realArticlesSample, { [filterKey]: filterValue });
   } catch (err) {
     return {
       isError: true,
@@ -1118,12 +1306,9 @@ function getStructureValidationsErrors(versions) {
   const allErrorsByArticle = versions.map((article) => {
     const thisArticleErrors =
       doesArticleHavePropperStructure(article).allStructureErrors;
-    if (thisArticleErrors.length > 0) {
-      thisArticleErrors.unshift(
-        `*In article of blockHeight ${article.blockHeight} there are the following errors:`
-      );
-    }
-    return thisArticleErrors;
+    const finalArticleFeedback =
+      createFeedBackFromDoesArticleHavePropperStructure(thisArticleErrors);
+    return finalArticleFeedback;
   });
 
   let allErrors = [];
@@ -1193,6 +1378,12 @@ displayTestsAsyncResults([
     fnName: "testGetArticlesVersions",
     fn: testGetArticlesVersions,
     description: "Should get all versions of an article from one articleId",
+  },
+  {
+    fnName: "testGetArticlesNormalized",
+    fn: testGetArticlesNormalized,
+    description:
+      "Test if the function is returning articles normalized",
   },
 ]).then((res) => {
   setAsyncComponent(res);
@@ -1280,6 +1471,17 @@ return (
         fnName: "testValidateArticleDataPassing",
         fn: testValidateArticleDataPassing,
         description: "Test if it's getting the expected result format",
+      },
+      {
+        fnName: "testIsActive",
+        fn: testIsActive,
+        description: "Test if the structure of the article has been modified",
+      },
+      {
+        fnName: "testNormalizeFromV0_0_4ToV0_0_5",
+        fn: testNormalizeFromV0_0_4ToV0_0_5,
+        description:
+          "Test if the normalization function is working as expected",
       },
     ])}
     {asyncComponent}

@@ -120,7 +120,7 @@ function applyUserFilters(articles, filters) {
 }
 
 function isActive(article) {
-  return article.value.metadata && !article.value.metadata.isDelete;
+  return article.value.metadata ? !article.value.metadata.isDelete : undefined;
 }
 
 function getArticlesHistoryNormalized(articleId) {
@@ -518,7 +518,6 @@ return {
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
   functionsToTest: {
-    getArticles,
     getArticlesNormalized,
     normalizeArticle,
     normalizeFromV0_0_4ToV0_0_5,
