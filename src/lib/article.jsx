@@ -253,7 +253,7 @@ function normalizeFromV0_0_4ToV0_0_5(article) {
   return article;
 }
 
-function normalizeFromV0_0_5ToV0_0_6(article) { // change to normalizeFromV0_0_5ToV0_0_6 
+function normalizeFromV0_0_5ToV0_0_6(article) {
   return article;
 }
 
@@ -300,13 +300,14 @@ function validateArticleData(article) {
     ...expectedStringProperties
       .filter((currentProperty) => {
         const isValidProperty =
-          !article[currentProperty] ||
+        !article[currentProperty] ||
           typeof article[currentProperty] !== "string";
         return isValidProperty;
       })
       .map(
         (currentProperty) =>
-          `Missing ${camelCaseToUserReadable(currentProperty)} or not a string`
+          `-Missing ${camelCaseToUserReadable(currentProperty)} or not a string.
+          `
       )
   );
   // Array properties
@@ -317,7 +318,7 @@ function validateArticleData(article) {
       })
       .map(
         (currentProperty) =>
-          `Article ${camelCaseToUserReadable(
+          `-Article ${camelCaseToUserReadable(
             currentProperty
           )}'s is not an array`
       )
@@ -346,7 +347,7 @@ function validateMetadata(metadata) {
       })
       .map(
         (currentProperty) =>
-          `Missing ${camelCaseToUserReadable(currentProperty)} or not a string`
+          `-Missing ${camelCaseToUserReadable(currentProperty)} or not a string`
       )
   );
   // Array properties
@@ -360,7 +361,7 @@ function validateMetadata(metadata) {
       })
       .map(
         (currentProperty) =>
-          `Property ${camelCaseToUserReadable(
+          `-Property ${camelCaseToUserReadable(
             currentProperty
           )}'s is not an array`
       )
@@ -516,4 +517,15 @@ return {
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
+  functionsToTest: {
+    getArticles,
+    getArticlesNormalized,
+    normalizeArticle,
+    normalizeFromV0_0_4ToV0_0_5,
+    normalizeFromV0_0_5ToV0_0_6,
+    isActive,
+    validateArticleData,
+    validateMetadata,
+    validateNewArticle,
+  },
 };
