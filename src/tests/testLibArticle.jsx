@@ -7,6 +7,7 @@ const {
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
   applyUserFilters,
+  doesArticleHavePropperStructure,
   functionsToTest,
 } = VM.require("communityvoice.ndctools.near/widget/lib.article");
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
@@ -709,10 +710,10 @@ function testNormalizeArticle() {
     },
   };
 
-  const result = functionsToTest.normalizeArticle(oldVersionExample);
-  const articleStructureCheck = doesArticleHavePropperStructure(result);
-
+  
   try {
+    const result = functionsToTest.normalizeArticle(oldVersionExample);
+    const articleStructureCheck = doesArticleHavePropperStructure(result);
     if (
       result.value.articleData.category !== "uncategorized" ||
       articleStructureCheck.isError
@@ -912,22 +913,6 @@ function createFeedBackFromDoesArticleHavePropperStructure(articleErrors) {
   }
 
   return articleErrors;
-}
-
-function doesArticleHavePropperStructure(article) {
-  const articleDataStructureErrors = functionsToTest.validateArticleData(
-    article.value.articleData
-  );
-  const metadataStructureErrors = functionsToTest.validateMetadata(
-    article.value.metadata
-  );
-
-  const allStructureErrors = [
-    ...articleDataStructureErrors,
-    ...metadataStructureErrors,
-  ];
-
-  return { isError: allStructureErrors.length === 0, allStructureErrors };
 }
 
 function testLatestEditsRepeatedArticle() {

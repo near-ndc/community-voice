@@ -1,6 +1,10 @@
-const { functionsToTest } = VM.require(
-  "communityvoice.ndctools.near/widget/lib.comment"
-);
+const {
+  functionsToTest,
+  validateCommentData,
+  validateMetadata,
+  doesCommentHavePropperStructure,
+} = VM.require("communityvoice.ndctools.near/widget/lib.comment");
+
 const { displayTestsSyncResults, displayTestsAsyncResults } = VM.require(
   "communityvoice.ndctools.near/widget/tests.lib.tester"
 );
@@ -14,6 +18,9 @@ const prodAction = `${baseAction}_${currentVersion}`;
 const testAction = `test_${prodAction}`;
 const action = isTest ? testAction : prodAction;
 
+const now = Date.now();
+const idPrefix = "comment";
+
 const config = { baseActions: { comment: baseAction }, isTest };
 const userNameRegEx = /^[a-zA-Z0-9._-]/;
 
@@ -25,6 +32,49 @@ const userNameRegEx = /^[a-zA-Z0-9._-]/;
 // const commentIdToTestSplit6 = "c/NEAR_near-12312323123";
 // const commentIdToTestSplit7 = "c/NEAR-near-12312323123";
 // const commentIdToTestSplit8 = "c/NEARnear-12312323123";
+const standardAuthor = "silkking.near";
+const realArticleId = "article/silkking.near/1711678364022";
+const standardReplyingTo =
+  "f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb";
+const standardTestCommentId = `${idPrefix}/${standardAuthor}/${now}`;
+
+const metadataExample = {
+  id: standardTestCommentId,
+  author: standardAuthor,
+  createdTimestamp: now,
+  lastEditTimestamp: now,
+  versionKey: currentVersion, // Check `const versions` -> Object.keys(versions)
+  articleId: realArticleId,
+  rootId: standardReplyingTo,
+};
+
+const fullCommentExample = {
+  commentData: { text: "Random text" },
+  metadata: metadataExample,
+};
+
+const commentsExamplesToFilter = [];
+const commentsExamplesToFilterLength = 4;
+
+for (let i = 0; i < commentsExamplesToFilterLength; i++) {
+  const newStandardExample = {
+    blockHeight: i,
+    accountId: standardAuthor,
+    value: fullCommentExample,
+  };
+
+  let newId = newStandardExample.value.metadata.id.slice(0, -1) + i;
+  
+  newStandardExample.value.metadata.id = newId;
+
+  if (i === 1) {
+    newStandardExample.blockHeight = 98588599; //This is in the blacklist
+  } else if (i === 2) {
+    newStandardExample.value.metadata.id = "fakeId";//This should get filtered
+  }
+
+  commentsExamplesToFilter.push(newStandardExample);
+}
 //=======================================================================End consts=========================================================================
 
 //=======================================================================Start lib functions=======================================================================
@@ -46,7 +96,7 @@ const userNameRegEx = /^[a-zA-Z0-9._-]/;
 // testGetSplittedCommentId();
 
 function doesCommentIdHavePropperStructure(id) {
-  let splittedCommentId = functionsToTest.getSplittedCommentIdV0_0_3(id);
+  let splittedCommentId = functionsToTest.getSplittedCommentId(id);
   const timeStampPartOfCommentId = splittedCommentId.pop();
 
   const commentIdPrefix = splittedCommentId.shift();
@@ -75,115 +125,204 @@ function doesCommentIdHavePropperStructure(id) {
   return isTimeStampANumber && isPrefixCorrect && isValidUserName;
 }
 
-function doesArticleIdHavePropperStructure(articleId) {
-  let splittedArticleId = articleId.includes("/")
-    ? articleId.split("/")
-    : articleId.split("-");
-
-  const timeStampPartOfArticleId = splittedArticleId.pop();
-
-  const articleIdUserNamePart = articleId.includes("/")
-    ? splittedArticleId
-    : splittedArticleId.join("-");
-
-  const isTimeStampANumber = !isNaN(Number(timeStampPartOfArticleId));
-  const isValidUserName = userNameRegEx.test(articleIdUserNamePart);
-
-  return isTimeStampANumber && isValidUserName;
-}
-
-function getIsResponseStructureWrong(res) {
-  // const resExample = [
-  //   {
-  //     accountId: "ayelen.near",
-  //     blockHeight: 106744173,
-  //     value: {
-  //       type: "md",
-  //       commentData: {
-  //         text: "asdasd",
-  //       },
-  //       metadata: {
-  //         id: "comment/ayelen.near/1701187800370",
-  //         author: "ayelen.near",
-  //         createdTimestamp: 1714420835216,
-  //         lastEditTimestamp: 1714420835216,
-  //         rootId: "ayelen.near-1699406465524",
-  //         versionKey: "v0.0.4",
-  //       },
-  //     },
-  //   },
-  // ];
-  let errorDescriptionList = [];
-
-  let errorInStructure = false;
-  if (Array.isArray(res) && res.length === 0) {
-    errorDescriptionList.push("res is an empty array");
-    return {errorInStructure: true, errorDescriptionList};
-  }
-
-  for (let i = 0; i < res.length; i++) {
-    const comment = res[i];
-    const commentAccountId = comment.accountId;
-    const commentBlockHeight = Number(comment.blockHeight);
-
-    if (typeof commentAccountId !== "string") {
-      errorDescriptionList.push(
-        `In the comment of index ${i} the accountId is not a string`
-      );
-      errorInStructure = true;
-    }
-    if (!(typeof commentBlockHeight === "number")) {
-      errorDescriptionList.push(
-        `In the comment of index ${i} the blockHeight is not a Number`
-      );
-      errorInStructure = true;
-    }
-    if (
-      comment.value.metadata &&
-      !doesCommentIdHavePropperStructure(comment.value.metadata.id)
-    ) {
-      errorDescriptionList.push(
-        `In the comment of index ${i} doesCommentIdHavePropperStructure is returning false`
-      );
-      errorInStructure = true;
-    }
-    if (typeof comment.value.metadata.author !== "string") {
-      errorDescriptionList.push(
-        `In the comment of index ${i} the author property in the metadata is not a string`,
-        comment
-      );
-      errorInStructure = true;
-    }
-    if (
-      typeof comment.value.metadata.createdTimestamp !== "number" ||
-      typeof comment.value.metadata.lastEditTimestamp !== "number"
-    ) {
-      errorDescriptionList.push(
-        `In the comment of index ${i} the timestamps in the metadata are not a number`
-      );
-      errorInStructure = true;
-    }
-    if (typeof comment.value.metadata.versionKey !== "string") {
-      errorDescriptionList.push(
-        `In the comment of index ${i} the versionKey in the metadata is not a string`
-      );
-      errorInStructure = true;
-    }
-    if (!doesCommentIdHavePropperStructure(comment.value.metadata.rootId)) {
-      errorDescriptionList.push(
-        `In the comment of index ${i} doesCommentIdHavePropperStructure is returning false`
-      );
-      errorInStructure = true;
-    }
-  }
-
-  return { errorInStructure, errorDescriptionList };
-}
 //=======================================================================End lib functions=========================================================================
 
 //=======================================================================Start tests=======================================================================
 
-function testCreateComment() {}
+// function name() {
+//   const fnName = "name";
+
+//   let isError = false;
+//   let msg = "";
+//   try {
+//     return {
+//       isError,
+//       msg,
+//       fnName,
+//     };
+//   } catch (err) {
+//     return {
+//       isError: true,
+//       msg: err.message,
+//       fnName,
+//     };
+//   }
+// }
+
+function testFilterInvalidComments() {
+  const fnName = "testFilterInvalidComments";
+
+  let isError = false;
+  let msg = "";
+
+  try {
+    const filteredComments =
+      functionsToTest.filterInvalidComments(commentsExamplesToFilter);
+
+    if(!Array.isArray(filteredComments)) {
+      isError = true;
+      msg = "The result was expected to be an Array";
+    } else if (filteredComments.length - 2 === commentsExamplesToFilterLength) { //This is because of the generation of the commentsExamples
+      isError = true;
+      msg = ["It was expected to filter some values that remains in the result", `Result: ${filteredComments}`]
+    }
+
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testGetCommentBlackListByBlockHeight() {
+  const fnName = "testGetCommentBlackListByBlockHeight";
+
+  let isError = false;
+  let msg = "";
+  try {
+    const blockHeightBlackList =
+      functionsToTest.getCommentBlackListByBlockHeight();
+
+    if (!Array.isArray(blockHeightBlackList)) {
+      isError = true;
+      msg = [
+        "The function is expected to return an Array",
+        "Instead it's returning:",
+        `${JSON.stringify(blockHeightBlackList)}`,
+      ];
+    } else {
+      blockHeightBlackList.forEach((value) => {
+        if (isNaN(value)) {
+          isError = true;
+          msg = "One or more values of the array is not a number";
+        }
+      });
+    }
+
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function normalizeFromV0_0_3ToV0_0_4() {
+  const fnName = "normalizeFromV0_0_3ToV0_0_4";
+
+  const commentExample = {
+    isEdition: true,
+    value: {
+      comment: {
+        commentId: standardTestCommentId,
+        text: "Standard text",
+        rootId: realArticleId,
+        timestamp: 1,
+      },
+    },
+  };
+
+  let isError = false;
+  let msg = "";
+  try {
+    const normalizedComment =
+      functionsToTest.normalizeFromV0_0_3ToV0_0_4(commentExample);
+    const commentStructureCheck =
+      doesCommentHavePropperStructure(normalizedComment);
+    if (commentStructureCheck.isError) {
+      isError = true;
+      msg = [
+        "There's an unexpected modification in the comment structure",
+        commentStructureCheck.allStructureErrors,
+      ].flat();
+    }
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testNormalizeFromV0_0_2ToV0_0_3() {
+  const fnName = "testNormalizeFromV0_0_2ToV0_0_3";
+
+  const commentExample = {
+    value: { comment: { originalCommentId: "originalCommentId", id: "id" } },
+  };
+
+  let isError = false;
+  let msg = "";
+  let allStructureErrors = [];
+  try {
+    const normalizedComment =
+      functionsToTest.normalizeFromV0_0_2ToV0_0_3(commentExample);
+
+    if (      
+      normalizedComment.value.comment.rootId &&
+      typeof normalizedComment.value.comment.rootId !== "string"
+    ) {
+      isError = true;
+      allStructureErrors.push(
+        "normalizedComment.value.comment.rootId is not a string"
+      );
+    }
+
+    if (normalizedComment.value.comment.originalCommentId) {
+      isError = true;
+      allStructureErrors.push(
+        "normalizedComment.value.comment.originalCommentId should not exist"
+      );
+    }
+
+    if (normalizedComment.value.comment.id) {
+      isError = true;
+      allStructureErrors.push(
+        "normalizedComment.value.comment.id should not exist"
+      );
+    }
+
+    const commentStructureCheck = { isError, allStructureErrors };
+
+    if (commentStructureCheck.isError) {
+      isError = true;
+      msg = [
+        "There's an unexpected modification in the comment structure",
+        commentStructureCheck.allStructureErrors,
+      ].flat();
+    }
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
 
 async function testGetComments() {
   const fnName = "testGetComments";
@@ -203,15 +342,14 @@ async function testGetComments() {
   let msg = "";
   return getCommentsDataResult.then((res) => {
     try {
-      const isResponseStructureWrong = getIsResponseStructureWrong(res);
+      const isResponseStructureWrong = doesCommentHavePropperStructure(res);
       if (isResponseStructureWrong.errorInStructure) {
         isError = true;
         msg = [
           "One or more elements on the array have an invalid structure",
           `Returned: ${JSON.stringify(res)}`,
-        ];
-
-        msg.push(...isResponseStructureWrong.errorDescriptionList);
+          isResponseStructureWrong,
+        ].flat();
       }
 
       return {
@@ -257,6 +395,26 @@ return (
       //     fn: testComposeDataIsWorkingAsExpected,
       //     description: "Check if the structure is as the expected one",
       //   },
+      {
+        fnName: "testNormalizeFromV0_0_2ToV0_0_3",
+        fn: testNormalizeFromV0_0_2ToV0_0_3,
+        description: "Check if the structure is as the expected one",
+      },
+      {
+        fnName: "normalizeFromV0_0_3ToV0_0_4",
+        fn: normalizeFromV0_0_3ToV0_0_4,
+        description: "Check if the structure is as the expected one",
+      },
+      {
+        fnName: "testGetCommentBlackListByBlockHeight",
+        fn: testGetCommentBlackListByBlockHeight,
+        description: "Check if it's returning an array of numbers",
+      },
+      {
+        fnName: "testFilterInvalidComments",
+        fn: testFilterInvalidComments,
+        description: "Check if it's filtering correctly",
+      },
     ])}
     {asyncComponent}
   </>

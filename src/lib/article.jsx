@@ -291,6 +291,8 @@ const versions = {
   },
 };
 
+
+
 function validateArticleData(article) {
   const expectedStringProperties = ["title", "body"];
   const expectedArrayProperties = ["tags"];
@@ -368,6 +370,22 @@ function validateMetadata(metadata) {
   );
 
   return errArrMessage;
+}
+
+function doesArticleHavePropperStructure(article) {
+  const articleDataStructureErrors = validateArticleData(
+    article.value.articleData
+  );
+  const metadataStructureErrors = validateMetadata(
+    article.value.metadata
+  );
+
+  const allStructureErrors = [
+    ...articleDataStructureErrors,
+    ...metadataStructureErrors,
+  ];
+
+  return { isError: allStructureErrors.length === 0, allStructureErrors };
 }
 
 function validateNewArticle(articleData) {
@@ -517,6 +535,7 @@ return {
   getArticleBlackListByArticleId,
   getArticleBlackListByBlockHeight,
   getArticlesVersions,
+  doesArticleHavePropperStructure,
   functionsToTest: {
     getArticlesNormalized,
     normalizeArticle,

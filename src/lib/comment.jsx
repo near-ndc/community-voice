@@ -10,20 +10,22 @@ const { extractMentions, getNotificationData } = VM.require(
   "communityvoice.ndctools.near/widget/lib.notifications"
 );
 
+const { camelCaseToUserReadable } = VM.require("communityvoice.ndctools.near/widget/lib.strings");
+
 let config = {};
 
 const currentVersion = "v0.0.4";
 
-function getSplittedCommentIdV0_0_3(commentId) {
-  function getCommentIdWithoutPrefix() {
-    if(commentId.startsWith("comment/")) {
-      return commentId.slice(8);
-    } else {
-      return commentId.slice(2);
-    }
-  };
+function getCommentIdWithoutPrefix(commentId) {
+  if(commentId.startsWith("comment/")) {
+    return commentId.slice(8);
+  } else {
+    return commentId.slice(2);
+  }
+};
 
-  const commentIdWithoutPrefix = getCommentIdWithoutPrefix();
+function getSplittedCommentId(commentId) {
+  const commentIdWithoutPrefix = getCommentIdWithoutPrefix(commentId);
   const prefix = "c-";
 
   const oldFormatID = prefix + commentIdWithoutPrefix;
@@ -54,8 +56,8 @@ function normalizeFromV0_0_2ToV0_0_3(comment) {
 function normalizeFromV0_0_3ToV0_0_4(comment) {
   const now = Date.now();
 
-  // const splitCommentId = getSplittedCommentIdV0_0_3(comment.value.metadata.id);
-  const splitCommentId = getSplittedCommentIdV0_0_3(
+  // const splitCommentId = getSplittedCommentId(comment.value.metadata.id);
+  const splitCommentId = getSplittedCommentId(
     comment.value.comment.commentId
   );
   
@@ -373,11 +375,109 @@ function deleteComment(props) {
   return { error: !result, data: result };
 }
 
+function validateCommentData(comment) {
+  const expectedStringProperties = ["text"];
+  const expectedArrayProperties = ["tags"];
+  const errArrMessage = [];
+  // String properties
+  errArrMessage.push(
+    ...expectedStringProperties
+      .filter((currentProperty) => {
+        const isValidProperty =
+        !comment[currentProperty] ||
+          typeof comment[currentProperty] !== "string";
+        return isValidProperty;
+      })
+      .map(
+        (currentProperty) =>
+          `-Missing ${camelCaseToUserReadable(currentProperty)} or not a string.
+          `
+      )
+  );
+  // Array properties
+  errArrMessage.push(
+    ...expectedArrayProperties
+      .filter((currentProperty) => {
+        return !Array.isArray(comment[currentProperty]);
+      })
+      .map(
+        (currentProperty) =>
+          `-Comment ${camelCaseToUserReadable(
+            currentProperty
+          )}'s is not an array`
+      )
+  );
+
+  return errArrMessage;
+}
+
+/**
+ * Only properties that are not set automatically should be validated
+ * @param {*} metadata
+ */
+function validateMetadata(metadata) {
+  const expectedStringProperties = ["id", "author"];
+  const expectedNumberProperties = ["createdTimestamp"];
+
+  const errArrMessage = [];
+  // String properties
+  errArrMessage.push(
+    ...expectedStringProperties
+      .filter((currentProperty) => {
+        const isValidProperty =
+          !metadata[currentProperty] ||
+          typeof metadata[currentProperty] !== "string";
+        return isValidProperty;
+      })
+      .map(
+        (currentProperty) =>
+          `-Missing ${camelCaseToUserReadable(currentProperty)} or not a string`
+      )
+  );
+  // Array properties
+  errArrMessage.push(
+    ...expectedNumberProperties
+      .filter((currentProperty) => {
+        return (
+          !metadata[currentProperty] ||
+          typeof metadata[currentProperty] !== "number"
+        );
+      })
+      .map(
+        (currentProperty) =>
+          `-Property ${camelCaseToUserReadable(
+            currentProperty
+          )}'s is not an array`
+      )
+  );
+
+  return errArrMessage;
+}
+
+function doesCommentHavePropperStructure(article) {
+  const articleDataStructureErrors = validateCommentData(
+    article.value.articleData
+  );
+  const metadataStructureErrors = validateMetadata(
+    article.value.metadata
+  );
+
+  const allStructureErrors = [
+    ...articleDataStructureErrors,
+    ...metadataStructureErrors,
+  ];
+
+  return { isError: allStructureErrors.length === 0, allStructureErrors };
+}
+
 return {
   getComments,
   createComment,
   editComment,
   deleteComment,
+  validateCommentData,
+  validateMetadata,
+  doesCommentHavePropperStructure,
   functionsToTest: {
     normalizeOldToV_0_0_1,
     normalizeFromV0_0_1ToV0_0_2,
@@ -391,7 +491,7 @@ return {
     getUserNameFromCommentId,
     processComments,
     getComments,
-    getSplittedCommentIdV0_0_3,
+    getSplittedCommentId,
     composeCommentData,
     createComment,
     editComment,
