@@ -64,17 +64,279 @@ for (let i = 0; i < commentsExamplesToFilterLength; i++) {
   };
 
   let newId = newStandardExample.value.metadata.id.slice(0, -1) + i;
-  
+
   newStandardExample.value.metadata.id = newId;
 
   if (i === 1) {
     newStandardExample.blockHeight = 98588599; //This is in the blacklist
   } else if (i === 2) {
-    newStandardExample.value.metadata.id = "fakeId";//This should get filtered
+    newStandardExample.value.metadata.id = "fakeId"; //This should get filtered
   }
 
   commentsExamplesToFilter.push(newStandardExample);
 }
+
+const realCommentsOfArticleExample = [
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115306573,
+    value: {
+      type: "md",
+      commentData: {
+        text: "@ayelen.near Text of the comment",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711200931586",
+        author: "rodrigos.near",
+        createdTimestamp: 1711200931586,
+        lastEditTimestamp: 1711200931586,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115306696,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hola",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711201103830",
+        author: "rodrigos.near",
+        createdTimestamp: 1711201103830,
+        lastEditTimestamp: 1711201103830,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115307443,
+    value: {
+      type: "md",
+      commentData: {
+        text: "chau\n\n",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711201969723",
+        author: "rodrigos.near",
+        createdTimestamp: 1711201969723,
+        lastEditTimestamp: 1711201969723,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115309530,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hello",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711204140883",
+        author: "rodrigos.near",
+        createdTimestamp: 1711204140883,
+        lastEditTimestamp: 1711204140883,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115311095,
+    value: {
+      type: "md",
+      commentData: {
+        text: "Text edited 4",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711200931586",
+        author: "rodrigos.near",
+        createdTimestamp: 1711200931586,
+        lastEditTimestamp: 1711206252539,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+        isEdition: true,
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115311866,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hi\n\n",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711200931586",
+        author: "rodrigos.near",
+        createdTimestamp: 1711200931586,
+        lastEditTimestamp: 1711206936516,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+        isEdition: true,
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115312070,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hi2\n",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711200931586",
+        author: "rodrigos.near",
+        createdTimestamp: 1711200931586,
+        lastEditTimestamp: 1711207473517,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+        isEdition: true,
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115313275,
+    value: {
+      type: "md",
+      metadata: {
+        id: "comment/rodrigos.near/1711200931586",
+        isDelete: true,
+        deleteTimestamp: 1711208714378,
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "article/rodrigos.near/1710843635815",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115329736,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hi",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711229978418",
+        author: "rodrigos.near",
+        createdTimestamp: 1711229978418,
+        lastEditTimestamp: 1711229978418,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115329933,
+    value: {
+      type: "md",
+      commentData: {
+        text: "Reply here",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711230237318",
+        author: "rodrigos.near",
+        createdTimestamp: 1711230237318,
+        lastEditTimestamp: 1711230237318,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115330165,
+    value: {
+      type: "md",
+      metadata: {
+        id: "comment/rodrigos.near/1711230237318",
+        isDelete: true,
+        deleteTimestamp: 1711230291624,
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+  {
+    accountId: "rodrigos.near",
+    blockHeight: 115330896,
+    value: {
+      type: "md",
+      commentData: {
+        text: "hello",
+      },
+      metadata: {
+        id: "comment/rodrigos.near/1711230699967",
+        author: "rodrigos.near",
+        createdTimestamp: 1711230699967,
+        lastEditTimestamp: 1711230699967,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+  {
+    accountId: "silkking.near",
+    blockHeight: 115525381,
+    value: {
+      type: "md",
+      commentData: {
+        text: "Test",
+      },
+      metadata: {
+        id: "comment/silkking.near/1711473775307",
+        author: "silkking.near",
+        createdTimestamp: 1711473775307,
+        lastEditTimestamp: 1711473775307,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+  {
+    accountId: "silkking.near",
+    blockHeight: 115525444,
+    value: {
+      type: "md",
+      commentData: {
+        text: "Test again",
+      },
+      metadata: {
+        id: "comment/silkking.near/1711473849667",
+        author: "silkking.near",
+        createdTimestamp: 1711473849667,
+        lastEditTimestamp: 1711473849667,
+        versionKey: "v0.0.4",
+        articleId: "article/rodrigos.near/1710843635815",
+        rootId: "comment/rodrigos.near/1711204140883",
+      },
+    },
+  },
+];
 //=======================================================================End consts=========================================================================
 
 //=======================================================================Start lib functions=======================================================================
@@ -149,6 +411,66 @@ function doesCommentIdHavePropperStructure(id) {
 //   }
 // }
 
+function testProcessComments() {
+  const fnName = "testProcessComments";
+
+  const firstCommentWithIsEditionTrue = realCommentsOfArticleExample.find(
+    (comment) => comment.value.metadata.isEdition
+  );
+
+  if (!firstCommentWithIsEditionTrue) {
+    return {
+      isError: true,
+      msg: "To test this function properly you need at least 1 comment edited in realCommentsOfArticleExample",
+      fnName,
+    };
+  }
+
+  const realExamplesWithoutEditionMark = realCommentsOfArticleExample.map(
+    (comment) => {
+      const commentWithoutEditionMark = comment;
+
+      delete comment.value.metadata.isEdition;
+
+      return commentWithoutEditionMark;
+    }
+  );
+
+  let isError = false;
+  let msg = [""];
+  try {
+    const procesedArticles = functionsToTest.processComments(
+      realExamplesWithoutEditionMark
+    );
+
+    if (procesedArticles.find((comment) => comment.value.metadata.isEdition)) {
+      isError = true;
+      msg.push([
+        "-It was expected to have at least 1 comment with comment.value.metadata.isEdition === true",
+      ]);
+    }
+
+    if (procesedArticles.find((comment) => comment.value.metadata.isDelete)) {
+      isError = true;
+      msg.push([
+        "-It was expected to not find comments with metadata.isDelete === true",
+      ]);
+    }
+
+    return {
+      isError,
+      msg: msg.flat(),
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
 function testFilterInvalidComments() {
   const fnName = "testFilterInvalidComments";
 
@@ -156,15 +478,20 @@ function testFilterInvalidComments() {
   let msg = "";
 
   try {
-    const filteredComments =
-      functionsToTest.filterInvalidComments(commentsExamplesToFilter);
+    const filteredComments = functionsToTest.filterInvalidComments(
+      commentsExamplesToFilter
+    );
 
-    if(!Array.isArray(filteredComments)) {
+    if (!Array.isArray(filteredComments)) {
       isError = true;
       msg = "The result was expected to be an Array";
-    } else if (filteredComments.length - 2 === commentsExamplesToFilterLength) { //This is because of the generation of the commentsExamples
+    } else if (filteredComments.length - 2 === commentsExamplesToFilterLength) {
+      //This is because of the generation of the commentsExamples
       isError = true;
-      msg = ["It was expected to filter some values that remains in the result", `Result: ${filteredComments}`]
+      msg = [
+        "It was expected to filter some values that remains in the result",
+        `Result: ${filteredComments}`,
+      ];
     }
 
     return {
@@ -277,7 +604,7 @@ function testNormalizeFromV0_0_2ToV0_0_3() {
     const normalizedComment =
       functionsToTest.normalizeFromV0_0_2ToV0_0_3(commentExample);
 
-    if (      
+    if (
       normalizedComment.value.comment.rootId &&
       typeof normalizedComment.value.comment.rootId !== "string"
     ) {
