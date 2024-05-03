@@ -1,4 +1,4 @@
-function getConfig(isTest,networkId) {
+function getConfig(isTest,networkId, lookForArchives) {
     const componentsOwner = "communityvoice.ndctools.near";
     const authorForWidget = "communityvoice.ndctools.near";
     const configWidget = "home";
@@ -6,10 +6,10 @@ function getConfig(isTest,networkId) {
         isTest,
         networkId,
         baseActions: {
-            article: "communityVoiceArticle",
-            upVote: "communityVoiceUpVote",
-            reaction: "communityVoiceReaction",
-            comment: "communityVoiceComment",
+            article: lookForArchives ? "archive/communityVoiceArticle" : "communityVoiceArticle",
+            upVote: lookForArchives ? "archive/communityVoiceUpVote" : "communityVoiceUpVote",
+            reaction: lookForArchives ? "archive/communityVoiceReaction" : "communityVoiceReaction",
+            comment: lookForArchives ? "archive/communityVoiceComment" : "communityVoiceComment",
         },
         componentsOwner,
         authorForWidget,

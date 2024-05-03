@@ -52,6 +52,7 @@ const tabs = {
   SHOW_ARTICLE: { id: 1 },
   ARTICLE_WORKSHOP: { id: 2 },
   SHOW_ARTICLES_LIST_BY_AUTHORS: { id: 3 },
+  SHOW_ARCHIVE_LIST: { id: 4 },
 };
 
 function getInitialTabId() {
@@ -65,6 +66,7 @@ function getInitialTabId() {
 const [categories] = useState(getCategories())
 const [category, setCategory] = useState(getCategories()[0].value)
 const [articles, setArticles] = useState([]);
+const [archives, setArchives] = useState([]);
 const [article, setArticle] = useState({});
 const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
 const [showShareModal, setShowShareModal] = useState(false);
@@ -89,6 +91,20 @@ function loadArticles(category) {
     setArticles(newArticles)
     setLoadingArticles(false)
   })
+}
+
+function loadArchivedArticles(category) {
+  const userFilters = { category: category };
+  setLoadingArticles(true);
+
+  getArticles(getConfig(isTest, lookForArchives), userFilters).then((newArticles) => {
+    setArchives(newArticles)
+    setLoadingArticles(false)
+  })
+}
+
+if(archives.length === 0 && displayedTabId === tabs.SHOW_ARCHIVE_LIST.id) {
+  loadArchivedArticles(category)
 }
 
 useEffect(() => {
@@ -125,6 +141,7 @@ if (filterBy.parameterName == "author") {
 const navigationPills = [
   { id: tabs.SHOW_ARTICLES_LIST.id, title: "Articles" },
   { id: tabs.SHOW_ARTICLES_LIST_BY_AUTHORS.id, title: "Authors" },
+  { id: tabs.SHOW_ARCHIVE_LIST.id, title: "Archive" },
   // { id: tabs.SHOW_KANBAN_VIEW.id, title: "Kanban" },
 ];
 
@@ -557,6 +574,9 @@ function handleOnCommitArticle(articleId) {
     })
   }, 5000);
 }
+
+console.log("archives: ", archives)
+
 //===============================================END FUNCTIONS======================================================
 return (
   <AppContainer>
@@ -603,6 +623,33 @@ return (
           props={{
             isTest,
             articles,
+            widgets,
+            handleOpenArticle,
+            handleFilterArticles,
+            authorForWidget,
+            editArticleData,
+            handleEditArticle,
+            loggedUserHaveSbt,
+            handleShareButton,
+            handleShareSearch,
+            filterBy,
+            handleOnCommitArticle,
+            sharedSearchInputValue: sharedData.sharedSearch,
+            category
+          }}
+      />      
+    )}
+    {displayedTabId == tabs.SHOW_ARCHIVE_LIST.id && (
+      loadingArticles ?
+        <Widget
+          src={widgets.views.standardWidgets.newStyledComponents.Feedback.Spinner}
+        />
+      :
+        <Widget
+          src={widgets.views.editableWidgets.showArticlesList}
+          props={{
+            isTest,
+            articles: archives,
             widgets,
             handleOpenArticle,
             handleFilterArticles,
