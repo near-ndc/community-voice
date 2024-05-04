@@ -443,18 +443,25 @@ function testProcessComments() {
       realExamplesWithoutEditionMark
     );
 
-    if (procesedArticles.find((comment) => comment.value.metadata.isEdition)) {
-      isError = true;
-      msg.push([
-        "-It was expected to have at least 1 comment with comment.value.metadata.isEdition === true",
-      ]);
+    const isThereAnIsEdition = procesedArticles.find((comment) => comment.value.metadata.isEdition);
+    const isThereAnIsDelete = procesedArticles.find((comment) => comment.value.metadata.isDelete);
+
+    if(!isThereAnIsEdition && !isThereAnIsDelete) {
+      msg.push("The errors found are the following:")
     }
 
-    if (procesedArticles.find((comment) => comment.value.metadata.isDelete)) {
+    if (!isThereAnIsEdition) {
       isError = true;
-      msg.push([
+      msg.push(
+        "-It was expected to have at least 1 comment with comment.value.metadata.isEdition === true",
+      );
+    }
+
+    if (!isThereAnIsDelete) {
+      isError = true;
+      msg.push(
         "-It was expected to not find comments with metadata.isDelete === true",
-      ]);
+      );
     }
 
     return {
@@ -740,6 +747,11 @@ return (
       {
         fnName: "testFilterInvalidComments",
         fn: testFilterInvalidComments,
+        description: "Check if it's filtering correctly",
+      },
+      {
+        fnName: "testProcessComments",
+        fn: testProcessComments,
         description: "Check if it's filtering correctly",
       },
     ])}
