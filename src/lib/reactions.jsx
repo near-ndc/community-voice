@@ -94,6 +94,7 @@ function filterInvalidReactions(reactions) {
 }
 
 function normalizeReaction(reaction, versionsIndex, elementReactedId) {
+    console.log("props: ", reaction, versionsIndex, elementReactedId)
     const extraParams = { elementReactedId }
     const versionsKeys = Object.keys(versions)
     for (let i = versionsIndex; i < versionsKeys.length; i++) {
@@ -248,4 +249,21 @@ function createReaction(config, emoji, elementReactedId, author, onCommit, onCan
 
 }
 
-return { getEmojis, getReactions, createReaction }
+return {
+    getEmojis,
+    getReactions,
+    createReaction,
+    functionsToTest: {
+        normalizeOldToV_0_0_1,
+        normalizeFromV0_0_1ToV0_0_2,
+        getReactionBlackListByBlockHeight,
+        filterInvalidReactions,
+        normalizeReaction,
+        getLatestEdits,
+        getReactionsNormalized,
+        groupReactions,
+        getInitialEmoji,
+        getEmojis,
+        validateEmoji,
+    }
+}

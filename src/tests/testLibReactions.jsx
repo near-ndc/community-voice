@@ -1,4 +1,4 @@
-const { getReactions } = VM.require(
+const { getReactions, functionsToTest } = VM.require(
   "communityvoice.ndctools.near/widget/lib.reactions"
 );
 const { getConfig } = VM.require(
@@ -17,6 +17,110 @@ const testAction = `test_${prodAction}`;
 const action = isTest ? testAction : prodAction;
 
 const config = getConfig(isTest);
+
+// function name() {
+//   const fnName = "name";
+
+//   let isError = false;
+//   let msg = "";
+//   try {
+//     return {
+//       isError,
+//       msg,
+//       fnName,
+//     };
+//   } catch (err) {
+//     return {
+//       isError: true,
+//       msg: err.message,
+//       fnName,
+//     };
+//   }
+// }
+
+function testNormalizeFromV0_0_1ToV0_0_2() {
+  const fnName = "testNormalizeFromV0_0_1ToV0_0_2";
+
+  let isError = false;
+  let msg = "";
+
+  const exampleReactionForThisTest = {
+    accountId: "rodrigos.near",
+    blockHeight: 116056116,
+    value: {
+      reaction: "👍 Like",
+      reactionId: "reaction-rodrigos.near-1712158486635",
+    },
+  };
+
+  const extraParams = "article/silkking.near/1711678364022";
+
+  try {
+    const reaction = functionsToTest.normalizeFromV0_0_1ToV0_0_2(
+      exampleReactionForThisTest,
+      extraParams
+    );
+
+    const isResponseStructureWrong = getIsResponseStructureWrong(reaction);
+
+    if (isResponseStructureWrong.errorInStructure) {
+      isError = true;
+      msg = [
+        "The structure of the normilized reaction is not as expected",
+        isResponseStructureWrong.errorDescriptionList,
+      ].flat();
+    }
+
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
+
+function testNormalizeOldToV_0_0_1() {
+  const fnName = "testNormalizeOldToV_0_0_1";
+
+  const exampleReactionForThisTest = {
+    value: {},
+  };
+
+  let isError = false;
+  let msg = "";
+
+  try {
+    const reaction = functionsToTest.normalizeOldToV_0_0_1(
+      exampleReactionForThisTest
+    );
+
+    if (JSON.stringify(reaction.value.sbts) !== JSON.stringify(["public"])) {
+      isError = true;
+      msg = [
+        "reaction.value.sbts was expected to be ['public'].",
+        `Instead reaction = ${JSON.stringify(reaction)}`,
+      ];
+    }
+
+    return {
+      isError,
+      msg,
+      fnName,
+    };
+  } catch (err) {
+    return {
+      isError: true,
+      msg: err.message,
+      fnName,
+    };
+  }
+}
 
 function getIsResponseStructureWrong(res) {
   //   const resExample = {
@@ -113,7 +217,7 @@ async function testGetReactions() {
         isError,
         msg,
         fnName,
-      }
+      };
     } catch (err) {
       return {
         isError: true,
@@ -140,11 +244,18 @@ displayTestsAsyncResults([
 return (
   <>
     {displayTestsSyncResults([
-      //   {
-      //     fnName: "testComposeDataIsWorkingAsExpected",
-      //     fn: testComposeDataIsWorkingAsExpected,
-      //     description: "Check if the structure is as the expected one",
-      //   },
+      {
+        fnName: "testNormalizeOldToV_0_0_1",
+        fn: testNormalizeOldToV_0_0_1,
+        description:
+          "Check if the normalization structure is as the expected one",
+      },
+      {
+        fnName: "testNormalizeFromV0_0_1ToV0_0_2",
+        fn: testNormalizeFromV0_0_1ToV0_0_2,
+        description:
+          "Check if the normalization structure is as the expected one",
+      },
     ])}
     {asyncComponent}
   </>
