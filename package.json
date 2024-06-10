@@ -1,18 +1,19 @@
 {
-  "name": "community_voice",
-  "version": "1.0.0",
-  "description": "This project uses [bos-loader](https://github.com/near/bos-loader)v0.10.0 to keep track of the widgets required to implement Community Voice on BOS.",
-  "main": "index.js",
-  "scripts": {
-    "start": "bos-loader communityvoice.ndctools.near --path ./src",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node deploy.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "fs": "^0.0.1-security",
-    "near-api-js": "^3.0.4",
-    "path": "^0.12.7"
-  }
+    "name": "community_voice",
+    "version": "1.0.0",
+    "description": "This project uses [bos-loader](https://github.com/near/bos-loader)v0.10.0 to keep track of the widgets required to implement Community Voice on BOS.",
+    "main": "index.js",
+    "scripts": {
+        "start": "bos-loader chatter.cheddar.near --path ./src",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "deploy": "node deploy.js",
+        "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "fs": "^0.0.1-security",
+        "near-api-js": "^3.0.4",
+        "path": "^0.12.7"
+    }
 }
