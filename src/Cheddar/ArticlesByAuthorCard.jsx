@@ -1,4 +1,4 @@
-//NDC.ArticlesByAuthorCard
+//Cheddar.ArticlesByAuthorCard
 
 const { authorArticlesArray, filter, handleFilterArticles, widgets } = props
 

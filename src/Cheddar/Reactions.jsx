@@ -1,10 +1,10 @@
-// NDC.Reactions
+// Cheddar.Reactions
 const { getReactions, createReaction } = VM.require(
     'chatter.cheddar.near/widget/lib.reactions'
-)
+) || { getReactions: () => {}, createReaction: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const {
     isTest,

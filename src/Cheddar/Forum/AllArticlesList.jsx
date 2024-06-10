@@ -1,7 +1,7 @@
-// NDC.Forum.AllArticlesList
+// Cheddar.Forum.AllArticlesList
 const { arrayIncludesIgnoreCase } = VM.require(
     'chatter.cheddar.near/widget/lib.strings'
-)
+) || { arrayIncludesIgnoreCase: () => {} }
 
 const { HumanityWrapperButton } = VM.require(
     'chatter.cheddar.near/widget/lib.nadaBot'
@@ -225,13 +225,12 @@ return (
                 }
                 props={{
                     size: 'sm',
-                    className: 'info outline icon',
+                    className: 'primary outline icon',
                     children: <i className="bi bi-share"></i>,
                     onClick: () => handleShareSearch(true, searchInputValue),
                 }}
             />
         </ShareSearchRow>
-        <h5>Previous articles will be loaded in the following days</h5>
         <NoMargin>
             {filterBy.parameterName === 'tag' && (
                 <div className="mt-3">
@@ -244,7 +243,7 @@ return (
                             }
                             props={{
                                 children: filterBy.parameterValue,
-                                variant: 'round info',
+                                variant: 'round primary',
                                 size: 'lg',
                             }}
                         />

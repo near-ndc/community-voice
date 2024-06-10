@@ -1,12 +1,16 @@
 const { getFromIndex } = VM.require(
     'chatter.cheddar.near/widget/lib.socialDbIndex'
-)
+) || { getFromIndex: () => {} }
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
     'chatter.cheddar.near/widget/lib.metadata'
-)
+) || {
+    generateMetadata: () => {},
+    updateMetadata: () => {},
+    buildDeleteMetadata: () => {},
+}
 const { normalizeId } = VM.require(
     'chatter.cheddar.near/widget/lib.normalization'
-)
+) || { normalizeId: () => {} }
 
 let config = {}
 const ID_PREFIX = 'reaction'

@@ -1,11 +1,13 @@
-// NDC.Forum
+// Cheddar.Forum
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 const { getArticles, deleteArticle } = VM.require(
     'chatter.cheddar.near/widget/lib.article'
-)
-const { isValidUser } = VM.require('chatter.cheddar.near/widget/lib.SBT')
+) || { getArticles: () => {}, deleteArticle: () => {} }
+const { isValidUser } = VM.require('chatter.cheddar.near/widget/lib.SBT') || {
+    isValidUser: () => {},
+}
 //===============================================INITIALIZATION=====================================================
 let {
     isTest,
@@ -415,7 +417,7 @@ const renderDeleteModal = () => {
                             props={{
                                 children: 'Cancel',
                                 onClick: closeDeleteArticleModal,
-                                variant: 'info outline',
+                                variant: 'primary outline',
                             }}
                         />
                     </Footer>
@@ -441,7 +443,7 @@ const getCategoriesSelectorLabel = () => {
                         </Tooltip>
                     }
                 >
-                    <i className="bi bi-info-circle"></i>
+                    <i className="bi bi-primary-circle"></i>
                 </OverlayTrigger>
             </SmallButton>
         </>

@@ -1,10 +1,10 @@
-//NDC.Forum.Create
+//Cheddar.Forum.Create
 const { createArticle, editArticle, buildArticle } = VM.require(
     'chatter.cheddar.near/widget/lib.article'
-)
+) || { createArticle: () => {}, editArticle: () => {}, buildArticle: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const {
     isTest,
@@ -367,7 +367,7 @@ return (
                                         .newStyledComponents.Input.Button
                                 }
                                 props={{
-                                    className: 'info outline mx-2',
+                                    className: 'primary outline mx-2',
                                     disabled:
                                         state.title.length === 0 ||
                                         state.articleBody.length === 0,
@@ -389,7 +389,7 @@ return (
                                         .newStyledComponents.Input.Button
                                 }
                                 props={{
-                                    className: 'info ',
+                                    className: 'primary ',
                                     disabled:
                                         state.title.length === 0 ||
                                         state.articleBody.length === 0,

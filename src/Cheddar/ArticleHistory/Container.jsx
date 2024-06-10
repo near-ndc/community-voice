@@ -1,4 +1,4 @@
-// NDC.ArticleHistory.Container
+// Cheddar.ArticleHistory.Container
 
 const {
     pathToCurrentArticle,

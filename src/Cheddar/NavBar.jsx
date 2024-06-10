@@ -1,4 +1,4 @@
-// NDC.NavBar
+// Cheddar.NavBar
 
 const {
     handleGoHomeButton,
@@ -87,7 +87,7 @@ const BrandLogoContainer = styled.div`
     cursor: pointer;
 `
 
-const activeColor = '#9333EA'
+const activeColor = '#ffd50d'
 
 const Pill = styled.div`
     font-family: system-ui;

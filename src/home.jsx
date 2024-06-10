@@ -1,10 +1,10 @@
 // Community voice
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 const { getCategories } = VM.require(
     'chatter.cheddar.near/widget/lib.categories'
-)
+) || { getCategories: () => {} }
 
 let {
     isTest,
@@ -41,25 +41,25 @@ const widgets = {
 
     views: {
         editableWidgets: {
-            ndcForum: `${componentsOwner}/widget/NDC.Forum`,
-            create: `${componentsOwner}/widget/NDC.Forum.Create`,
-            header: `${componentsOwner}/widget/NDC.NavBar`,
-            showArticlesList: `${componentsOwner}/widget/NDC.Forum.AllArticlesList`,
-            showArticlesListSortedByAuthors: `${componentsOwner}/widget/NDC.AllArticlesSortByAuthors`,
-            articlesByAuthorCard: `${componentsOwner}/widget/NDC.ArticlesByAuthorCard`,
-            generalCard: `${componentsOwner}/widget/NDC.GeneralCard`,
-            articleView: `${componentsOwner}/widget/NDC.ArticleView`,
-            reactions: `${componentsOwner}/widget/NDC.Reactions`,
-            addComment: `${componentsOwner}/widget/NDC.AddComment`,
-            commentView: `${componentsOwner}/widget/NDC.CommentView`,
-            upVoteButton: `${componentsOwner}/widget/NDC.UpVoteButton`,
+            ndcForum: `${componentsOwner}/widget/Cheddar.Forum`,
+            create: `${componentsOwner}/widget/Cheddar.Forum.Create`,
+            header: `${componentsOwner}/widget/Cheddar.NavBar`,
+            showArticlesList: `${componentsOwner}/widget/Cheddar.Forum.AllArticlesList`,
+            showArticlesListSortedByAuthors: `${componentsOwner}/widget/Cheddar.AllArticlesSortByAuthors`,
+            articlesByAuthorCard: `${componentsOwner}/widget/Cheddar.ArticlesByAuthorCard`,
+            generalCard: `${componentsOwner}/widget/Cheddar.GeneralCard`,
+            articleView: `${componentsOwner}/widget/Cheddar.ArticleView`,
+            reactions: `${componentsOwner}/widget/Cheddar.Reactions`,
+            addComment: `${componentsOwner}/widget/Cheddar.AddComment`,
+            commentView: `${componentsOwner}/widget/Cheddar.CommentView`,
+            upVoteButton: `${componentsOwner}/widget/Cheddar.UpVoteButton`,
             profileShortInlineBlock: `${componentsOwner}/widget/Profile.ShortInlineBlock`,
             tagsEditor: `${componentsOwner}/widget/TagsEditor`,
-            kanbanBoard: `${componentsOwner}/widget/NDC.KanbanBoard`,
-            compactPost: `${componentsOwner}/widget/NDC.CompactPost`,
-            articleHistory: `${componentsOwner}/widget/NDC.ArticleHistory.Handler`,
-            articleHistoryFirstContainer: `${componentsOwner}/widget/NDC.ArticleHistory.Container`,
-            articleHistorySecondContainer: `${componentsOwner}/widget/NDC.ArticleHistory.SecondContainer`,
+            kanbanBoard: `${componentsOwner}/widget/Cheddar.KanbanBoard`,
+            compactPost: `${componentsOwner}/widget/Cheddar.CompactPost`,
+            articleHistory: `${componentsOwner}/widget/Cheddar.ArticleHistory.Handler`,
+            articleHistoryFirstContainer: `${componentsOwner}/widget/Cheddar.ArticleHistory.Container`,
+            articleHistorySecondContainer: `${componentsOwner}/widget/Cheddar.ArticleHistory.SecondContainer`,
         },
         standardWidgets: {
             fasterTextInput: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput`,
@@ -100,7 +100,7 @@ const widgets = {
 const brand = {
     brandName: 'Cheddar Chatter',
     logoHref:
-        'https://ipfs.near.social/ipfbafkreifhkslni6dlocxya35vjft3fefk2am5uzkagmjjzobdjqlhrnbjz4s/',
+        'https://ipfs.near.social/ipfs/bafkreiao5zwk4ww7jbj2du6io3xwdkcw2nzbpk4gtadpwbcdlfsqfnxfli',
     logoRemWidth: 12,
     logoRemHeight: 4,
 }

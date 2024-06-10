@@ -1,10 +1,10 @@
-// NDC.AddComment
+// Cheddar.AddComment
 const { createComment, editComment } = VM.require(
     'chatter.cheddar.near/widget/lib.comment'
-)
+) || { createComment: () => {}, editComment: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const {
     widgets,

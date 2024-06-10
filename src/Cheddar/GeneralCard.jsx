@@ -1,8 +1,10 @@
-// NDC.GeneralCard
-const { getUpVotes } = VM.require('chatter.cheddar.near/widget/lib.upVotes')
+// Cheddar.GeneralCard
+const { getUpVotes } = VM.require(
+    'chatter.cheddar.near/widget/lib.upVotes'
+) || { getUpVotes: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const { HumanityWrapperButton, isHuman } = VM.require(
     'chatter.cheddar.near/widget/lib.nadaBot'
@@ -363,7 +365,7 @@ const renderTags = () => {
                                     }
                                     props={{
                                         children: tag,
-                                        variant: 'round info outline',
+                                        variant: 'round primary outline',
                                         size: 'lg',
                                     }}
                                 />
@@ -501,7 +503,7 @@ return (
                         }
                         props={{
                             size: 'sm',
-                            className: 'info outline icon',
+                            className: 'primary outline icon',
                             children: <i className="bi bi-share"></i>,
                             onClick: () =>
                                 handleShareButton(true, {
@@ -596,7 +598,7 @@ return (
                                         ),
                                         disabled: !loggedUserHaveSbt,
                                         size: 'sm',
-                                        className: 'info outline',
+                                        className: 'primary outline',
                                         onClick: isPreview
                                             ? () => {}
                                             : toggleShowModal,
@@ -618,7 +620,7 @@ return (
                                         </div>
                                     ),
                                     size: 'sm',
-                                    className: 'info w-25',
+                                    className: 'primary w-25',
                                     onClick: () => handleOpenArticle(data),
                                 }}
                             />
@@ -638,7 +640,7 @@ return (
                                                 <i className="bi bi-pencil"></i>
                                             </div>
                                         ),
-                                        className: `info w-25`,
+                                        className: `primary w-25`,
                                         onClick: () =>
                                             isPreview
                                                 ? switchShowPreview()

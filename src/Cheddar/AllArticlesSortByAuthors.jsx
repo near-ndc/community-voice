@@ -1,4 +1,4 @@
-//NDC.AllArticlesSortByAuthors
+//Cheddar.AllArticlesSortByAuthors
 
 const {
     finalArticles,

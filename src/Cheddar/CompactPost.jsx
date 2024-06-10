@@ -1,4 +1,4 @@
-// NDC.CompactPost
+// Cheddar.CompactPost
 
 const {
     widgets,
@@ -130,7 +130,7 @@ const modal = (
                         .Button
                 }
                 props={{
-                    className: 'info my-3',
+                    className: 'primary my-3',
                     onClick: moveArticleListener,
                     disabled: !state.newLabel,
                     children: (
@@ -188,7 +188,7 @@ const header = (
                             }
                             props={{
                                 size: 'sm',
-                                className: 'info outline icon',
+                                className: 'primary outline icon',
                                 children: <i className="bi bi-share"></i>,
                                 onClick: () =>
                                     handleShareButton(true, {
@@ -235,7 +235,7 @@ const articleTags = article.value.articleData.tags ? (
                         }
                         props={{
                             children: tag,
-                            variant: 'round info',
+                            variant: 'round primary',
                             size: 'sm',
                         }}
                     />
@@ -267,7 +267,7 @@ const footerActionButtons = (
                 disabled:
                     context.accountId !== article.value.articleData.author,
                 size: 'sm',
-                className: 'info outline w-25',
+                className: 'primary outline w-25',
                 onClick: toggleShowModal,
             }}
         />
@@ -281,7 +281,7 @@ const footerActionButtons = (
                     </div>
                 ),
                 size: 'sm',
-                className: 'info mx-1 w-25',
+                className: 'primary mx-1 w-25',
                 onClick: () => {
                     handleOpenArticle(article)
                 },

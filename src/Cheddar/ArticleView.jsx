@@ -1,12 +1,16 @@
-// NDC.ArticleView
-const { getComments } = VM.require('chatter.cheddar.near/widget/lib.comment')
+// Cheddar.ArticleView
+const { getComments } = VM.require(
+    'chatter.cheddar.near/widget/lib.comment'
+) || { getComments: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
-const { getUpVotes } = VM.require('chatter.cheddar.near/widget/lib.upVotes')
+) || { getConfig: () => {} }
+const { getUpVotes } = VM.require(
+    'chatter.cheddar.near/widget/lib.upVotes'
+) || { getUpVotes: () => {} }
 const { getArticlesVersions } = VM.require(
     'chatter.cheddar.near/widget/lib.article'
-)
+) || { getArticlesVersions: () => {} }
 
 const { HumanityWrapperButton, isHuman } = VM.require(
     'chatter.cheddar.near/widget/lib.nadaBot'
@@ -50,7 +54,7 @@ const tabs = [
     {
         id: 'generalInfo',
         title: 'Post info',
-        icon: 'bi bi-info-circle',
+        icon: 'bi bi-primary-circle',
     },
 ]
 
@@ -493,17 +497,15 @@ const H6 = styled.h6`
 const Tab = styled.div`
     font-weight: ${(props) => (props.active ? '600' : '500')};
     border-bottom: 2px solid;
-    border-color: ${(props) =>
-        props.active ? 'rgb(68, 152, 224)' : '#dee2e6'};
-    color: ${(props) => (props.active ? 'rgb(68, 152, 224)' : '#ababab')};
+    border-color: ${(props) => (props.active ? '#ffd50d' : '#dee2e6')};
+    color: ${(props) => (props.active ? '#ffd50d' : '#ababab')};
     cursor: pointer;
     padding-bottom: 8px;
     font-size: 14px;
 
     i {
         &::before {
-            color: ${(props) =>
-                props.active ? 'rgb(68, 152, 224)' : '#ababab'};
+            color: ${(props) => (props.active ? '#ffd50d' : '#ababab')};
         }
         margin-right: 5px;
     }
@@ -689,7 +691,7 @@ return (
                                                             props={{
                                                                 children: tag,
                                                                 variant:
-                                                                    'round info outline',
+                                                                    'round primary outline',
                                                                 size: 'lg',
                                                             }}
                                                         />
@@ -740,7 +742,8 @@ return (
                                             }
                                             props={{
                                                 size: 'sm',
-                                                className: 'info outline icon',
+                                                className:
+                                                    'primary outline icon',
                                                 children: (
                                                     <i className="bi bi-share"></i>
                                                 ),
@@ -794,7 +797,7 @@ return (
                                                             <i className="bi bi-pencil"></i>
                                                         </div>
                                                     ),
-                                                    className: `info outline mt-2`,
+                                                    className: `primary outline mt-2`,
                                                     onClick: () => {
                                                         handleEditArticle(
                                                             articleToRenderData
@@ -940,7 +943,8 @@ return (
                                     disabled:
                                         !context.accountId ||
                                         !loggedUserHaveSbt,
-                                    className: 'info outline w-100 mt-4 mb-2',
+                                    className:
+                                        'primary outline w-100 mt-4 mb-2',
                                     onClick: () => {
                                         State.update({ showModal: true })
                                     },

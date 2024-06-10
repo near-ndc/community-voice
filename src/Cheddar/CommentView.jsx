@@ -1,8 +1,10 @@
-// NDC.CommentView
-const { deleteComment } = VM.require('chatter.cheddar.near/widget/lib.comment')
+// Cheddar.CommentView
+const { deleteComment } = VM.require(
+    'chatter.cheddar.near/widget/lib.comment'
+) || { deleteComment: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const { HumanityWrapperButton, isHuman } = VM.require(
     'chatter.cheddar.near/widget/lib.nadaBot'
@@ -362,7 +364,7 @@ const renderDeleteModal = () => {
                             props={{
                                 children: 'Cancel',
                                 onClick: closeDeleteCommentModal,
-                                variant: 'info outline',
+                                variant: 'primary outline',
                             }}
                         />
                     </Footer>
@@ -481,7 +483,7 @@ return (
                                         <i className="bi bi-pencil"></i>
                                     </div>
                                 ),
-                                className: `info outline mt-2`,
+                                className: `primary outline mt-2`,
                                 onClick: () => handleEditComment(),
                             }}
                         />
@@ -578,7 +580,7 @@ return (
                                     ),
                                     disabled: !loggedUserHaveSbt,
                                     size: 'sm',
-                                    className: 'info outline',
+                                    className: 'primary outline',
                                     onClick: handleReplyListener,
                                 }}
                             />

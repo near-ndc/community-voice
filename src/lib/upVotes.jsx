@@ -1,13 +1,17 @@
 const { getFromIndex } = VM.require(
     'chatter.cheddar.near/widget/lib.socialDbIndex'
-)
+) || { getFromIndex: () => {} }
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
     'chatter.cheddar.near/widget/lib.metadata'
-)
+) || {
+    generateMetadata: () => {},
+    updateMetadata: () => {},
+    buildDeleteMetadata: () => {},
+}
 
 const { getNotificationData } = VM.require(
     'chatter.cheddar.near/widget/lib.notifications'
-)
+) || { getNotificationData: () => {} }
 
 let config = {}
 const ID_PREFIX = 'upVote'

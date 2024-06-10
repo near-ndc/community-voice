@@ -1,10 +1,10 @@
-//NDC.UpVoteButton
+//Cheddar.UpVoteButton
 const { createUpVote, deleteUpVote } = VM.require(
     'chatter.cheddar.near/widget/lib.upVotes'
-)
+) || { createUpVote: () => {}, deleteUpVote: () => {} }
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
-)
+) || { getConfig: () => {} }
 
 const {
     isTest,
@@ -28,9 +28,9 @@ let userVote = articleUpVotes
 
 function getUpVoteButtonClass() {
     if (userVote) {
-        return 'info'
+        return 'primary'
     } else {
-        return 'info outline'
+        return 'primary outline'
     }
 }
 
