@@ -1,7 +1,7 @@
 function isHuman(accountId) {
-     return !accountId
-         ? false
-         : Near.view('v1.nadabot.near', 'is_human', { account_id: accountId })
+    return !accountId
+        ? false
+        : Near.view('v1.nadabot.near', 'is_human', { account_id: accountId })
 }
 
 const Container = styled.div`

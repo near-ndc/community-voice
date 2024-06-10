@@ -92,7 +92,7 @@ async function run() {
     const widgetJsons = getWidgetsJsons(files)
 
     const socialContract = await getContract()
-    for (let i = 29; i < widgetJsons.length; i++) {
+    for (let i = 0; i < widgetJsons.length; i++) {
         if (indexesToDeploy.length > 0 && !indexesToDeploy.includes(i)) continue
         const json = widgetJsons[i]
         const widgetName = Object.keys(json[ACCOUNT].widget)[0]
