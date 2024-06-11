@@ -4,7 +4,7 @@ const { getConfig } = VM.require(
 ) || { getConfig: () => {} }
 const { getCategories } = VM.require(
     'chatter.cheddar.near/widget/lib.categories'
-) || { getCategories: () => {} }
+)
 
 let {
     isTest,
