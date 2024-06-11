@@ -1,1 +1,5 @@
-{"wrapperSrc":"near/widget/DIG.Theme","wrapperProps":{},"networkId":"mainnet"}
+{
+    "wrapperSrc": "near/widget/DIG.Theme",
+    "wrapperProps": {},
+    "networkId": "mainnet"
+}

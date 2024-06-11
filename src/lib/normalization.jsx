@@ -15,17 +15,17 @@ function normalizeObjectWithMetadata(object, versions) {
 }
 
 /**
- * 
+ *
  * @param {*} oldFormatId examples "c-acc.near-165198498" "uv-acc.near-841981914"
  * @param {*} idPrefix examples "article" "comments"
- * @returns 
+ * @returns
  */
 function normalizeId(oldFormatId, idPrefix) {
-    const split = oldFormatId.split("-")
+    const split = (oldFormatId ?? '').split('-')
     const createdAt = split[split.length - 1]
     split.pop()
     split.shift() // Removes first
-    const accountId = split.join("-")
+    const accountId = split.join('-')
     return `${idPrefix}/${accountId}/${createdAt}`
 }
 
