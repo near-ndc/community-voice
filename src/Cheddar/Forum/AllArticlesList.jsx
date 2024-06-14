@@ -22,10 +22,8 @@ let {
     initialCreateState,
     editArticleData,
     handleEditArticle,
-    showCreateArticle,
     handleShareButton,
     handleShareSearch,
-    loggedUserHaveSbt,
     filterBy,
     baseActions,
     handleOnCommitArticle,
@@ -145,58 +143,52 @@ function handleSearch(e) {
 //================================================END FUNCTIONS=====================================================
 return (
     <>
-        {loggedUserHaveSbt ? (
-            <>
-                <AcordionContainer className="accordion" id="accordionExample">
-                    <NoMargin className="accordion-item">
-                        <h2 className="accordion-header" id="headingOne">
-                            <HumanityWrapperButton
-                                accountId={context.accountId}
-                                className="accordion-button collapsed border border-2"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseOne"
-                                aria-expanded="true"
-                                aria-controls="collapseOne"
-                            >
-                                <h6 className="m-0">+ Create post</h6>
-                            </HumanityWrapperButton>
-                        </h2>
-                        <div
-                            id="collapseOne"
-                            className="accordion-collapse collapse"
-                            aria-labelledby="headingOne"
-                            data-bs-parent="#accordionExample"
+        <>
+            <AcordionContainer className="accordion" id="accordionExample">
+                <NoMargin className="accordion-item">
+                    <h2 className="accordion-header" id="headingOne">
+                        <HumanityWrapperButton
+                            accountId={context.accountId}
+                            className="accordion-button collapsed border border-2"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne"
+                            aria-expanded="true"
+                            aria-controls="collapseOne"
                         >
-                            <AccordionBody className="accordion-body">
-                                <Widget
-                                    src={widgets.views.editableWidgets.create}
-                                    props={{
-                                        isTest,
-                                        addressForArticles,
-                                        authorForWidget,
-                                        stateUpdate,
-                                        widgets,
-                                        initialCreateState,
-                                        editArticleData,
-                                        handleFilterArticles,
-                                        handleEditArticle,
-                                        initialBody: '',
-                                        canLoggedUserCreateArticles:
-                                            loggedUserHaveSbt,
-                                        baseActions,
-                                        handleOnCommitArticle,
-                                        category,
-                                    }}
-                                />
-                            </AccordionBody>
-                        </div>
-                    </NoMargin>
-                </AcordionContainer>
-            </>
-        ) : (
-            <h6>You can't post since you don't own any SBT</h6>
-        )}
+                            <h6 className="m-0">+ Create post</h6>
+                        </HumanityWrapperButton>
+                    </h2>
+                    <div
+                        id="collapseOne"
+                        className="accordion-collapse collapse"
+                        aria-labelledby="headingOne"
+                        data-bs-parent="#accordionExample"
+                    >
+                        <AccordionBody className="accordion-body">
+                            <Widget
+                                src={widgets.views.editableWidgets.create}
+                                props={{
+                                    isTest,
+                                    addressForArticles,
+                                    authorForWidget,
+                                    stateUpdate,
+                                    widgets,
+                                    initialCreateState,
+                                    editArticleData,
+                                    handleFilterArticles,
+                                    handleEditArticle,
+                                    initialBody: '',
+                                    baseActions,
+                                    handleOnCommitArticle,
+                                    category,
+                                }}
+                            />
+                        </AccordionBody>
+                    </div>
+                </NoMargin>
+            </AcordionContainer>
+        </>
         <Widget
             src={widgets.views.standardWidgets.styledComponents}
             props={{
@@ -293,7 +285,6 @@ return (
                                         handleShareButton,
                                         handleEditArticle,
                                         baseActions,
-                                        loggedUserHaveSbt,
                                     }}
                                 />
                             </div>

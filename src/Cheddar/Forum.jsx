@@ -58,10 +58,6 @@ function getInitialFilter() {
 }
 
 const [articlesToRender, setArticlesToRender] = useState([])
-// loggedUserHaveSbt and canLoggedUserCreateArticle probably have the same behaviour. Check
-const [loggedUserHaveSbt, setLoggedUserHaveSbt] = useState(false)
-const [canLoggedUserCreateArticle, setCanLoggedUserCreateArticle] =
-    useState(false)
 const [showShareModal, setShowShareModal] = useState(false)
 const [sharedElement, setSharedElement] = useState(undefined)
 const [showShareSearchModal, setShowShareSearchModal] = useState(false)
@@ -87,16 +83,6 @@ useEffect(() => {
     }, 30000)
     return () => clearInterval(intervalId)
 }, [category])
-
-useEffect(() => {
-    isValidUser(context.accountId, getConfig(isTest, context.networkId)).then(
-        (isValid) => {
-            setLoggedUserHaveSbt(isValid)
-            setCanLoggedUserCreateArticle(isValid)
-        }
-    )
-    //TODO change isValidUser name to getIsValidUser
-}, [context.accountId])
 
 accountId = context.accountId
 
@@ -691,11 +677,8 @@ return (
                             initialCreateState,
                             editArticleData: state.editArticleData,
                             handleEditArticle,
-                            showCreateArticle: canLoggedUserCreateArticle,
-                            loggedUserHaveSbt,
                             handleShareButton,
                             handleShareSearch,
-                            canLoggedUserCreateArticles,
                             filterBy,
                             baseActions,
                             handleOnCommitArticle,
@@ -720,7 +703,6 @@ return (
                             baseActions,
                             kanbanColumns,
                             sharedCommentId,
-                            loggedUserHaveSbt,
                         }}
                     />
                 )}
@@ -758,11 +740,9 @@ return (
                         handleEditArticle,
                         sbtWhiteList,
                         sbts,
-                        canLoggedUserCreateArticles,
                         baseActions,
                         kanbanColumns,
                         sharedCommentId,
-                        loggedUserHaveSbt,
                         handleOnCommitArticle,
                         category,
                     }}

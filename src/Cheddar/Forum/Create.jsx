@@ -18,7 +18,6 @@ const {
     handleFilterArticles,
     handleEditArticle,
     handlerStateUpdate,
-    canLoggedUserCreateArticles,
     baseActions,
     handleOnCommitArticle,
     category,

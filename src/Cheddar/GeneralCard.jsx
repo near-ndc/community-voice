@@ -25,7 +25,6 @@ const {
     baseActions,
     switchShowPreview,
     isPreview,
-    loggedUserHaveSbt,
 } = props
 
 if (
@@ -483,9 +482,7 @@ return (
                                 reactedElementData: data,
                                 widgets,
                                 disabled:
-                                    isPreview ||
-                                    !loggedUserHaveSbt ||
-                                    !isHuman(context.accountId),
+                                    isPreview || !isHuman(context.accountId),
                                 articleSbts,
                                 upVotes,
                                 baseActions,
@@ -569,7 +566,6 @@ return (
                                     elementReactedId: id,
                                     disabled:
                                         isPreview ||
-                                        !loggedUserHaveSbt ||
                                         !isHuman(context.accountId),
                                     baseActions,
                                 }}
@@ -596,7 +592,6 @@ return (
                                                 <i className="bi bi-chat-square-text-fill"></i>
                                             </div>
                                         ),
-                                        disabled: !loggedUserHaveSbt,
                                         size: 'sm',
                                         className: 'primary outline',
                                         onClick: isPreview

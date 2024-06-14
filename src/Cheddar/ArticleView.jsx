@@ -28,7 +28,6 @@ const {
     baseActions,
     kanbanColumns,
     sharedData,
-    loggedUserHaveSbt,
 } = props
 
 const accountId = articleToRenderData.value.metadata.author
@@ -722,7 +721,6 @@ return (
                                                     widgets,
                                                     disabled:
                                                         !context.accountId ||
-                                                        !loggedUserHaveSbt ||
                                                         !isHuman(
                                                             context.accountId
                                                         ),
@@ -773,7 +771,6 @@ return (
                                                 elementReactedId: id,
                                                 disabled:
                                                     !context.accountId ||
-                                                    !loggedUserHaveSbt ||
                                                     !isHuman(context.accountId),
                                                 baseActions,
                                             }}
@@ -940,9 +937,7 @@ return (
                                             <i className="bi bi-plus-lg"></i>
                                         </div>
                                     ),
-                                    disabled:
-                                        !context.accountId ||
-                                        !loggedUserHaveSbt,
+                                    disabled: !context.accountId,
                                     className:
                                         'primary outline w-100 mt-4 mb-2',
                                     onClick: () => {
@@ -971,7 +966,6 @@ return (
                                         isTest,
                                         authorForWidget,
                                         isReply: false,
-                                        loggedUserHaveSbt,
                                         articleSbts,
                                         baseActions,
                                         sharedCommentId,

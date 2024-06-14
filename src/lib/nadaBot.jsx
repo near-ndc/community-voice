@@ -1,7 +1,11 @@
 function isHuman(accountId) {
-    return !accountId
-        ? false
-        : Near.view('v1.nadabot.near', 'is_human', { account_id: accountId })
+    return true
+    // console.log(
+    //     Near.view('v1.nadabot.near', 'is_human', { account_id: 'tortum.near' })
+    // )
+    // return !accountId
+    //     ? false
+    //     : Near.view('v1.nadabot.near', 'is_human', { account_id: accountId })
 }
 
 const Container = styled.div`

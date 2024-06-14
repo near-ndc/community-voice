@@ -16,7 +16,6 @@ const {
     isTest,
     authorForWidget,
     isReply,
-    loggedUserHaveSbt,
     orginalCommentData,
     canLoggedUserCreateComment,
     baseActions,
@@ -434,10 +433,6 @@ function handleEditComment() {
 }
 
 function handleReplyListener() {
-    if (!loggedUserHaveSbt) {
-        return
-    }
-
     State.update({
         showModal: true,
         editionData: undefined,
@@ -578,7 +573,6 @@ return (
                                             <i className="bi bi bi-reply"></i>
                                         </div>
                                     ),
-                                    disabled: !loggedUserHaveSbt,
                                     size: 'sm',
                                     className: 'primary outline',
                                     onClick: handleReplyListener,
@@ -598,9 +592,7 @@ return (
                             isTest,
                             authorForWidget,
                             elementReactedId: data.value.metadata.id,
-                            disabled:
-                                !loggedUserHaveSbt ||
-                                !isHuman(context.accountId),
+                            disabled: !isHuman(context.accountId),
                             baseActions,
                         }}
                     />
@@ -625,7 +617,6 @@ return (
                                     authorForWidget,
                                     isReply: true,
                                     canLoggedUserCreateComment,
-                                    loggedUserHaveSbt,
                                     baseActions,
                                     sharedData,
                                     articleToRenderData,
