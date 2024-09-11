@@ -1,6 +1,12 @@
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([])
+    }, 1)
+})
+
 const { getFromIndex } = VM.require(
     'chatter.cheddar.near/widget/lib.socialDbIndex'
-) || { getFromIndex: () => {} }
+) || { getFromIndex: () => promise }
 const { generateMetadata, updateMetadata, buildDeleteMetadata } = VM.require(
     'chatter.cheddar.near/widget/lib.metadata'
 ) || {
@@ -82,7 +88,7 @@ const versions = {
     },
 }
 
-function getUpVotesData(action, id) {
+async function getUpVotesData(action, id) {
     return getFromIndex(action, id)
 }
 
@@ -106,7 +112,7 @@ function getLatestEdits(upVotes) {
 }
 
 function filterInvalidUpVotes(upVotes) {
-    return upVotes
+    return (upVotes ?? [])
         .filter((upVote) => upVote.value.metadata.id) // Has id
         .filter(
             (upVote) =>
@@ -127,7 +133,7 @@ function isActive(upVote) {
     return upVote.value.metadata && !upVote.value.metadata.isDelete
 }
 
-function getUpVotes(config, articleId) {
+async function getUpVotes(config, articleId) {
     setConfig(config)
     const upVotesByVersionPromise = Object.keys(versions).map(
         (version, versionIndex, arr) => {

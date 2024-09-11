@@ -1,6 +1,12 @@
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([])
+    }, 1)
+})
+
 const { getFromIndex } = VM.require(
     'chatter.cheddar.near/widget/lib.socialDbIndex'
-) || { getFromIndex: () => {} }
+) || { getFromIndex: () => promise }
 const { normalize, normalizeId } = VM.require(
     'chatter.cheddar.near/widget/lib.normalization'
 ) || { normalize: () => {}, normalizeId: () => {} }
@@ -125,7 +131,7 @@ function getCommentBlackListByBlockHeight() {
 }
 
 function filterInvalidComments(comments) {
-    return comments
+    return (comments ?? [])
         .filter(
             (comment) =>
                 comment.blockHeight &&
@@ -162,7 +168,7 @@ function getUserNameFromCommentId(commentId) {
 }
 
 function processComments(comments) {
-    const lastEditionComments = comments.filter((comment) => {
+    const lastEditionComments = (comments ?? []).filter((comment) => {
         const firstCommentWithThisCommentId = comments.find((compComment) => {
             return compComment.value.metadata.id === comment.value.metadata.id
         })
@@ -179,12 +185,14 @@ function processComments(comments) {
 
     const lastEditionCommentsWithEditionMark =
         lastEditionCommentsWithoutDeletedOnes.map((comment) => {
-            const commentsWithThisCommentId = comments.filter((compComment) => {
-                return (
-                    comment.value.metadata.id ===
-                    compComment.value.metadata.commentId
-                )
-            })
+            const commentsWithThisCommentId = (comments ?? []).filter(
+                (compComment) => {
+                    return (
+                        comment.value.metadata.id ===
+                        compComment.value.metadata.commentId
+                    )
+                }
+            )
 
             if (commentsWithThisCommentId.length > 1) {
                 comment.value.metadata.isEdition = true

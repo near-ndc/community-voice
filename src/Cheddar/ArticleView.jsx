@@ -1,16 +1,23 @@
 // Cheddar.ArticleView
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([])
+    }, 1)
+})
 const { getComments } = VM.require(
     'chatter.cheddar.near/widget/lib.comment'
-) || { getComments: () => {} }
+) || {
+    getComments: () => promise,
+}
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
 ) || { getConfig: () => {} }
 const { getUpVotes } = VM.require(
     'chatter.cheddar.near/widget/lib.upVotes'
-) || { getUpVotes: () => {} }
+) || { getUpVotes: () => promise }
 const { getArticlesVersions } = VM.require(
     'chatter.cheddar.near/widget/lib.article'
-) || { getArticlesVersions: () => {} }
+) || { getArticlesVersions: () => promise }
 
 const { HumanityWrapperButton, isHuman } = VM.require(
     'chatter.cheddar.near/widget/lib.nadaBot'
@@ -106,12 +113,7 @@ function loadUpVotes() {
     })
 }
 
-useEffect(() => {
-    loadUpVotes()
-    setInterval(() => {
-        loadUpVotes()
-    }, 30000)
-}, [])
+loadUpVotes()
 
 const timeLastEdit = new Date(
     articleToRenderData.value.metadata.lastEditTimestamp
@@ -265,7 +267,6 @@ const BodyContainer = styled.div`
     border-radius: 8px;
     margin: 10px 0;
     background: #f8f8f9;
-    padding: 20px;
 `
 
 const PlatformCard = styled.div`
@@ -468,7 +469,6 @@ const DeclarationCard = styled.div`
 
 const CommentSection = styled.div`
     display: flex;
-    padding: 20px;
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
@@ -523,6 +523,10 @@ const CallLibrary = styled.div`
 const HeaderButtonsContainer = styled.div`
     display: flex;
     justify-content: flex-end;
+    @media only screen and (max-width: 768px) {
+        justify-content: flex-start;
+    }
+
     gap: 0.5rem;
 `
 
@@ -645,7 +649,7 @@ return (
                         }}
                     >
                         <div className="w-100 p-3 d-flex flex-wrap justify-content-between align-items-start">
-                            <div className="d-flex flex-column w-75">
+                            <div className="d-flex flex-column flex-1">
                                 <Widget
                                     src={
                                         widgets.views.standardWidgets
@@ -895,57 +899,61 @@ return (
                         </PlatformCard>
                     </BodyContainer>
                     <CommentSection>
-                        <NominationTitle>
-                            <span>
-                                <i className="bi bi-chat-square-dots-fill" />{' '}
-                                Comments
-                            </span>
-                        </NominationTitle>
+                        <div className="d-flex flex-wrap justify-content-between align-items-center w-100">
+                            <NominationTitle>
+                                <span>
+                                    <i className="bi bi-chat-square-dots-fill" />{' '}
+                                    Comments
+                                </span>
+                            </NominationTitle>
 
-                        {state.showModal && (
-                            <Widget
-                                src={widgets.views.editableWidgets.addComment}
-                                props={{
-                                    article: articleToRenderData,
-                                    widgets,
-                                    isTest,
-                                    isReplying: false,
-                                    username: accountId,
-                                    onCloseModal: () =>
-                                        State.update({ showModal: false }),
-                                    baseActions,
-                                    loadComments,
-                                    setLoadingComments,
-                                }}
-                            />
-                        )}
-                        <HumanityWrapperButton
-                            style={{ all: 'unset' }}
-                            accountId={context.accountId}
-                        >
-                            <Widget
-                                src={
-                                    widgets.views.standardWidgets
-                                        .newStyledComponents.Input.Button
-                                }
-                                props={{
-                                    children: (
-                                        <div className="d-flex align-items-center justify-content-cente">
-                                            <span className="mx-1">
-                                                Add comment
-                                            </span>
-                                            <i className="bi bi-plus-lg"></i>
-                                        </div>
-                                    ),
-                                    disabled: !context.accountId,
-                                    className:
-                                        'primary outline w-100 mt-4 mb-2',
-                                    onClick: () => {
-                                        State.update({ showModal: true })
-                                    },
-                                }}
-                            />
-                        </HumanityWrapperButton>
+                            {state.showModal && (
+                                <Widget
+                                    src={
+                                        widgets.views.editableWidgets.addComment
+                                    }
+                                    props={{
+                                        article: articleToRenderData,
+                                        widgets,
+                                        isTest,
+                                        isReplying: false,
+                                        username: accountId,
+                                        onCloseModal: () =>
+                                            State.update({ showModal: false }),
+                                        baseActions,
+                                        loadComments,
+                                        setLoadingComments,
+                                    }}
+                                />
+                            )}
+                            <HumanityWrapperButton
+                                style={{ all: 'unset' }}
+                                accountId={context.accountId}
+                            >
+                                <Widget
+                                    src={
+                                        widgets.views.standardWidgets
+                                            .newStyledComponents.Input.Button
+                                    }
+                                    props={{
+                                        children: (
+                                            <div className="d-flex align-items-center justify-content-cente">
+                                                <span className="mx-1">
+                                                    Add comment
+                                                </span>
+                                                <i className="bi bi-plus-lg"></i>
+                                            </div>
+                                        ),
+                                        disabled: !context.accountId,
+                                        className:
+                                            'primary outline w-100 mt-4 mb-2',
+                                        onClick: () => {
+                                            State.update({ showModal: true })
+                                        },
+                                    }}
+                                />
+                            </HumanityWrapperButton>
+                        </div>
                         {loadingComments ? (
                             <Widget
                                 src={

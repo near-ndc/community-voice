@@ -1,7 +1,11 @@
 // Cheddar.GeneralCard
-const { getUpVotes } = VM.require(
-    'chatter.cheddar.near/widget/lib.upVotes'
-) || { getUpVotes: () => {} }
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([])
+    }, 1)
+})
+
+const { getUpVotes } = VM.require('chatter.cheddar.near/widget/lib.upVotes')
 const { getConfig } = VM.require(
     'chatter.cheddar.near/widget/config.CommunityVoice'
 ) || { getConfig: () => {} }
@@ -12,6 +16,9 @@ const { HumanityWrapperButton, isHuman } = VM.require(
 
 //===============================================INITIALIZATION=====================================================
 
+if (typeof getUpVotes !== 'function') {
+    return <></>
+}
 const {
     widgets,
     isTest,
@@ -56,12 +63,7 @@ function loadUpVotes() {
     })
 }
 
-useEffect(() => {
-    loadUpVotes()
-    setInterval(() => {
-        loadUpVotes()
-    }, 30000)
-}, [])
+loadUpVotes()
 
 function stateUpdate(obj) {
     State.update(obj)
@@ -119,7 +121,6 @@ const Card = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 16px;
     gap: 16px;
     background: rgba(140, 149, 159, 0.1) 0px 4px 28px 0px;
     border-radius: 10px;
@@ -427,12 +428,8 @@ const renderArticleBody = () => {
 //===================================================RENDER========================================================
 
 return (
-    <CardContainer
-        className={`bg-white rounded-3 p-3 m-3 ${
-            isPreview ? '' : 'col-lg-8 col-md-8 col-sm-12'
-        }`}
-    >
-        <Card>
+    <CardContainer className={`bg-white rounded-3 my-2`}>
+        <Card className="p-3">
             {state.showModal && (
                 <Widget
                     src={widgets.views.editableWidgets.addComment}
@@ -448,14 +445,20 @@ return (
                     }}
                 />
             )}
-            <HeaderCard className="d-flex justify-content-between pb-1 border-bottom border-dark">
+            <HeaderCard className="d-flex justify-content-between pb-1 border-bottom border-dark flex-wrap">
                 <div className="d-flex align-items-center gap-2">
-                    <Widget
-                        src={
-                            widgets.views.standardWidgets.profileOverlayTrigger
-                        }
-                        props={{ accountId, children: inner }}
-                    />
+                    <div
+                        className="text-truncate"
+                        style={{ maxWidth: '300px' }}
+                    >
+                        <Widget
+                            src={
+                                widgets.views.standardWidgets
+                                    .profileOverlayTrigger
+                            }
+                            props={{ accountId, children: inner }}
+                        />
+                    </div>
                     {
                         //   <HeaderContent>
                         //   <HeaderContentText

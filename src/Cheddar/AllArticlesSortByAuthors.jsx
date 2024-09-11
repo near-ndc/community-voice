@@ -26,10 +26,10 @@ authors.map((author) => {
 })
 
 return (
-    <div className="container-fluid">
+    <div className="container-fluid m-0">
         <h6>Total authors: {articlesByAuthorsArray.length}</h6>
 
-        <div className="row card-group py-3">
+        <div className="row card-group">
             {articlesByAuthorsArray &&
                 articlesByAuthorsArray.map((authorArticlesArray) => {
                     const filter = {

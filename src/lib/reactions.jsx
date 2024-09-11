@@ -93,7 +93,7 @@ function getReactionBlackListByBlockHeight() {
 }
 
 function filterInvalidReactions(reactions) {
-    return reactions
+    return (reactions ?? [])
         .filter(
             (reaction) =>
                 reaction.value.reactionId || reaction.value.metadata.id
@@ -117,7 +117,7 @@ function normalizeReaction(reaction, versionsIndex, elementReactedId) {
 }
 
 function getLatestEdits(reactions) {
-    return reactions.filter((obj) => {
+    return (reactions ?? []).filter((obj) => {
         const userLatestInteraction = reactions.find(
             (reaction) => reaction.accountId === obj.accountId
         )

@@ -161,7 +161,6 @@ function switchShowPreview() {
 }
 
 const GeneralContainer = styled.div`
-    background-color: rgb(248, 248, 249);
     margin: 0;
 `
 
@@ -217,12 +216,12 @@ const SpinnerContainer = styled.div`
 
 const Spinner = () => {
     return (
-        <SpinnerContainer
-            className="spinner-border text-secondary"
-            role="status"
-        >
-            <span className="sr-only" title="Loading..."></span>
-        </SpinnerContainer>
+        <Widget
+            src={
+                widgets.views.standardWidgets.newStyledComponents.Feedback
+                    .Spinner
+            }
+        />
     )
 }
 

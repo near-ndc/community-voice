@@ -17,7 +17,15 @@ if (!state.selectedBlockHeight && versions.length > 0)
     state.selectedBlockHeight = versions[0].blockHeight
 
 const renderBlockChangesLink = (version) => {
-    if (!version) return <>Loading...</>
+    if (!version)
+        return (
+            <Widget
+                src={
+                    widgets.views.standardWidgets.newStyledComponents.Feedback
+                        .Spinner
+                }
+            />
+        )
 
     const timeLastEdit = new Date(version.value.metadata.lastEditTimestamp)
 

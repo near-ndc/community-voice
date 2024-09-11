@@ -53,12 +53,12 @@ function getArticleData() {
 
 const Spinner = () => {
     return (
-        <SpinnerContainer
-            className="spinner-border text-secondary"
-            role="status"
-        >
-            <span className="sr-only" title="Loading..."></span>
-        </SpinnerContainer>
+        <Widget
+            src={
+                widgets.views.standardWidgets.newStyledComponents.Feedback
+                    .Spinner
+            }
+        />
     )
 }
 

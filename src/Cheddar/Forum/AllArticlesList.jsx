@@ -84,7 +84,7 @@ const AcordionContainer = styled.div`
 `
 
 const NoMargin = styled.div`
-    margin: 0 0.75rem;
+    margin: 0 0rem;
 `
 
 const AccordionBody = styled.div`
@@ -92,7 +92,6 @@ const AccordionBody = styled.div`
 `
 
 const ArticlesListContainer = styled.div`
-    background-color: rgb(248, 248, 249);
     margin: 0;
 `
 
@@ -107,7 +106,7 @@ const IconCursorPointer = styled.i`
 const ShareSearchRow = styled.div`
     display: flex;
     justify-content: flex-start;
-    align-content: center;
+    align-items: center;
     margin-bottom: 1rem;
     margin-top: 1rem;
 `
@@ -189,18 +188,21 @@ return (
                 </NoMargin>
             </AcordionContainer>
         </>
-        <Widget
-            src={widgets.views.standardWidgets.styledComponents}
-            props={{
-                Input: {
-                    label: 'Search',
-                    value: searchInputValue,
-                    type: 'text',
-                    placeholder: 'You can search by title, content or author',
-                    handleChange: handleSearch,
-                },
-            }}
-        />
+        <div className="mt-2">
+            <Widget
+                src={widgets.views.standardWidgets.styledComponents}
+                props={{
+                    Input: {
+                        label: 'Search',
+                        value: searchInputValue,
+                        type: 'text',
+                        placeholder:
+                            'You can search by title, content or author',
+                        handleChange: handleSearch,
+                    },
+                }}
+            />
+        </div>
         {searchInputValue &&
             searchInputValue !== '' &&
             sortedArticlesToRender.length > 0 && (
@@ -251,7 +253,7 @@ return (
                     </div>
                 </div>
             )}
-            <ArticlesListContainer className="row card-group py-3">
+            <ArticlesListContainer className="row card-group">
                 {sortedArticlesToRender.length > 0 ? (
                     sortedArticlesToRender.map((article, i) => {
                         const authorProfileCall = Social.getr(

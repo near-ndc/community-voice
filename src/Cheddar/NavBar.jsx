@@ -199,7 +199,7 @@ return (
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <div
-                    className="collapse navbar-collapse justify-content-center"
+                    className="collapse navbar-collapse justify-content-end"
                     id="navbarNav"
                 >
                     <ul className="navbar-nav">
