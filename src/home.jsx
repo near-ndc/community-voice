@@ -67,7 +67,7 @@ const widgets = {
         },
         standardWidgets: {
             fasterTextInput: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/fasterTextInput`,
-            markownEditorIframe: `f2bc8abdb8ba64fe5aac9689ded9491ff0e6fdcd7a5c680b7cf364142d1789fb/widget/MarkdownEditorIframe`,
+            markownEditorIframe: `devhub.near/widget/devhub.components.molecule.Compose`,
             styledComponents: 'rubycop.near/widget/NDC.StyledComponents',
             newStyledComponents: {
                 Element: {

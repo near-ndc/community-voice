@@ -204,10 +204,6 @@ const SecondContainer = styled.div`
     padding: 1rem;
 `
 
-const BoxShadow = styled.div`
-    box-shadow: rgba(140, 149, 159, 0.1) 0px 4px 28px 0px;
-`
-
 const SpinnerContainer = styled.div`
     height: 1rem;
     width: 1rem;
@@ -245,177 +241,174 @@ if (state.saving) {
 
 return (
     <div>
-        <GeneralContainer className="pt-2 row card-group">
-            <BoxShadow className="rounded-3 p-3 m-3 bg-white col-lg-8 col-md-8 col-sm-12">
-                <div>
-                    <SecondContainer className="rounded">
-                        {state.showPreview ? (
-                            <Widget
-                                src={widgets.views.editableWidgets.generalCard}
-                                props={{
-                                    widgets,
-                                    isTest,
-                                    data: {
-                                        blockHeight: -1,
-                                        accountId,
-                                        value: {
-                                            ...buildArticle(
-                                                {
-                                                    title: state.title,
-                                                    body: state.articleBody,
-                                                    tags: tagsArray,
-                                                },
-                                                {
-                                                    author: accountId,
-                                                }
-                                            ),
-                                        },
-                                    },
-                                    addressForArticles,
-                                    handleOpenArticle: () => {},
-                                    handleFilterArticles: () => {},
-                                    authorForWidget,
-                                    handleShareButton: () => {},
-                                    baseActions,
-                                    switchShowPreview,
-                                    isPreview: state.showPreview,
-                                }}
-                            />
-                        ) : (
-                            <div>
-                                <div className="d-flex flex-column pt-3">
-                                    <label
-                                        for="inputArticleId"
-                                        className="small text-danger"
-                                    >
-                                        {state.errorId}
-                                    </label>
-                                    <Widget
-                                        src={
-                                            widgets.views.standardWidgets
-                                                .fasterTextInput
-                                        }
-                                        props={{
-                                            firstText: state.title,
-                                            forceClear: state.clearArticleId,
-                                            stateUpdate: (obj) =>
-                                                State.update(obj),
-                                            filterText: (e) => e.target.value,
-                                            placeholder:
-                                                'Post title (case-sensitive)',
-                                            editable: editArticleData,
-                                        }}
-                                    />
-                                </div>
-                                <div className="d-flex flex-column pt-3">
-                                    <label
-                                        for="textareaArticleBody"
-                                        className="small text-danger"
-                                    >
-                                        {state.errorBody}
-                                    </label>
-                                    <div className="d-flex gap-2">
-                                        <Widget
-                                            src={
-                                                widgets.views.standardWidgets
-                                                    .markownEditorIframe
-                                            }
-                                            props={{
-                                                initialText:
-                                                    getInitialMarkdownBody(),
-                                                onChange: (articleBody) =>
-                                                    State.update({
-                                                        articleBody,
-                                                        clearArticleBody: false,
-                                                    }),
-                                                clearArticleBody:
-                                                    state.clearArticleBody,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="d-flex flex-column pt-3">
-                                    <Widget
-                                        src={
-                                            widgets.views.editableWidgets
-                                                .tagsEditor
-                                        }
-                                        props={{
-                                            forceClear: state.clearTags,
-                                            stateUpdate: (obj) =>
-                                                State.update(obj),
-                                            initialTagsObject,
-                                            placeholder: 'Input tags',
-                                            setTagsObject: (tags) => {
-                                                // state.tags = Object.keys(tags);
-                                                State.update({
-                                                    tagsModified: true,
-                                                    tags: Object.keys(tags),
-                                                })
+        <GeneralContainer className="row card-group">
+            <div>
+                <SecondContainer className="card-body rounded">
+                    {state.showPreview ? (
+                        <Widget
+                            src={widgets.views.editableWidgets.generalCard}
+                            props={{
+                                widgets,
+                                isTest,
+                                data: {
+                                    blockHeight: -1,
+                                    accountId,
+                                    value: {
+                                        ...buildArticle(
+                                            {
+                                                title: state.title,
+                                                body: state.articleBody,
+                                                tags: tagsArray,
                                             },
-                                        }}
-                                    />
-                                </div>
+                                            {
+                                                author: accountId,
+                                            }
+                                        ),
+                                    },
+                                },
+                                addressForArticles,
+                                handleOpenArticle: () => {},
+                                handleFilterArticles: () => {},
+                                authorForWidget,
+                                handleShareButton: () => {},
+                                baseActions,
+                                switchShowPreview,
+                                isPreview: state.showPreview,
+                            }}
+                        />
+                    ) : (
+                        <div>
+                            <div className="d-flex flex-column pt-3">
+                                <label
+                                    for="inputArticleId"
+                                    className="small text-danger"
+                                >
+                                    {state.errorId}
+                                </label>
+                                <Widget
+                                    src={
+                                        widgets.views.standardWidgets
+                                            .fasterTextInput
+                                    }
+                                    props={{
+                                        firstText: state.title,
+                                        forceClear: state.clearArticleId,
+                                        stateUpdate: (obj) => State.update(obj),
+                                        filterText: (e) => e.target.value,
+                                        placeholder:
+                                            'Post title (case-sensitive)',
+                                        editable: editArticleData,
+                                    }}
+                                />
                             </div>
-                        )}
-                        <div className="mt-2 d-flex justify-content-end">
-                            <Widget
-                                src={
-                                    widgets.views.standardWidgets
-                                        .newStyledComponents.Input.Button
-                                }
-                                props={{
-                                    className: 'primary outline mx-2',
-                                    disabled:
-                                        state.title.length === 0 ||
-                                        state.articleBody.length === 0,
-                                    onClick: switchShowPreview,
-                                    children: (
-                                        <i
-                                            className={`bi ${
-                                                state.showPreview
-                                                    ? 'bi-pencil'
-                                                    : 'bi-eye-fill'
-                                            }`}
-                                        ></i>
-                                    ),
-                                }}
-                            />
-                            <Widget
-                                src={
-                                    widgets.views.standardWidgets
-                                        .newStyledComponents.Input.Button
-                                }
-                                props={{
-                                    className: 'primary ',
-                                    disabled:
-                                        state.title.length === 0 ||
-                                        state.articleBody.length === 0,
-                                    onClick: editArticleData
-                                        ? handleEdit
-                                        : handleCreate,
-                                    children: (
-                                        <div className="d-flex justify-conten-center align-items-center">
-                                            {state.saving ? (
-                                                <Spinner />
-                                            ) : (
-                                                <>
-                                                    <span>
-                                                        {editArticleData
-                                                            ? 'Save edition'
-                                                            : 'Post'}
-                                                    </span>
-                                                    <i className="bi bi-check2"></i>
-                                                </>
-                                            )}
-                                        </div>
-                                    ),
-                                }}
-                            />
+                            <div className="d-flex flex-column pt-3">
+                                <label
+                                    for="textareaArticleBody"
+                                    className="small text-danger"
+                                >
+                                    {state.errorBody}
+                                </label>
+
+                                <Widget
+                                    src={
+                                        widgets.views.standardWidgets
+                                            .markownEditorIframe
+                                    }
+                                    props={{
+                                        data: getInitialMarkdownBody(),
+                                        onChange: setContent,
+                                        height: '250',
+
+                                        onChange: (articleBody) =>
+                                            State.update({
+                                                articleBody,
+                                                clearArticleBody: false,
+                                            }),
+                                        clearArticleBody:
+                                            state.clearArticleBody,
+                                    }}
+                                />
+                            </div>
+
+                            <div className="d-flex flex-column pt-3">
+                                <Widget
+                                    src={
+                                        widgets.views.editableWidgets.tagsEditor
+                                    }
+                                    props={{
+                                        forceClear: state.clearTags,
+                                        stateUpdate: (obj) => State.update(obj),
+                                        initialTagsObject,
+                                        placeholder: 'Input tags',
+                                        setTagsObject: (tags) => {
+                                            // state.tags = Object.keys(tags);
+                                            State.update({
+                                                tagsModified: true,
+                                                tags: Object.keys(tags),
+                                            })
+                                        },
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </SecondContainer>
-                </div>
-            </BoxShadow>
+                    )}
+                    <div className="mt-2 d-flex justify-content-end">
+                        <Widget
+                            src={
+                                widgets.views.standardWidgets
+                                    .newStyledComponents.Input.Button
+                            }
+                            props={{
+                                className: 'primary outline mx-2',
+                                disabled:
+                                    state.title.length === 0 ||
+                                    state.articleBody.length === 0,
+                                onClick: switchShowPreview,
+                                children: (
+                                    <i
+                                        className={`bi ${
+                                            state.showPreview
+                                                ? 'bi-pencil'
+                                                : 'bi-eye-fill'
+                                        }`}
+                                    ></i>
+                                ),
+                            }}
+                        />
+                        <Widget
+                            src={
+                                widgets.views.standardWidgets
+                                    .newStyledComponents.Input.Button
+                            }
+                            props={{
+                                className: 'primary ',
+                                disabled:
+                                    state.title.length === 0 ||
+                                    state.articleBody.length === 0,
+                                onClick: editArticleData
+                                    ? handleEdit
+                                    : handleCreate,
+                                children: (
+                                    <div className="d-flex justify-conten-center align-items-center">
+                                        {state.saving ? (
+                                            <Spinner />
+                                        ) : (
+                                            <>
+                                                <span>
+                                                    {editArticleData
+                                                        ? 'Save edition'
+                                                        : 'Post'}
+                                                </span>
+                                                <i className="bi bi-check2"></i>
+                                            </>
+                                        )}
+                                    </div>
+                                ),
+                            }}
+                        />
+                    </div>
+                </SecondContainer>
+            </div>
         </GeneralContainer>
     </div>
 )
