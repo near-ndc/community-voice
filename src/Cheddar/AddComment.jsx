@@ -461,7 +461,7 @@ return (
                     <Widget
                         src={widgets.views.standardWidgets.markownEditorIframe}
                         props={{
-                            data: getInitialText(),
+                            data: { handler: '', content: getInitialText() },
                             height: '250',
                             onChange: (e) =>
                                 State.update({

@@ -315,10 +315,11 @@ return (
                                             .markownEditorIframe
                                     }
                                     props={{
-                                        data: getInitialMarkdownBody(),
-                                        onChange: setContent,
+                                        data: {
+                                            handler: '',
+                                            content: getInitialMarkdownBody(),
+                                        },
                                         height: '250',
-
                                         onChange: (articleBody) =>
                                             State.update({
                                                 articleBody,
