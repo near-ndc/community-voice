@@ -1,6 +1,9 @@
-const { getArticles, createArticle, editArticle, deleteArticle } = VM.require("communityvoice.ndctools.near/widget/lib.article")
-const { getConfig } = VM.require("communityvoice.ndctools.near/widget/config.CommunityVoice")
-
+const { getArticles, createArticle, editArticle, deleteArticle } = VM.require(
+    'chatter.cheddar.near/widget/lib.article'
+)
+const { getConfig } = VM.require(
+    'chatter.cheddar.near/widget/config.CommunityVoice'
+)
 
 const [articles, setArticles] = useState([])
 const [errors, setErrors] = useState([])
@@ -10,15 +13,19 @@ const isTest = !!props.isTest
 const config = getConfig(isTest)
 
 function onCommit() {
-    console.log("Executing on commit")
+    console.log('Executing on commit')
 }
 
 function onCancel() {
-    console.log("Executing on cancel")
+    console.log('Executing on cancel')
 }
 
 function loadArticles() {
-    const userFilters = {id: "article/rodrigos.near/1710843635815", authors: ["rodrigos.near"], tags: ["tag1"]}
+    const userFilters = {
+        id: 'article/rodrigos.near/1710843635815',
+        authors: ['rodrigos.near'],
+        tags: ['tag1'],
+    }
     getArticles(config, userFilters).then((newArticles) => {
         setArticles(newArticles)
     })
@@ -27,7 +34,7 @@ function loadArticles() {
 useEffect(() => {
     loadArticles()
     setInterval(() => {
-        console.log("Loading articles interval", Date.now() / 1000)
+        console.log('Loading articles interval', Date.now() / 1000)
         loadArticles()
     }, 15000)
 }, [])
@@ -35,33 +42,45 @@ useEffect(() => {
 function failNewArticle() {
     const failedArticleData = {
         title: undefined,
-        body: "Test",
-        tags: [],   
+        body: 'Test',
+        tags: [],
     }
 
     const metadataHelper = {
         author: context.accountId,
     }
 
-    const result = createArticle(config, failedArticleData, metadataHelper, onCommit, onCancel)
-    if(result.error) {
+    const result = createArticle(
+        config,
+        failedArticleData,
+        metadataHelper,
+        onCommit,
+        onCancel
+    )
+    if (result.error) {
         setErrors(result.data)
     }
 }
 
 function newArticle() {
     const articleData = {
-        title: "Test title",
-        body: "Test body",
-        tags: ["hello"],   
+        title: 'Test title',
+        body: 'Test body',
+        tags: ['hello'],
     }
 
     const metadataHelper = {
         author: context.accountId,
     }
 
-    const result = createArticle(config, articleData, metadataHelper, onCommit, onCancel)
-    if(result.error) {
+    const result = createArticle(
+        config,
+        articleData,
+        metadataHelper,
+        onCommit,
+        onCancel
+    )
+    if (result.error) {
         setErrors(result.data)
     }
 }
@@ -69,37 +88,53 @@ function newArticle() {
 function modifyArticle(article) {
     const articleData = article.value.articleData
     const metadata = article.value.metadata
-    articleData.body = "This is a test editing an article"
-    const result = editArticle(config, articleData, metadata, onCommit, onCancel)
-    if(result.error) {
+    articleData.body = 'This is a test editing an article'
+    const result = editArticle(
+        config,
+        articleData,
+        metadata,
+        onCommit,
+        onCancel
+    )
+    if (result.error) {
         setErrors(result.data)
     }
 }
 
 function removeArticle(article) {
-    console.log("Removing article", article.value.metadata.id)
+    console.log('Removing article', article.value.metadata.id)
     deleteArticle(config, article.value.metadata.id, onCommit, onCancel)
 }
 
-return <>
-    <div>
-    {errors && errors.length ? errors.map((err, index) => {
-        return <div key={index}>{err}</div>
-    }) : "No error"}
-    </div>
-    <div>Articles: {articles.length}</div>
-    <button onClick={failNewArticle}>Test fail new article</button>
-    <button onClick={newArticle}>Test new article</button>
-    <button onClick={() => modifyArticle(articles[0])}>Test edit article</button>
-    <button onClick={() => removeArticle(articles[0])}>Test remove article</button>
-    { articles.length && <div>
-        {articles.map((article, index) => 
-        {
-            return (<div key={index}>
-                    {index + 1})
-                    {JSON.stringify(article, null, 2)}
-                    <br/>
-            </div>) 
-        })}
-    </div>}
-</>
+return (
+    <>
+        <div>
+            {errors && errors.length
+                ? errors.map((err, index) => {
+                      return <div key={index}>{err}</div>
+                  })
+                : 'No error'}
+        </div>
+        <div>Articles: {articles.length}</div>
+        <button onClick={failNewArticle}>Test fail new article</button>
+        <button onClick={newArticle}>Test new article</button>
+        <button onClick={() => modifyArticle(articles[0])}>
+            Test edit article
+        </button>
+        <button onClick={() => removeArticle(articles[0])}>
+            Test remove article
+        </button>
+        {articles.length && (
+            <div>
+                {articles.map((article, index) => {
+                    return (
+                        <div key={index}>
+                            {index + 1}){JSON.stringify(article, null, 2)}
+                            <br />
+                        </div>
+                    )
+                })}
+            </div>
+        )}
+    </>
+)

@@ -1,19 +1,20 @@
-function getConfig(isTest,networkId) {
-    const componentsOwner = "communityvoice.ndctools.near";
-    const authorForWidget = "communityvoice.ndctools.near";
-    const configWidget = "home";
+function getConfig(isTest, networkId) {
+    const componentsOwner = 'chatter.cheddar.near'
+    const authorForWidget = 'chatter.cheddar.near'
+    const configWidget = 'home'
+
     return {
         isTest,
         networkId,
         baseActions: {
-            article: "communityVoiceArticle",
-            upVote: "communityVoiceUpVote",
-            reaction: "communityVoiceReaction",
-            comment: "communityVoiceComment",
+            article: 'cheddarChatterArticle',
+            upVote: 'cheddarChatterUpVote',
+            reaction: 'cheddarChatterReaction',
+            comment: 'cheddarChatterComment',
         },
         componentsOwner,
         authorForWidget,
-        forumURL: `${authorForWidget}/widget/${configWidget}`
+        forumURL: `${authorForWidget}/widget/${configWidget}`,
     }
 }
 

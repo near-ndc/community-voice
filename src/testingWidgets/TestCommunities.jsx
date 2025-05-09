@@ -1,5 +1,11 @@
-const { setIsTest, createCommunity, getCommunities, editCommunity, deleteCommunity } = VM.require("communityvoice.ndctools.near/widget/lib.Communities")
-const { parseError } = VM.require("communityvoice.ndctools.near/widget/lib.errorParser")
+const {
+    setIsTest,
+    createCommunity,
+    getCommunities,
+    editCommunity,
+    deleteCommunity,
+} = VM.require('chatter.cheddar.near/widget/lib.Communities')
+const { parseError } = VM.require('chatter.cheddar.near/widget/lib.errorParser')
 
 const [communities, setCommunities] = useState([])
 const [errors, setErrors] = useState([])
@@ -8,11 +14,11 @@ const [errors, setErrors] = useState([])
 setIsTest(true)
 
 function onCommit() {
-    console.log("On commit executed")
+    console.log('On commit executed')
 }
 
 function onCancel() {
-    console.log("On cancel executed")
+    console.log('On cancel executed')
 }
 
 function loadCommunities() {
@@ -27,40 +33,45 @@ useEffect(() => {
         loadCommunities()
     }, 200)
     setInterval(() => {
-        console.log("Loading communities interval", Date.now() / 1000)
+        console.log('Loading communities interval', Date.now() / 1000)
         loadCommunities()
     }, 30000)
 }, [])
 
 function failNewCommunity() {
     const community = {
-        name: "", // Should not be empty or undefined
-        description: "Description", // Should not be empty or undefined
+        name: '', // Should not be empty or undefined
+        description: 'Description', // Should not be empty or undefined
         type: 0, // Should not be between 0 and 2
-        backgroundImage: "https://www.google.com", // Should not be empty or undefined and should be a valid url
-        profileImage: "https://www.google.com", // Should not be empty or undefined and should be a valid url
+        backgroundImage: 'https://www.google.com', // Should not be empty or undefined and should be a valid url
+        profileImage: 'https://www.google.com', // Should not be empty or undefined and should be a valid url
     }
 
     // const res = createCommunity(community, context.accountId, onCommit, onCancel) // User must be logged in and parameter should be passed
     const res = createCommunity(community, undefined, onCommit, onCancel)
     if (res.error) {
-        console.log("Data", res.data)
+        console.log('Data', res.data)
         setErrors(res.data)
     }
 }
 
 function newCommunity() {
     const community = {
-        name: "Hello",
-        description: "Description",
+        name: 'Hello',
+        description: 'Description',
         type: 0,
-        backgroundImage: "https://www.google.com",
-        profileImage: "https://www.google.com",
+        backgroundImage: 'https://www.google.com',
+        profileImage: 'https://www.google.com',
     }
 
-    const res = createCommunity(community, context.accountId, onCommit, onCancel)
+    const res = createCommunity(
+        community,
+        context.accountId,
+        onCommit,
+        onCancel
+    )
     if (res.error) {
-        console.log("Data", res.data)
+        console.log('Data', res.data)
         setErrors(res.data)
     }
 }
@@ -68,51 +79,62 @@ function newCommunity() {
 function modifyCommunity(communityIndex) {
     const community = {
         ...communityIndex.value.communityData,
-        name: communityIndex.value.communityData.name + " Edited"
+        name: communityIndex.value.communityData.name + ' Edited',
     }
 
     communityIndex.value.communityData = community
 
     const res = editCommunity(communityIndex, onCommit, onCancel)
     if (res.error) {
-        console.log("Data", res.data)
+        console.log('Data', res.data)
         setErrors(res.data)
     }
 }
 
 function removeCommunity() {
     const community = {
-        id: "kenrou-it.testnet-1708116044393",
-        name: "Hello edited again",
-        description: "Description edited again",
+        id: 'kenrou-it.testnet-1708116044393',
+        name: 'Hello edited again',
+        description: 'Description edited again',
         type: 1,
-        backgroundImage: "https://www.google.com.ar",
-        profileImage: "https://www.google.com.ar",
+        backgroundImage: 'https://www.google.com.ar',
+        profileImage: 'https://www.google.com.ar',
     }
 
     const res = deleteCommunity(community, onCommit, onCancel)
-    console.log("Community removed")
+    console.log('Community removed')
     if (res.error) {
-        console.log("Data", res.data)
+        console.log('Data', res.data)
         setErrors(res.data)
     }
 }
 
-return <>
-    <div>
-    {errors && errors.length ? errors.map((err, index) => {
-        return <div key={index}>{err}</div>
-    }) : "No error"}
-    </div>
-    <div>Communities: {communities.length}</div>
-    <button onClick={failNewCommunity}>Test fail new community</button>
-    <button onClick={newCommunity}>Test new community</button>
-    <button onClick={() => modifyCommunity(communities[0])}>Test edit community</button>
-    <button onClick={removeCommunity}>Test remove community</button>
-    { communities && communities.length && <div>
-        {communities.map((community, index) => 
-        {
-            return (<div key={index}>{JSON.stringify(community, null, "\n\t")}</div>)
-        })}
-    </div>}
-</>
+return (
+    <>
+        <div>
+            {errors && errors.length
+                ? errors.map((err, index) => {
+                      return <div key={index}>{err}</div>
+                  })
+                : 'No error'}
+        </div>
+        <div>Communities: {communities.length}</div>
+        <button onClick={failNewCommunity}>Test fail new community</button>
+        <button onClick={newCommunity}>Test new community</button>
+        <button onClick={() => modifyCommunity(communities[0])}>
+            Test edit community
+        </button>
+        <button onClick={removeCommunity}>Test remove community</button>
+        {communities && communities.length && (
+            <div>
+                {communities.map((community, index) => {
+                    return (
+                        <div key={index}>
+                            {JSON.stringify(community, null, '\n\t')}
+                        </div>
+                    )
+                })}
+            </div>
+        )}
+    </>
+)
